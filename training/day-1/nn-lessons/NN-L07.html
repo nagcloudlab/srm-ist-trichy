@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L07 — ⚖️ Learn Both Weight and Bias</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L07">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L06.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L06</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L07 / 19</a><a href="NN-L08.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L08 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L07</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This is the Phase 1 finale: the neuron must learn both numbers in its rule."
+     data-ask="Which value have we kept fixed until now?"
+     data-time="1 min">
+  <div class="lesson-number">07 &bull; PHASE 1 FINALE</div>
+  <h1>Learn Weight and Bias Together</h1>
+  <p class="subtitle">A complete neuron must discover both parameters from data</p>
+  <div style="display:flex;gap:3rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <span style="font-size:3rem;font-weight:900;color:#3b6df0;">w</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">slope / tilt</div>
+    </div>
+    <div style="font-size:2.5rem;font-weight:900;color:#4a5068;">+</div>
+    <div style="text-align:center;">
+      <span style="font-size:3rem;font-weight:900;color:#8b5cf6;">b</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">shift / intercept</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div style="text-align:center;">
+      <span style="font-size:1.4rem;font-weight:700;color:#10b981;">learn together</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">from data alone</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2 ─── LEARNING OUTCOMES ─── -->
+<div class="slide"
+     data-say="Promise two gradients, simultaneous updates, and a complete training story."
+     data-ask="What might go wrong when two values change at once?"
+     data-time="1 min">
+  <h2>Coordinate two parameters without mixing their gradients</h2>
+  <p style="color:var(--text-muted);max-width:600px;">By the end, you should calculate two gradients, update them fairly, and explain their shared training path.</p>
+  <div class="three-col" style="margin-top:2rem;">
+    <div class="card accent-blue">
+      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <strong>Separate influence</strong>
+      <p>See why weight uses x and bias does not.</p>
+    </div>
+    <div class="card accent-green">
+      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
+      <strong>Update together</strong>
+      <p>Keep both gradients at the same point.</p>
+    </div>
+    <div class="card accent-purple">
+      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
+      <strong>Read the journey</strong>
+      <p>Follow compensation toward the exact rule.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── WHERE WE ARE ─── -->
+<div class="slide"
+     data-say="Connect every earlier lesson to today's two-parameter learner."
+     data-ask="Which lesson gave us the exact 2ex formula?"
+     data-time="1 min">
+  <h2>The seventh ingredient completes the learning system</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L1</div>
+      <strong>Predict</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L2</div>
+      <strong>Loss</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L3</div>
+      <strong>Direction</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L4</div>
+      <strong>Step size</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L5</div>
+      <strong>Repeat</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L6</div>
+      <strong>Exact gradient</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:120px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">L7 &bull; NOW</div>
+      <strong>Both params</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── THE REAL PROBLEM ─── -->
+<div class="slide"
+     data-say="Real problems do not reveal either weight or bias in advance."
+     data-ask="What must the data teach the neuron now?"
+     data-time="2 min">
+  <h2>This time, neither parameter is known</h2>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BEFORE (L06)</div>
+      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;">b = 5</div>
+      <p style="color:#8b90a5;margin-top:0.5rem;">fixed for us</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:200px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.75rem;">NOW (L07)</div>
+      <div style="font-size:1.5rem;font-weight:900;color:#1a1d2e;">w = ? &nbsp;&nbsp; b = ?</div>
+      <p style="color:#8b90a5;margin-top:0.5rem;">learned from data alone</p>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:2rem;">
+    <div class="formula" style="font-size:1.8rem;">&#375; = <span style="color:#3b6df0;">w</span>x + <span style="color:#8b5cf6;">b</span></div>
+    <p style="color:#8b90a5;margin-top:0.75rem;">Both highlighted values are unknown — data must teach both.</p>
+  </div>
+</div>
+
+<!-- 5 ─── DIFFERENT JOBS ─── -->
+<div class="slide"
+     data-say="A weight change depends on x; a bias change is identical for every input."
+     data-ask="Which parameter controls slope?"
+     data-time="3 min">
+  <h2>Weight tilts; bias shifts</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">INCREASE w BY 1</div>
+      <strong style="font-size:1.1rem;">prediction changes by x</strong>
+      <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#3b6df0;">
+        <span>x = 1 &rarr; &Delta;&#375; = 1</span>
+        <span>x = 2 &rarr; &Delta;&#375; = 2</span>
+        <span>x = 3 &rarr; &Delta;&#375; = 3</span>
+      </div>
+      <p style="color:#8b90a5;margin-top:1rem;font-size:0.85rem;">slope depends on the input</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">INCREASE b BY 1</div>
+      <strong style="font-size:1.1rem;">prediction changes by 1</strong>
+      <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:#8b5cf6;">
+        <span>x = 1 &rarr; &Delta;&#375; = 1</span>
+        <span>x = 2 &rarr; &Delta;&#375; = 1</span>
+        <span>x = 3 &rarr; &Delta;&#375; = 1</span>
+      </div>
+      <p style="color:#8b90a5;margin-top:1rem;font-size:0.85rem;">same shift for every input</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;font-weight:700;color:#1a1d2e;">Different effects require <strong>different gradients</strong>.</p>
+</div>
+
+<!-- 6 ─── TWO GRADIENTS ─── -->
+<div class="slide"
+     data-say="Compare the formulas and circle the only difference: x."
+     data-ask="Why does x appear only in the weight gradient?"
+     data-time="3 min">
+  <h2>Each parameter needs its own measure of influence</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WEIGHT GRADIENT</div>
+      <div class="formula" style="font-size:1.4rem;">&part;L/&part;w = mean(2ex)</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Weight is multiplied by x, so blame must include x.</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BIAS GRADIENT</div>
+      <div class="formula" style="font-size:1.4rem;">&part;L/&part;b = mean(2e)</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Bias is added directly — no x factor.</p>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#f8f9fb;border-radius:12px;display:inline-block;margin-left:auto;margin-right:auto;width:fit-content;">
+    The only formula difference is &nbsp;<strong style="color:#ef4444;font-size:1.1rem;">x</strong>.
+  </div>
+</div>
+
+<!-- 7 ─── WHY NO x? ─── -->
+<div class="slide"
+     data-say="The local derivative of prediction with respect to bias is one."
+     data-ask="If bias rises by one, how much does every prediction rise?"
+     data-time="2 min">
+  <h2>Bias touches every prediction equally</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WEIGHT'S LOCAL EFFECT</div>
+      <div class="formula">&part;&#375;/&part;w = x</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Its influence changes with the input.</p>
+    </div>
+    <div class="card accent-purple">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BIAS'S LOCAL EFFECT</div>
+      <div class="formula">&part;&#375;/&part;b = 1</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">It shifts every prediction by the same amount.</p>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem;padding:1rem;background:#f8f9fb;border-radius:12px;text-align:center;">
+    <p style="color:#1a1d2e;margin:0;">Chain rule: &part;L/&part;b = mean(2e &times; <strong>1</strong>) = mean(2e)</p>
+    <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.9rem;">The 1 disappears from the formula, but it is always there.</p>
+  </div>
+</div>
+
+<!-- 8 ─── WORKED EXAMPLE SETUP ─── -->
+<div class="slide"
+     data-say="Begin at w equals one and b equals zero so both parameters are wrong."
+     data-ask="What are the first three predictions?"
+     data-time="1 min">
+  <h2>Start with both parameters wrong</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STARTING WEIGHT</div>
+      <strong style="font-size:2rem;color:#3b6df0;">w = 1</strong>
+    </div>
+    <div style="font-size:2rem;font-weight:900;color:#4a5068;">+</div>
+    <div class="card accent-purple" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STARTING BIAS</div>
+      <strong style="font-size:2rem;color:#8b5cf6;">b = 0</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">FIRST PREDICTIONS</div>
+      <strong style="font-size:1.8rem;color:#ef4444;">1, 2, 3</strong>
+      <p style="color:#8b90a5;margin-top:0.25rem;font-size:0.85rem;">targets: 7, 9, 11</p>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <p style="color:#1a1d2e;">The true rule is <strong>&#375; = 2x + 5</strong>. Both w and b need to learn.</p>
+  </div>
+</div>
+
+<!-- 9 ─── THREE EXAMPLES / DUAL CONTRIBUTIONS ─── -->
+<div class="slide"
+     data-say="For each example, calculate error once and use it in both gradient columns."
+     data-ask="Which row exerts the largest pull on weight?"
+     data-time="4 min">
+  <h2>Each row casts two gradient votes</h2>
+  <table class="compare-table" style="margin-top:1.5rem;max-width:720px;margin-left:auto;margin-right:auto;">
+    <tr>
+      <th>x</th><th>y</th><th>&#375;</th><th>error e = &#375;&minus;y</th>
+      <th style="color:#3b6df0;">weight vote 2ex</th>
+      <th style="color:#8b5cf6;">bias vote 2e</th>
+    </tr>
+    <tr>
+      <td>1</td><td>7</td><td>1</td><td style="color:#ef4444;">&minus;6</td>
+      <td style="color:#3b6df0;font-weight:700;">&minus;12</td>
+      <td style="color:#8b5cf6;font-weight:700;">&minus;12</td>
+    </tr>
+    <tr>
+      <td>2</td><td>9</td><td>2</td><td style="color:#ef4444;">&minus;7</td>
+      <td style="color:#3b6df0;font-weight:700;">&minus;28</td>
+      <td style="color:#8b5cf6;font-weight:700;">&minus;14</td>
+    </tr>
+    <tr>
+      <td>3</td><td>11</td><td>3</td><td style="color:#ef4444;">&minus;8</td>
+      <td style="color:#3b6df0;font-weight:700;">&minus;48</td>
+      <td style="color:#8b5cf6;font-weight:700;">&minus;16</td>
+    </tr>
+  </table>
+  <p style="text-align:center;margin-top:1rem;color:#8b90a5;font-size:0.9rem;">Error e is the same in both columns; only x amplifies the weight vote.</p>
+</div>
+
+<!-- 10 ─── WEIGHT GRADIENT ─── -->
+<div class="slide"
+     data-say="Average minus 12, minus 28, and minus 48 to get minus 29.33."
+     data-ask="What does the negative sign ask weight to do?"
+     data-time="2 min">
+  <h2>Average the votes that include input x</h2>
+  <div style="max-width:580px;margin:2.5rem auto;text-align:center;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:#3b6df0;line-height:2;">
+      (&minus;12) + (&minus;28) + (&minus;48)
+    </div>
+    <div style="font-size:1.1rem;color:#8b90a5;margin:0.5rem 0;">&divide; 3</div>
+    <div class="formula" style="font-size:2rem;color:#3b6df0;">&part;L/&part;w = &minus;29.33</div>
+  </div>
+  <p style="text-align:center;font-weight:700;color:#1a1d2e;">Negative gradient &rarr; the first update will <strong>increase w</strong>.</p>
+</div>
+
+<!-- 11 ─── BIAS GRADIENT ─── -->
+<div class="slide"
+     data-say="Bias receives minus 12, minus 14, and minus 16; their mean is minus 14."
+     data-ask="Why are these votes smaller than the later weight votes?"
+     data-time="2 min">
+  <h2>Average the direct error votes</h2>
+  <div style="max-width:580px;margin:2.5rem auto;text-align:center;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:#8b5cf6;line-height:2;">
+      (&minus;12) + (&minus;14) + (&minus;16)
+    </div>
+    <div style="font-size:1.1rem;color:#8b90a5;margin:0.5rem 0;">&divide; 3</div>
+    <div class="formula" style="font-size:2rem;color:#8b5cf6;">&part;L/&part;b = &minus;14</div>
+  </div>
+  <p style="text-align:center;font-weight:700;color:#1a1d2e;">Negative gradient &rarr; the first update will <strong>increase b</strong>.</p>
+</div>
+
+<!-- 12 ─── FIRST UPDATE ─── -->
+<div class="slide"
+     data-say="Apply learning rate 0.1 separately to both gradients."
+     data-ask="What are the two new parameter values?"
+     data-time="3 min">
+  <h2>Apply both gradients with the same learning rate</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">UPDATE WEIGHT</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#8b90a5;line-height:2;">
+        1 &minus; 0.1 &times; (&minus;29.33)<br>
+        = 1 + 2.933
+      </div>
+      <div class="formula" style="margin-top:0.5rem;font-size:1.6rem;color:#3b6df0;">w = 3.933</div>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">UPDATE BIAS</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#8b90a5;line-height:2;">
+        0 &minus; 0.1 &times; (&minus;14)<br>
+        = 0 + 1.4
+      </div>
+      <div class="formula" style="margin-top:0.5rem;font-size:1.6rem;color:#8b5cf6;">b = 1.4</div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── EXPECTED BEHAVIOR / OVERSHOOT ─── -->
+<div class="slide"
+     data-say="The weight jumps past two because it is compensating for a bias that is still too low."
+     data-ask="Does one overshoot prove training has failed?"
+     data-time="2 min">
+  <h2>The weight overshoots &mdash; and that is okay</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">START</div>
+      <strong style="font-size:1.5rem;color:#8b90a5;">w = 1</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;min-width:140px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.5rem;">TARGET</div>
+      <strong style="font-size:1.5rem;color:#10b981;">w = 2</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">FIRST UPDATE</div>
+      <strong style="font-size:1.5rem;color:#ef4444;">w = 3.933</strong>
+      <p style="color:#8b90a5;font-size:0.8rem;margin-top:0.25rem;">overshoots!</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#1a1d2e;">Both parameters are adjusting together over many steps. One temporary overshoot is not failure.</p>
+</div>
+
+<!-- 14 ─── CRITICAL RULE ─── -->
+<div class="slide"
+     data-say="Keep the order strict: calculate everything first, then update both."
+     data-ask="At what point may either parameter change?"
+     data-time="3 min">
+  <h2>Calculate both, then update both</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:600px;margin:2rem auto;">
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:2rem;">01</span>
+      <div><strong>Predict</strong><p style="color:#8b90a5;margin-top:0.25rem;">current w and b</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:2rem;">02</span>
+      <div><strong>Calculate</strong><p style="color:#8b90a5;margin-top:0.25rem;">weight gradient &part;L/&part;w</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:2rem;">03</span>
+      <div><strong>Calculate</strong><p style="color:#8b90a5;margin-top:0.25rem;">bias gradient &part;L/&part;b</p></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#8b5cf6;flex-shrink:0;min-width:2rem;">04</span>
+      <div><strong>Update w</strong><p style="color:#8b90a5;margin-top:0.25rem;">only after both gradients are ready</p></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#8b5cf6;flex-shrink:0;min-width:2rem;">05</span>
+      <div><strong>Update b</strong><p style="color:#8b90a5;margin-top:0.25rem;">only after both gradients are ready</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── WHY SIMULTANEOUS? ─── -->
+<div class="slide"
+     data-say="Updating weight early would make the bias gradient describe a different model."
+     data-ask="Why is mixing old and new parameters unfair?"
+     data-time="3 min">
+  <h2>Both gradients must describe the same point</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">CURRENT MODEL</div>
+      <strong style="font-size:1.3rem;">(w, b)</strong>
+      <div style="margin-top:1rem;text-align:left;font-size:0.9rem;">
+        <p style="margin:0.25rem 0;">&#9658; calculate &part;L/&part;w</p>
+        <p style="margin:0.25rem 0;">&#9658; calculate &part;L/&part;b</p>
+      </div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;text-align:center;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.75rem;">ONE COORDINATED MOVE</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;line-height:1.8;">
+        w &minus; &eta;g<sub>w</sub><br>
+        b &minus; &eta;g<sub>b</sub>
+      </div>
+      <p style="color:#8b90a5;margin-top:0.75rem;font-size:0.85rem;">both gradients agree on the starting point</p>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem;padding:0.75rem 1.5rem;background:#fef2f2;border-radius:12px;border:1.5px solid #ef4444;text-align:center;">
+    <strong style="color:#ef4444;">Updating w early mixes old and new parameters.</strong>
+  </div>
+</div>
+
+<!-- 16 ─── TRAIN BOTH / DUAL ALGORITHM ─── -->
+<div class="slide"
+     data-say="Present the training responsibilities as arithmetic, not projected program code."
+     data-ask="Which two steps must finish before either update?"
+     data-time="3 min">
+  <h2>One training cycle has five responsibilities</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:660px;margin:1.5rem auto;">
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:2rem;">01</span>
+      <div><strong>Predict all rows</strong><p style="color:#8b90a5;margin-top:0.25rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">&#375; = wx + b</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:2rem;">02</span>
+      <div><strong>Reuse each error</strong><p style="color:#8b90a5;margin-top:0.25rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">e = &#375; &minus; y</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:2rem;">03</span>
+      <div><strong>Average two gradients</strong><p style="color:#8b90a5;margin-top:0.25rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">mean(2ex) &nbsp;&bull;&nbsp; mean(2e)</p></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#8b5cf6;flex-shrink:0;min-width:2rem;">04</span>
+      <div><strong>Update together</strong><p style="color:#8b90a5;margin-top:0.25rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">w &minus; &eta;g<sub>w</sub> &nbsp;&bull;&nbsp; b &minus; &eta;g<sub>b</sub></p></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#10b981;flex-shrink:0;min-width:2rem;">05</span>
+      <div><strong>Measure and repeat</strong><p style="color:#8b90a5;margin-top:0.25rem;">loss &rarr; next epoch</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── LIVE LAB ─── -->
+<div class="slide"
+     data-say="Adjust the sliders, then animate training. Blue predictions should meet coral targets."
+     data-ask="How do slope and shift change the line differently?"
+     data-time="6 min">
+  <h2>Watch slope and shift learn together</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:1.5rem;margin-top:1rem;">
+    <div class="card accent-blue" style="max-width:560px;width:100%;text-align:center;">
+      <p style="color:#8b90a5;margin-bottom:1rem;">Interactive lab: adjust <strong>w</strong> and <strong>b</strong> sliders and observe how the prediction line changes slope and position relative to the target points.</p>
+      <div style="font-size:0.8rem;color:#3b6df0;font-weight:600;">[ dual-parameter interactive lab ]</div>
+    </div>
+    <div class="card accent-purple" style="max-width:560px;width:100%;">
+      <strong>Instructor tip:</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">Start both parameters wrong. Animate training and pause at epoch 1 to show the overshoot. Ask learners why weight jumps past 2 before b catches up.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── TRAINING RECORD ─── -->
+<div class="slide"
+     data-say="Read the four checkpoints from both wrong to the exact rule."
+     data-ask="At which checkpoint is the model already close?"
+     data-time="3 min">
+  <h2>The neuron discovers w = 2 and b = 5</h2>
+  <table class="compare-table" style="margin-top:1.5rem;max-width:720px;margin-left:auto;margin-right:auto;">
+    <tr><th>Epoch</th><th>Weight w</th><th>Bias b</th><th>Loss</th><th>State</th></tr>
+    <tr>
+      <td>0</td><td>1.00</td><td>0.00</td><td style="color:#ef4444;font-weight:700;">&mdash;</td>
+      <td>both wrong</td>
+    </tr>
+    <tr>
+      <td>1</td><td style="color:#ef4444;">3.93</td><td>1.40</td><td style="color:#ef4444;font-weight:700;">2.56</td>
+      <td>weight overshoots</td>
+    </tr>
+    <tr>
+      <td>10</td><td>3.32</td><td>2.00</td><td style="color:#ef4444;font-weight:700;">1.29</td>
+      <td>bias climbing</td>
+    </tr>
+    <tr>
+      <td>100</td><td>2.15</td><td>4.66</td><td style="color:#ef4444;font-weight:700;">0.02</td>
+      <td>getting close</td>
+    </tr>
+    <tr class="highlight-row">
+      <td><strong>1000</strong></td><td><strong>2.00</strong></td><td><strong>5.00</strong></td>
+      <td style="color:#10b981;font-weight:700;">0.00</td>
+      <td><strong>exact rule</strong></td>
+    </tr>
+  </table>
+</div>
+
+<!-- 19 ─── READ THE STORY ─── -->
+<div class="slide"
+     data-say="Narrate the motion of each parameter instead of reading only the loss."
+     data-ask="Why does weight fall after its first jump?"
+     data-time="3 min">
+  <h2>Weight returns while bias keeps climbing</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;max-width:700px;margin-left:auto;margin-right:auto;">
+    <div class="card accent-blue">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">EPOCH 1</div>
+      <strong style="color:#3b6df0;">w 3.93</strong> &nbsp; <span style="color:#8b90a5;">b 1.40</span>
+      <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.85rem;">Weight jumps; bias begins climbing.</p>
+    </div>
+    <div class="card accent-blue">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">EPOCH 10</div>
+      <strong style="color:#3b6df0;">w 3.32</strong> &nbsp; <span style="color:#8b90a5;">b 2.00</span>
+      <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.85rem;">Weight comes back; bias keeps climbing.</p>
+    </div>
+    <div class="card accent-blue">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">EPOCH 100</div>
+      <strong style="color:#3b6df0;">w 2.15</strong> &nbsp; <span style="color:#8b90a5;">b 4.66</span>
+      <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.85rem;">Both are close; loss is almost gone.</p>
+    </div>
+    <div class="card accent-green">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.5rem;">EPOCH 1000</div>
+      <strong style="color:#10b981;">w 2.00</strong> &nbsp; <span style="color:#10b981;">b 5.00</span>
+      <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.85rem;">The exact rule is learned from data.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 20 ─── COMPENSATION ─── -->
+<div class="slide"
+     data-say="Individual parameters may move indirectly; the combined loss is the scoreboard."
+     data-ask="What can a high weight compensate for?"
+     data-time="3 min">
+  <h2>Parameters can cover for each other temporarily</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-red" style="text-align:center;">
+      <strong>Weight too high?</strong>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Bias can adjust downward to offset it.</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;text-align:center;">&#8596;</div>
+    <div class="card accent-purple" style="text-align:center;">
+      <strong>Bias too low?</strong>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Weight can rise to compensate.</p>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem;text-align:center;">
+    <p style="color:#1a1d2e;">Individual paths may look indirect. The <strong>combined loss</strong> is the scoreboard.</p>
+    <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.9rem;">As long as loss keeps falling, training is working.</p>
+  </div>
+</div>
+
+<!-- 21 ─── PHASE 1 COMPLETE ─── -->
+<div class="slide"
+     data-say="Reconstruct the seven-part system from prediction through simultaneous updates."
+     data-ask="Which step turns separate gradient votes into learning?"
+     data-time="4 min">
+  <h2>Seven ideas now form one learning system</h2>
+  <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:680px;margin:1.5rem auto;">
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">1</span>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <strong>Prediction</strong>
+        <span style="color:#8b90a5;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">&#375; = wx + b</span>
+      </div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">2</span>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <strong>Error measurement</strong>
+        <span style="color:#8b90a5;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">MSE = mean((&#375; &minus; y)&sup2;)</span>
+      </div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">3</span>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <strong>Direction</strong>
+        <span style="color:#8b90a5;font-size:0.85rem;">gradient sign</span>
+      </div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">4</span>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <strong>Step size</strong>
+        <span style="color:#8b90a5;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">parameter &minus; &eta; &times; gradient</span>
+      </div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">5</span>
+      <div><strong>Repetition</strong> &nbsp;<span style="color:#8b90a5;font-size:0.85rem;">training loop</span></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">6</span>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <strong>Exact gradient</strong>
+        <span style="color:#8b90a5;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">chain rule: 2ex</span>
+      </div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:1rem;align-items:center;border-width:2px;">
+      <span style="font-size:1rem;font-weight:900;color:#10b981;flex-shrink:0;min-width:1.5rem;">7</span>
+      <div><strong>Multiple parameters</strong> &nbsp;<span style="color:#8b90a5;font-size:0.85rem;">separate gradients, simultaneous update</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 22 ─── BIG PICTURE ─── -->
+<div class="slide"
+     data-say="Scale changes, but prediction, loss, gradients, and updates remain the core loop."
+     data-ask="What will become more numerous in a deep network?"
+     data-time="2 min">
+  <h2>Deep networks use this same learning process</h2>
+  <div style="display:flex;gap:0.75rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <span style="padding:0.6rem 1.2rem;background:#f0f4ff;border-radius:8px;font-weight:700;color:#3b6df0;">predict</span>
+    <span style="color:#4a5068;font-size:1.3rem;">&rarr;</span>
+    <span style="padding:0.6rem 1.2rem;background:#f0f4ff;border-radius:8px;font-weight:700;color:#3b6df0;">measure loss</span>
+    <span style="color:#4a5068;font-size:1.3rem;">&rarr;</span>
+    <span style="padding:0.6rem 1.2rem;background:#f0f4ff;border-radius:8px;font-weight:700;color:#3b6df0;">calculate gradients</span>
+    <span style="color:#4a5068;font-size:1.3rem;">&rarr;</span>
+    <span style="padding:0.6rem 1.2rem;background:#f0f4ff;border-radius:8px;font-weight:700;color:#3b6df0;">update together</span>
+    <span style="color:#4a5068;font-size:1.3rem;">&rarr;</span>
+    <span style="padding:0.6rem 1.2rem;background:#f0f4ff;border-radius:8px;font-weight:700;color:#3b6df0;">repeat</span>
+  </div>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">ONE NEURON (L07)</div>
+      <strong>2 parameters</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.85rem;">w and b</p>
+    </div>
+    <div class="card accent-red" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">DEEP NETWORK</div>
+      <strong>Millions of parameters</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;font-size:0.85rem;">same loop, more gradients</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1rem;color:#1a1d2e;">From one neuron to deep GANs, the learning logic remains.</p>
+</div>
+
+<!-- 23 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide revealable"
+     data-say="Ask all four questions before revealing concise answers."
+     data-ask="Which answer explains simultaneous updates most precisely?"
+     data-time="4 min">
+  <h2>Can you coordinate two learnable parameters?</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">Why does only the weight gradient contain x?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">Weight's effect on prediction depends on x; bias's effect is always 1.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">Why calculate both gradients before updating?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">Both must describe the same current model — updating w first would corrupt the bias gradient.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">Can a parameter move away from its final value?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">Yes &mdash; parameters can compensate while total loss still falls.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">What rule was learned after 1000 epochs?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">&#375; = 2x + 5.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 24 ─── BRIDGE TO PHASE 2 ─── -->
+<div class="slide cover"
+     data-say="Phase 2 begins when one neuron receives several features."
+     data-ask="How many weights will two inputs require?"
+     data-time="1 min">
+  <h2>Next: give one neuron more than one input</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PHASE 1 &bull; COMPLETE</div>
+      <strong style="font-size:1.3rem;">One input</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">one weight + one bias</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;text-align:center;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PHASE 2 &bull; NEXT</div>
+      <strong style="font-size:1.3rem;">Many inputs</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">one weight for each feature</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;font-style:italic;color:#1a1d2e;font-size:1.05rem;">What changes when a neuron sees more than one feature?</p>
+  <div style="text-align:center;margin-top:1rem;">
+    <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;color:#3b6df0;">NEXT &bull; LESSON 08</span>
+  </div>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L08.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L08 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../S3-neural-networks.html" style="color:#3b6df0;">back to S3 hub</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 1: From Generative AI to Your First GAN</title>
+<link rel="stylesheet" href="deck.css">
+<style>
+  body {
+    background: linear-gradient(135deg, #f0f4ff 0%, #fff 40%, #f8f5ff 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 100vh; overflow: auto;
+    padding: 2rem; gap: 2.5rem;
+  }
+  .index-title { text-align: center; }
+  .index-title h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900;
+    color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 0.3rem;
+  }
+  .index-title p { color: var(--text-secondary); font-size: 1.1rem; }
+  .session-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem; max-width: 950px; width: 100%;
+  }
+  .session-link {
+    display: block; background: white;
+    border: 1px solid var(--border-light); border-radius: 14px;
+    padding: 1.3rem 1.5rem; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s;
+  }
+  .session-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    border-color: var(--accent-blue);
+  }
+  .session-link .time {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--accent-blue); font-weight: 700; letter-spacing: 0.12em;
+  }
+  .session-link .title {
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--text-primary); margin: 0.25rem 0;
+  }
+  .session-link .desc {
+    font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;
+  }
+  .session-link .slides {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--text-muted); margin-top: 0.4rem;
+  }
+  .footer-note { color: var(--text-muted); font-size: 0.8rem; text-align: center; }
+  .footer-note kbd {
+    background: var(--bg-code); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.1rem 0.4rem;
+    font-family: var(--font-mono); font-size: 0.75rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="index-title">
+  <p style="color:var(--accent-blue);font-weight:700;font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem;">GAN MASTERY &mdash; 4-DAY TRAINING</p>
+  <h1>Day 1</h1>
+  <p>From Generative AI to Your First GAN</p>
+</div>
+
+<div class="session-grid">
+  <a href="S1-generative-ai.html" class="session-link">
+    <span class="time">SESSION 1</span>
+    <div class="title">The World of Generative AI</div>
+    <div class="desc">VAE, GAN, Transformer, Diffusion &mdash; the big picture</div>
+    <div class="slides">21 slides</div>
+  </a>
+  <a href="S2-what-is-a-gan.html" class="session-link">
+    <span class="time">SESSION 2</span>
+    <div class="title">What Is a GAN?</div>
+    <div class="desc">Forger vs Detective &mdash; training loop, loss, .detach()</div>
+    <div class="slides">27 slides</div>
+  </a>
+  <a href="S3-neural-networks.html" class="session-link">
+    <span class="time">SESSION 3</span>
+    <div class="title">Neural Networks</div>
+    <div class="desc">15 lessons &mdash; from a single neuron to PyTorch</div>
+    <div class="slides">365 slides &bull; L00&ndash;L14</div>
+  </a>
+  <a href="S4-build-gans.html" class="session-link">
+    <span class="time">SESSION 4</span>
+    <div class="title">Building GANs</div>
+    <div class="desc">5 lessons from Phase 1 &mdash; first GAN, images, convolutions, DCGAN, debugging</div>
+    <div class="slides">93 slides &bull; L02&ndash;L06</div>
+  </a>
+</div>
+
+<div class="session-grid" style="grid-template-columns:1fr;">
+  <a href="labs/README.md" class="session-link" style="text-align:center;background:#f8f9fb;">
+    <span class="time">🧪 HANDS-ON LABS</span>
+    <div class="title">Jupyter Notebook Labs</div>
+    <div class="desc">8 coding exercises &mdash; learning neuron, backprop, classifier, first GAN, MNIST, DCGAN, training tricks</div>
+    <div class="slides">labs/ folder &bull; setup guide in README.md</div>
+  </a>
+</div>
+
+<div class="footer-note">
+  <kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigate &bull;
+  <kbd>N</kbd> notes &bull; <kbd>F</kbd> fullscreen &bull;
+  <kbd>R</kbd> reveal &bull; <kbd>H</kbd> help
+</div>
+
+</body>
+</html>

@@ -1,0 +1,797 @@
+/* ============================================================
+   GAN Course — Phase 1 Slide Deck v2
+   Theme: Clean white, professional typography
+   Font: Inter (headings) + JetBrains Mono (code/formulas)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* --- Reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* White theme palette */
+  --bg-primary: #ffffff;
+  --bg-slide: #ffffff;
+  --bg-card: #f8f9fb;
+  --bg-card-hover: #f0f2f6;
+  --bg-code: #f4f5f9;
+  --bg-accent-light: #eef2ff;
+  --bg-warm: #fef9f0;
+
+  --text-primary: #1a1d2e;
+  --text-secondary: #4a5068;
+  --text-muted: #8b90a5;
+  --text-light: #b0b5c8;
+
+  --border: #e2e5ef;
+  --border-light: #eef0f5;
+
+  /* Accent colors — vivid but not garish */
+  --accent-blue: #3b6df0;
+  --accent-cyan: #0ea5e9;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --accent-red: #ef4444;
+  --accent-purple: #8b5cf6;
+  --accent-yellow: #eab308;
+  --accent-pink: #ec4899;
+  --accent-teal: #14b8a6;
+
+  /* Semantic */
+  --gen-color: #10b981;
+  --gen-bg: #ecfdf5;
+  --disc-color: #ef4444;
+  --disc-bg: #fef2f2;
+
+  /* Typography */
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing */
+  --slide-padding: clamp(2.5rem, 5vw, 6rem);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+}
+
+/* --- Slide Container --- */
+.deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column; justify-content: flex-start;
+  padding: var(--slide-padding);
+  padding-top: clamp(2rem, 4vh, 4rem);
+  background: #ffffff;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.slide.active { display: flex; opacity: 1; }
+
+/* --- Incremental Steps --- */
+.step { opacity: 0; transform: translateY(12px); transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none; }
+.step.shown { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+/* --- Animate-in elements --- */
+.animate-in {
+  animation: fadeInUp 0.5s ease both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.slide.active h2 { animation: fadeInUp 0.45s ease; }
+.slide.active .card { animation: fadeInUp 0.45s ease 0.08s both; }
+.slide.active .diagram { animation: fadeIn 0.5s ease 0.12s both; }
+.slide.active .two-col > :first-child { animation: slideInLeft 0.5s ease 0.1s both; }
+.slide.active .two-col > :nth-child(2) { animation: slideInRight 0.5s ease 0.15s both; }
+.slide.active .compare-table { animation: fadeInUp 0.45s ease 0.1s both; }
+
+/* ==============================
+   COVER SLIDES
+   ============================== */
+.slide.cover {
+  background: #ffffff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.slide.cover .lesson-number {
+  font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--accent-blue);
+}
+
+.slide.cover h1 {
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.08;
+  color: var(--text-primary);
+  max-width: 850px;
+  letter-spacing: -0.02em;
+}
+
+.slide.cover .subtitle {
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  color: var(--text-secondary);
+  font-weight: 400;
+  max-width: 650px;
+  line-height: 1.6;
+}
+
+/* ==============================
+   SECTION DIVIDERS
+   ============================== */
+.slide.section-divider {
+  background: #ffffff;
+  justify-content: center; align-items: center; text-align: center;
+}
+.slide.section-divider .section-number {
+  font-size: clamp(5rem, 12vw, 10rem);
+  font-weight: 900;
+  color: var(--accent-blue);
+  opacity: 0.12;
+  line-height: 1;
+}
+.slide.section-divider h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  margin-top: -1.5rem;
+  color: var(--text-primary);
+}
+
+/* ==============================
+   CHECKPOINT (mid-lesson question)
+   ============================== */
+.slide.checkpoint {
+  background: #ffffff;
+}
+
+/* ==============================
+   TYPOGRAPHY
+   ============================== */
+.slide h2 {
+  font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+.slide h2 .accent { color: var(--text-primary); font-weight: 900; }
+
+.slide h3 {
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 700;
+  color: var(--accent-blue);
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.slide p, .slide li {
+  font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+.slide ul, .slide ol { padding-left: 1.4em; }
+.slide li { margin-bottom: 0.4em; }
+.slide li strong, .slide p strong { color: var(--text-primary); }
+
+/* ==============================
+   LAYOUT
+   ============================== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3vw, 3.5rem);
+  align-items: start;
+  flex: 1;
+}
+.two-col.align-center { align-items: center; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+
+/* ==============================
+   CARDS
+   ============================== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: clamp(1rem, 2vw, 1.6rem);
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+
+.card.accent-blue   { border-left: 4px solid var(--accent-blue); background: #f0f4ff; }
+.card.accent-green  { border-left: 4px solid var(--accent-green); background: #ecfdf5; }
+.card.accent-orange { border-left: 4px solid var(--accent-orange); background: #fef9f0; }
+.card.accent-red    { border-left: 4px solid var(--accent-red); background: #fef2f2; }
+.card.accent-purple { border-left: 4px solid var(--accent-purple); background: #f5f3ff; }
+.card.accent-cyan   { border-left: 4px solid var(--accent-cyan); background: #ecfeff; }
+.card.accent-yellow { border-left: 4px solid var(--accent-yellow); background: #fefce8; }
+
+.card h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+.card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ==============================
+   DIAGRAMS — flow diagrams
+   ============================== */
+.diagram {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.8rem; flex-wrap: wrap; padding: 1.5rem;
+}
+.diagram .box {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  text-align: center;
+  min-width: 90px;
+  transition: transform 0.2s;
+}
+.diagram .box:hover { transform: translateY(-2px); }
+.diagram .box.highlight { border-color: var(--accent-blue); background: var(--bg-accent-light); }
+.diagram .box.gen { border-color: var(--gen-color); background: var(--gen-bg); }
+.diagram .box.disc { border-color: var(--disc-color); background: var(--disc-bg); }
+
+.diagram .box .label {
+  font-size: 0.7rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.15rem;
+}
+.diagram .box .value { font-size: 1.2rem; font-weight: 700; }
+
+.diagram .arrow { font-size: 1.5rem; color: var(--text-light); }
+
+/* ==============================
+   FORMULA
+   ============================== */
+.formula {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem 1.8rem;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  color: var(--accent-blue);
+  text-align: center;
+  margin: 0.8rem 0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* ==============================
+   COMPARISON TABLE
+   ============================== */
+.compare-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border-radius: 10px; overflow: hidden; margin: 0.8rem 0;
+  font-size: 0.95rem;
+}
+.compare-table th {
+  background: var(--bg-accent-light);
+  color: var(--accent-blue);
+  font-weight: 700; text-align: left;
+  padding: 0.7rem 1rem;
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--accent-blue);
+}
+.compare-table td {
+  background: var(--bg-card);
+  padding: 0.6rem 1rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr.highlight-row { background: var(--bg-accent-light); }
+.compare-table tr.highlight-row td { color: var(--text-primary); font-weight: 500; }
+
+/* ==============================
+   BIG STAT
+   ============================== */
+.big-stat { text-align: center; padding: 1rem; }
+.big-stat .number {
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.big-stat .label {
+  font-size: 1.1rem; color: var(--text-secondary); margin-top: 0.4rem;
+}
+
+/* ==============================
+   VS LAYOUT
+   ============================== */
+.vs-layout {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem; align-items: center;
+}
+.vs-layout .vs {
+  font-size: 1.6rem; font-weight: 900;
+  color: var(--text-light);
+}
+
+/* ==============================
+   PILL TAGS
+   ============================== */
+.pill {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pill.blue { background: #dbeafe; color: #1e40af; }
+.pill.green { background: #d1fae5; color: #065f46; }
+.pill.red { background: #fee2e2; color: #991b1b; }
+.pill.orange { background: #fef3c7; color: #92400e; }
+.pill.purple { background: #ede9fe; color: #5b21b6; }
+
+/* ==============================
+   REVEAL / KNOWLEDGE CHECK
+   ============================== */
+.revealable { cursor: pointer; position: relative; }
+.revealable .answer {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.5s ease, opacity 0.35s ease, padding 0.3s;
+  padding-top: 0;
+}
+.revealable.revealed .answer {
+  max-height: 400px; opacity: 1; padding-top: 0.5rem;
+}
+.revealable .hint {
+  color: var(--accent-blue); font-size: 0.8rem; font-weight: 500;
+  margin-top: 0.3rem;
+}
+.revealable.revealed .hint { display: none; }
+
+/* ==============================
+   PROGRESS BAR
+   ============================== */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  transition: width 0.3s ease; z-index: 100;
+}
+
+/* ==============================
+   SLIDE COUNTER
+   ============================== */
+.slide-counter {
+  position: fixed; bottom: 1.2rem; right: 1.8rem;
+  font-size: 0.8rem; color: var(--text-light);
+  font-family: var(--font-mono); z-index: 90;
+}
+
+/* ==============================
+   LESSON NAV
+   ============================== */
+.lesson-nav {
+  position: fixed; bottom: 1.2rem; left: 1.8rem;
+  font-size: 0.8rem; color: var(--text-light); z-index: 90;
+}
+.lesson-nav a { color: var(--accent-blue); text-decoration: none; }
+.lesson-nav a:hover { text-decoration: underline; }
+
+/* ==============================
+   PRESENTER NOTES
+   ============================== */
+.notes-panel {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(12px);
+  border-top: 2px solid var(--accent-blue);
+  padding: 1.2rem 2rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 200;
+  max-height: 35vh; overflow-y: auto;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+.notes-panel.open { transform: translateY(0); }
+.notes-panel h4 {
+  color: var(--accent-blue); font-size: 0.75rem;
+  text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem;
+}
+.notes-panel .note-say { color: var(--text-primary); font-size: 0.95rem; margin-bottom: 0.4rem; line-height: 1.6; }
+.notes-panel .note-ask { color: var(--accent-blue); font-size: 0.9rem; font-weight: 500; }
+.notes-panel .note-time {
+  position: absolute; top: 1.2rem; right: 2rem;
+  color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem;
+}
+
+/* ==============================
+   HELP OVERLAY
+   ============================== */
+.help-overlay {
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(8px);
+  display: none; justify-content: center; align-items: center;
+  z-index: 300;
+}
+.help-overlay.open { display: flex; }
+.help-content {
+  background: white; border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem 2.5rem;
+  max-width: 420px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+.help-content h3 {
+  margin-bottom: 1rem; color: var(--text-primary);
+  text-transform: none; letter-spacing: normal; font-size: 1.2rem;
+}
+.help-content .key-row {
+  display: flex; justify-content: space-between;
+  padding: 0.35rem 0; color: var(--text-secondary); font-size: 0.9rem;
+}
+.help-content kbd {
+  background: var(--bg-code); border: 1px solid var(--border);
+  border-radius: 5px; padding: 0.15rem 0.5rem;
+  font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-blue);
+}
+
+/* ==============================
+   ANIMATIONS — Advanced
+   ============================== */
+
+/* Flowing dashed arrow (for data flow paths in SVG) */
+@keyframes dashFlow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+.flow-arrow { stroke-dasharray: 8,4; animation: dashFlow 1.5s linear infinite; }
+
+/* Pulse glow on important elements */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,109,240,0.25); }
+  50% { box-shadow: 0 0 0 10px rgba(59,109,240,0); }
+}
+.pulse { animation: pulse 2s ease-in-out infinite; }
+.pulse-green { animation: pulse 2s ease-in-out infinite; --pulse-color: rgba(16,185,129,0.25); }
+
+/* Counter/number pop-in */
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  60% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.pop-in { animation: popIn 0.5s ease-out; }
+
+/* Blur-to-clear (for training progress) */
+@keyframes clarify {
+  from { filter: blur(6px); opacity: 0.4; }
+  to { filter: blur(0); opacity: 1; }
+}
+.clarify { animation: clarify 0.8s ease-out both; }
+
+/* Gentle float/bob (for characters) */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.float { animation: float 3s ease-in-out infinite; }
+
+/* Shake (for "wrong" emphasis) */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.shake { animation: shake 0.5s ease-in-out; }
+
+/* Gradient text shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.shimmer-text {
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-blue));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ==============================
+   CHARACTER ICONS (SVG inline)
+   ============================== */
+.character {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 80px; height: 80px;
+  font-size: 2rem;
+  font-weight: 900;
+  position: relative;
+}
+.character.gen {
+  background: linear-gradient(135deg, #d1fae5, #ecfdf5);
+  border: 3px solid var(--accent-green);
+  color: var(--accent-green);
+}
+.character.disc {
+  background: linear-gradient(135deg, #fee2e2, #fef2f2);
+  border: 3px solid var(--accent-red);
+  color: var(--accent-red);
+}
+.character .badge {
+  position: absolute;
+  bottom: -4px; right: -4px;
+  font-size: 1.2rem;
+  background: white;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border: 2px solid var(--border);
+}
+
+/* ==============================
+   PIXEL ART GRID (for digit visuals)
+   ============================== */
+.pixel-grid {
+  display: inline-grid;
+  gap: 1px;
+  background: var(--border-light);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  line-height: 0;
+}
+.pixel-grid .px {
+  width: 8px; height: 8px;
+  border-radius: 1px;
+}
+
+/* ==============================
+   TENSOR BLOCK (for architecture pipelines)
+   ============================== */
+.tensor-pipeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.tensor-block {
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.3rem 0.5rem;
+  transition: transform 0.3s;
+}
+.tensor-block:hover { transform: translateY(-3px); }
+.tensor-block .t-shape {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.tensor-block .t-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+.tensor-arrow {
+  font-size: 1.2rem;
+  color: var(--text-light);
+}
+
+/* ==============================
+   PREDICTION SLIDE
+   ============================== */
+.slide.predict {
+  background: #ffffff;
+}
+
+/* ==============================
+   DEMO CALLOUT
+   ============================== */
+.demo-callout {
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+  border: 2px solid var(--accent-green);
+  border-radius: 14px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+.demo-callout h4 {
+  color: var(--accent-green);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.3rem;
+}
+.demo-callout h4::before { content: '💻 '; }
+.demo-callout p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+/* ==============================
+   RESPONSIVE — ALL VIEWPORTS
+   ============================== */
+
+/* Base: ensure nothing overflows */
+.slide { overflow-y: auto; overflow-x: hidden; }
+.compare-table { overflow-x: auto; display: block; }
+.compare-table table { min-width: 100%; }
+
+/* All SVGs scale to container */
+svg { max-width: 100%; height: auto; }
+
+/* All images responsive */
+img { max-width: 100%; height: auto; border-radius: 10px; }
+
+/* Diagrams wrap on small screens */
+.diagram { flex-wrap: wrap; }
+
+/* Cards never overflow */
+.card { overflow: hidden; word-wrap: break-word; }
+
+/* Formulas wrap text */
+.formula { word-break: break-word; overflow-wrap: break-word; }
+
+/* Tables scroll horizontally if needed */
+.compare-table { -webkit-overflow-scrolling: touch; }
+
+/* ── Narrow screens / mobile (< 768px) ── */
+@media (max-width: 768px) {
+  :root { --slide-padding: 1.2rem; }
+
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .vs-layout { grid-template-columns: 1fr; gap: 0.8rem; }
+  .vs-layout .vs { display: none; }
+
+  .slide h2 { font-size: clamp(1.2rem, 5vw, 1.8rem); margin-bottom: 1rem; }
+  .slide p, .slide li { font-size: clamp(0.85rem, 3.5vw, 1.05rem); }
+
+  .card { padding: clamp(0.7rem, 2vw, 1.2rem); }
+  .card h4 { font-size: 0.9rem; }
+  .card p { font-size: 0.85rem; }
+
+  .formula { font-size: clamp(0.8rem, 3vw, 1rem); padding: 0.6rem 1rem; }
+
+  .compare-table td, .compare-table th { font-size: 0.8rem; padding: 0.4rem 0.6rem; }
+
+  .diagram { gap: 0.4rem; padding: 0.8rem; }
+  .diagram .box { min-width: 60px; padding: 0.5rem 0.7rem; }
+  .diagram .arrow { font-size: 1.1rem; }
+
+  .slide.cover h1 { font-size: clamp(1.5rem, 7vw, 2.5rem); }
+  .slide.cover .subtitle { font-size: clamp(0.85rem, 3vw, 1.1rem); }
+
+  .character { width: 50px; height: 50px; font-size: 1.3rem; }
+  .character .badge { width: 20px; height: 20px; font-size: 0.9rem; }
+
+  .big-stat .number { font-size: clamp(2rem, 10vw, 3.5rem); }
+
+  .slide.section-divider .section-number { font-size: clamp(3rem, 15vw, 6rem); }
+  .slide.section-divider h2 { font-size: clamp(1.3rem, 5vw, 2rem); }
+
+  .notes-panel { padding: 0.8rem 1rem; }
+  .help-content { padding: 1.2rem 1.5rem; max-width: 90vw; }
+
+  /* Pixel grid scales */
+  .pixel-grid .px { width: 5px; height: 5px; }
+}
+
+/* ── Very narrow (< 480px — phone portrait) ── */
+@media (max-width: 480px) {
+  :root { --slide-padding: 0.8rem; }
+
+  .slide h2 { font-size: 1.1rem; }
+  .slide.cover h1 { font-size: 1.5rem; }
+
+  .two-col { gap: 0.6rem; }
+  .three-col { grid-template-columns: 1fr; }
+
+  .compare-table td, .compare-table th { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
+
+  .lesson-nav { font-size: 0.7rem; left: 0.8rem; }
+  .slide-counter { font-size: 0.7rem; right: 0.8rem; }
+}
+
+/* ── Tablets (768–1024px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .three-col { grid-template-columns: 1fr 1fr; }
+  .slide h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+}
+
+/* ── Large screens (> 1600px) ── */
+@media (min-width: 1600px) {
+  .slide { max-width: 1400px; margin: 0 auto; }
+  .slide.cover { max-width: none; }
+}
+
+/* ── High DPI / Retina ── */
+@media (min-resolution: 2dppx) {
+  .slide h2 { font-size: clamp(1.3rem, 2.5vw, 2rem); }
+  .slide p, .slide li { font-size: clamp(0.9rem, 1.4vw, 1.1rem); }
+  .card h4 { font-size: 0.95rem; }
+  .card p { font-size: 0.9rem; }
+  .compare-table td, .compare-table th { font-size: 0.85rem; padding: 0.5rem 0.8rem; }
+  .formula { font-size: clamp(0.9rem, 1.4vw, 1.1rem); }
+}
+
+/* ── Print ── */
+@media print {
+  .slide { page-break-after: always; display: flex !important; opacity: 1 !important; position: relative; }
+  .progress-bar, .slide-counter, .lesson-nav, .notes-panel, .help-overlay { display: none !important; }
+}
+
+/* ==============================
+   UTILITY CLASSES
+   ============================== */
+.text-blue { color: var(--accent-blue); }
+.text-green { color: var(--accent-green); }
+.text-red { color: var(--accent-red); }
+.text-orange { color: var(--accent-blue); }
+.text-purple { color: var(--accent-purple); }
+.text-cyan { color: var(--accent-cyan); }
+.text-yellow { color: var(--accent-yellow); }
+.text-pink { color: var(--accent-pink); }
+.text-muted { color: var(--text-muted); }
+
+.mt-1 { margin-top: 0.5rem; } .mt-2 { margin-top: 1rem; } .mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; }
+.gap-2 { gap: 1rem; } .gap-3 { gap: 1.5rem; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.text-center { text-align: center; }

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L11 — ⬅️ Backpropagation</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L11">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L10.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L10</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L11 / 19</a><a href="NN-L12.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L12 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L11</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Connect pass responsibility backward—one connection at a time to the full backward-pass story."
+     data-ask="Which value controls the next operation?"
+     data-time="1 min">
+  <div class="lesson-number">11 &bull; PHASE 2 &bull; DEEP NEURAL NETWORKS</div>
+  <h1>Backpropagation</h1>
+  <p class="subtitle">Pass responsibility backward — one connection at a time</p>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <span style="font-size:1.6rem;font-weight:900;color:#ef4444;">loss</span>
+    <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
+    <span style="font-size:1.6rem;font-weight:900;color:#8b5cf6;">&#375;&#770;</span>
+    <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
+    <span style="font-size:1.6rem;font-weight:900;color:#eab308;">h</span>
+    <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
+    <span style="font-size:1.6rem;font-weight:900;color:#22c55e;">z</span>
+    <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
+    <span style="font-size:1.6rem;font-weight:900;color:#3b6df0;">w</span>
+  </div>
+</div>
+
+<!-- 2 ─── LEARNING OUTCOMES ─── -->
+<div class="slide"
+     data-say="Connect trace the error all the way to a hidden weight to the full backward-pass story."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Trace the error all the way to a hidden weight</h2>
+  <p style="color:var(--text-muted);max-width:620px;">By the end, you should calculate both gradients, explain the ReLU gate, and verify that one update improves the network.</p>
+  <div class="three-col" style="margin-top:2rem;">
+    <div class="card accent-blue">
+      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <strong>Save the forward pass</strong>
+      <p>Backward calculations reuse z, h, and ŷ.</p>
+    </div>
+    <div class="card accent-green">
+      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
+      <strong>Pass blame backward</strong>
+      <p>Multiply by each connection's local influence.</p>
+    </div>
+    <div class="card accent-purple">
+      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
+      <strong>Respect the gate</strong>
+      <p>ReLU may pass or block the gradient.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── WHERE WE ARE ─── -->
+<div class="slide"
+     data-say="Connect the forward pass predicts. the backward pass learns. to the full backward-pass story."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>The forward pass predicts. The backward pass learns.</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 9</div>
+      <strong>ReLU + V-shape</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 10</div>
+      <strong>Hidden-layer forward pass</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:140px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 11 &bull; NOW</div>
+      <strong>Backward pass</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card" style="text-align:center;min-width:140px;background:#f8f9fb;border:1.5px solid #e2e5ef;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEXT</div>
+      <strong>Probability + classification loss</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── THE PROBLEM ─── -->
+<div class="slide"
+     data-say="Connect the error is two connections away from w to the full backward-pass story."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>The error is two connections away from w</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">HIDDEN WEIGHT</div>
+      <strong style="font-size:1.6rem;">w = 1</strong>
+      <div style="color:#8b90a5;margin-top:0.5rem;font-size:0.9rem;">x = 2</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:1.8rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">HIDDEN VALUE</div>
+      <strong style="font-size:1.3rem;">z = 2 &rarr; h = 2</strong>
+      <div style="color:#10b981;margin-top:0.5rem;font-size:0.85rem;">ReLU open</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:1.8rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">OUTPUT</div>
+      <strong style="font-size:1.6rem;">&ycirc; = 2</strong>
+      <div style="color:#ef4444;margin-top:0.5rem;font-size:0.85rem;">target = 4 &bull; loss = 4</div>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;text-align:center;color:#1a1d2e;">The error is at the output. How does responsibility reach <strong>w</strong>?</p>
+</div>
+
+<!-- 5 ─── STEP 1: FORWARD PASS ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining calculate—and save—every intermediate value."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Calculate — and save — every intermediate value</h2>
+  <div style="display:flex;flex-direction:column;gap:1rem;max-width:600px;margin:2rem auto;">
+    <div class="card accent-blue" style="display:flex;gap:1.5rem;align-items:center;">
+      <span style="font-size:1.4rem;font-weight:900;color:#3b6df0;flex-shrink:0;">1</span>
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">RULE</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#3b6df0;">z = w &times; x</div>
+      </div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#1a1d2e;">1 &times; 2 = <strong>2</strong></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:1.5rem;align-items:center;">
+      <span style="font-size:1.4rem;font-weight:900;color:#10b981;flex-shrink:0;">2</span>
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">RULE</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#10b981;">h = ReLU(z)</div>
+      </div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#1a1d2e;">ReLU(2) = <strong>2</strong></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:1.5rem;align-items:center;">
+      <span style="font-size:1.4rem;font-weight:900;color:#8b5cf6;flex-shrink:0;">3</span>
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">RULE</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#8b5cf6;">&ycirc; = v &times; h</div>
+      </div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#1a1d2e;">1 &times; 2 = <strong>2</strong></div>
+    </div>
+    <div class="card accent-red" style="display:flex;gap:1.5rem;align-items:center;">
+      <span style="font-size:1.4rem;font-weight:900;color:#ef4444;flex-shrink:0;">4</span>
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">RULE</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#ef4444;">L = (&ycirc; &minus; y)&sup2;</div>
+      </div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#ef4444;">(2 &minus; 4)&sup2; = <strong>4</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── WHY SAVE VALUES? ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining the backward pass needs the forward-pass evidence."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>The backward pass needs the forward-pass evidence</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-green" style="flex:1;min-width:200px;text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">SAVE z = 2</div>
+      <strong>Was ReLU open?</strong>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Step 5 needs the sign of z.</p>
+    </div>
+    <div class="card accent-blue" style="flex:1;min-width:200px;text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">SAVE h = 2</div>
+      <strong>How strongly did v act?</strong>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Step 3 multiplies blame by h.</p>
+    </div>
+    <div class="card accent-purple" style="flex:1;min-width:200px;text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">SAVE &ycirc; = 2</div>
+      <strong>How wrong were we?</strong>
+      <p style="color:#8b90a5;margin-top:0.75rem;">Step 2 compares &ycirc; with the target.</p>
+    </div>
+  </div>
+
+  <!-- Forward pass network SVG with saved values -->
+  <svg viewBox="0 0 720 140" style="width:100%;max-width:680px;display:block;margin:2rem auto 0;border-radius:12px;background:#f8f9fb;border:1.5px solid #e2e5ef;" role="img" aria-label="Forward pass network showing x, z, h, y-hat nodes with saved values">
+    <defs>
+      <marker id="arF" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+        <polygon points="0 0,7 2.5,0 5" fill="#4a5068"/>
+      </marker>
+    </defs>
+    <!-- nodes -->
+    <circle cx="80"  cy="70" r="28" fill="#dbeafe" stroke="#3b6df0" stroke-width="2"/>
+    <circle cx="240" cy="70" r="28" fill="#dcfce7" stroke="#10b981" stroke-width="2"/>
+    <circle cx="400" cy="70" r="28" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+    <circle cx="560" cy="70" r="28" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+    <!-- arrows -->
+    <line x1="108" y1="70" x2="208" y2="70" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arF)"/>
+    <line x1="268" y1="70" x2="368" y2="70" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arF)"/>
+    <line x1="428" y1="70" x2="528" y2="70" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arF)"/>
+    <!-- node labels -->
+    <text x="80"  y="75" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" font-weight="700" fill="#3b6df0">x=2</text>
+    <text x="240" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#10b981">z=2</text>
+    <text x="240" y="83" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#10b981">saved</text>
+    <text x="400" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#8b5cf6">h=2</text>
+    <text x="400" y="83" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b5cf6">saved</text>
+    <text x="560" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#ef4444">&#375;=2</text>
+    <text x="560" y="83" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#ef4444">saved</text>
+    <!-- edge labels -->
+    <text x="158" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#4a5068">×w</text>
+    <text x="316" y="60" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#4a5068">ReLU</text>
+    <text x="486" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#4a5068">×v</text>
+  </svg>
+</div>
+
+<!-- 7 ─── STEP 2: START BACKWARD ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining how wrong is the prediction?"
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>How wrong is the prediction?</h2>
+  <div style="max-width:540px;margin:2.5rem auto;text-align:center;">
+    <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:1rem;">LOSS SLOPE AT THE OUTPUT</div>
+    <div class="formula" style="font-size:1.4rem;margin-bottom:1rem;">blame = 2 &times; (&ycirc; &minus; target)</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:#8b90a5;margin-bottom:1rem;">2 &times; (2 &minus; 4)</div>
+    <div class="formula" style="font-size:2.2rem;color:#ef4444;">&minus;4</div>
+  </div>
+  <p style="text-align:center;color:#1a1d2e;max-width:500px;margin:0 auto;"><strong>&minus;4</strong> means the prediction is too low, so gradient descent will push it up.</p>
+</div>
+
+<!-- 8 ─── STEP 3: OUTPUT WEIGHT ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining how much did v affect the prediction?"
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>How much did v affect the prediction?</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">OUTPUT RULE</div>
+      <div class="formula">&ycirc; = v &times; h</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">v touches h directly.</p>
+    </div>
+    <div style="text-align:center;font-size:1.4rem;font-weight:700;color:#4a5068;">therefore</div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">OUTPUT-WEIGHT GRADIENT</div>
+      <div class="formula">grad v = blame &times; h</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#8b90a5;margin-top:0.5rem;">&minus;4 &times; 2</div>
+      <div style="font-size:2rem;font-weight:900;color:#10b981;margin-top:0.25rem;">&minus;8</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── STEP 4: BLAME AT h ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining pass the blame to h."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Pass the blame to h</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">CONNECTION TO OUTPUT</div>
+      <div class="formula">&ycirc; = v &times; h</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">h reaches the output through v.</p>
+    </div>
+    <div style="text-align:center;font-size:1.4rem;font-weight:700;color:#4a5068;">move left</div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BLAME AT h</div>
+      <div class="formula">blame &times; v</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#8b90a5;margin-top:0.5rem;">&minus;4 &times; 1</div>
+      <div style="font-size:2rem;font-weight:900;color:#8b5cf6;margin-top:0.25rem;">&minus;4</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── STEP 5: RELU GATE ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining does the activation let blame through?"
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Does the activation let blame through?</h2>
+
+  <!-- ReLU gate: OPEN state -->
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card" style="text-align:center;flex:1;min-width:180px;background:#f0fdf4;border:2px solid #10b981;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">FORWARD EVIDENCE</div>
+      <strong style="font-size:1.3rem;color:#10b981;">z = 2 &gt; 0</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">ReLU passed the value.</p>
+    </div>
+    <div style="display:flex;align-items:center;flex-direction:column;justify-content:center;gap:0.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#10b981;">gate = 1</div>
+      <div style="font-size:1.8rem;color:#10b981;">&rarr;</div>
+    </div>
+    <div class="card" style="text-align:center;flex:1;min-width:180px;background:#f0fdf4;border:2px solid #10b981;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">BACKWARD RESULT</div>
+      <strong style="font-size:1.3rem;color:#10b981;">&minus;4 &times; 1 = &minus;4</strong>
+      <p style="color:#10b981;margin-top:0.5rem;font-weight:600;">Blame passes unchanged.</p>
+    </div>
+  </div>
+
+  <!-- ReLU gate SVG: OPEN vs CLOSED diagram -->
+  <svg viewBox="0 0 640 120" style="width:100%;max-width:620px;display:block;margin:1.5rem auto 0;border-radius:12px;background:#f8f9fb;border:1.5px solid #e2e5ef;" role="img" aria-label="ReLU gate open when z greater than 0 passes blame; closed when z less than 0 blocks blame">
+    <!-- OPEN gate -->
+    <rect x="20" y="20" width="270" height="80" rx="10" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+    <text x="155" y="16" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#10b981" letter-spacing="0.06em">OPEN (z &gt; 0)</text>
+    <circle cx="65"  cy="60" r="22" fill="#bbf7d0" stroke="#10b981" stroke-width="2"/>
+    <text x="65"  y="65" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#166534">blame</text>
+    <line x1="90" y1="60" x2="180" y2="60" stroke="#10b981" stroke-width="2.5" marker-end="url(#arG)"/>
+    <circle cx="230" cy="60" r="22" fill="#bbf7d0" stroke="#10b981" stroke-width="2"/>
+    <text x="230" y="65" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#166534">blame</text>
+    <defs>
+      <marker id="arG" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+        <polygon points="0 0,7 2.5,0 5" fill="#10b981"/>
+      </marker>
+      <marker id="arR" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+        <polygon points="0 0,7 2.5,0 5" fill="#ef4444"/>
+      </marker>
+    </defs>
+    <!-- CLOSED gate -->
+    <rect x="350" y="20" width="270" height="80" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="485" y="16" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#ef4444" letter-spacing="0.06em">CLOSED (z &lt; 0)</text>
+    <circle cx="395" cy="60" r="22" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+    <text x="395" y="65" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#7f1d1d">blame</text>
+    <line x1="420" y1="60" x2="510" y2="60" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4"/>
+    <text x="465" y="52" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="900" fill="#ef4444">&times; 0</text>
+    <circle cx="555" cy="60" r="22" fill="#f8f9fb" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="555" y="65" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#ef4444">0</text>
+  </svg>
+</div>
+
+<!-- 11 ─── STEP 6: HIDDEN WEIGHT ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining the blame reaches the deepest weight."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>The blame reaches the deepest weight</h2>
+  <div style="max-width:560px;margin:2.5rem auto;text-align:center;">
+    <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:1rem;">HIDDEN RULE &bull; z = w &times; x</div>
+    <div class="formula" style="font-size:1.4rem;margin-bottom:1rem;">grad w = blame at z &times; x</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:#8b90a5;margin-bottom:0.5rem;">&minus;4 &times; 2</div>
+    <div class="formula" style="font-size:2.4rem;color:#3b6df0;">&minus;8</div>
+  </div>
+  <p style="text-align:center;color:#1a1d2e;max-width:500px;margin:0 auto;">The output error has reached the <strong>deepest weight</strong>.</p>
+</div>
+
+<!-- 12 ─── STEP 7: UPDATE ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining move both weights together."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Move both weights together</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">HIDDEN WEIGHT</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#8b90a5;margin-bottom:0.5rem;">w &minus; &eta; &middot; grad w</div>
+      <div class="formula">1 &minus; 0.01(&minus;8)</div>
+      <div style="font-size:1.8rem;font-weight:900;color:#3b6df0;margin-top:0.25rem;">1.08</div>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">OUTPUT WEIGHT</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#8b90a5;margin-bottom:0.5rem;">v &minus; &eta; &middot; grad v</div>
+      <div class="formula">1 &minus; 0.01(&minus;8)</div>
+      <div style="font-size:1.8rem;font-weight:900;color:#8b5cf6;margin-top:0.25rem;">1.08</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#f0f4ff;border-radius:8px;max-width:480px;margin-left:auto;margin-right:auto;border-left:3px solid #3b6df0;">
+    Compute every gradient first. Then update every weight.
+  </div>
+</div>
+
+<!-- 13 ─── STEP 8: CHECK ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining run forward again: did the loss drop?"
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Run forward again: did the loss drop?</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW z</div>
+      <strong>1.08 &times; 2 = 2.16</strong>
+    </div>
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW h</div>
+      <strong>ReLU(2.16) = 2.16</strong>
+    </div>
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW &ycirc;</div>
+      <strong>1.08 &times; 2.16 = 2.33</strong>
+    </div>
+    <div class="card" style="text-align:center;min-width:140px;background:#f0fdf4;border:2px solid #10b981;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW LOSS</div>
+      <strong style="color:#10b981;">(2.33 &minus; 4)&sup2; = 2.78</strong>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1.5rem;">
+    <span style="font-size:2.4rem;font-weight:900;color:#ef4444;">4.00</span>
+    <span style="font-size:1.8rem;color:#4a5068;">&rarr;</span>
+    <span style="font-size:2.4rem;font-weight:900;color:#10b981;">2.78</span>
+  </div>
+  <p style="text-align:center;color:#10b981;font-weight:600;margin-top:0.5rem;">Loss dropped. One step learned.</p>
+</div>
+
+<!-- 14 ─── FULL BACKWARD FLOW ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining one chain assigns responsibility to both weights."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>One chain assigns responsibility to both weights</h2>
+
+  <!-- Backward blame flow SVG: arrows right-to-left -->
+  <svg viewBox="0 0 720 130" style="width:100%;max-width:680px;display:block;margin:1.5rem auto 0;border-radius:12px;background:#f8f9fb;border:1.5px solid #e2e5ef;" role="img" aria-label="Backward blame flow arrows going right to left through network nodes">
+    <defs>
+      <marker id="arB" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+        <polygon points="0 0,7 2.5,0 5" fill="#ef4444"/>
+      </marker>
+    </defs>
+    <!-- nodes left to right -->
+    <circle cx="80"  cy="65" r="28" fill="#dbeafe" stroke="#3b6df0" stroke-width="2"/>
+    <circle cx="240" cy="65" r="28" fill="#dcfce7" stroke="#10b981" stroke-width="2"/>
+    <circle cx="400" cy="65" r="28" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+    <circle cx="560" cy="65" r="28" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+    <!-- backward arrows (right to left) -->
+    <line x1="528" y1="65" x2="432" y2="65" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arB)"/>
+    <line x1="368" y1="65" x2="272" y2="65" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arB)"/>
+    <line x1="208" y1="65" x2="112" y2="65" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arB)"/>
+    <!-- node labels -->
+    <text x="80"  y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#3b6df0">w=1</text>
+    <text x="240" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#10b981">z=2</text>
+    <text x="400" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#8b5cf6">h=2</text>
+    <text x="560" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#ef4444">&#375;=2</text>
+    <!-- blame labels on arrows -->
+    <text x="480" y="55" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#ef4444">&minus;4</text>
+    <text x="320" y="55" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#ef4444">&minus;4</text>
+    <text x="158" y="55" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#ef4444">&minus;4</text>
+  </svg>
+
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+    <div style="text-align:center;padding:0.75rem 1.25rem;background:#f0f4ff;border-radius:8px;border-left:3px solid #3b6df0;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">x=2 &bull; &#375;=2</div>
+      <strong style="color:#3b6df0;">blame = &minus;4</strong>
+    </div>
+    <div style="text-align:center;padding:0.75rem 1.25rem;background:#f0fdf4;border-radius:8px;border-left:3px solid #10b981;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">v=1 &bull; grad v=&minus;8</div>
+      <strong style="color:#10b981;">blame at h = &minus;4</strong>
+    </div>
+    <div style="text-align:center;padding:0.75rem 1.25rem;background:#faf5ff;border-radius:8px;border-left:3px solid #8b5cf6;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">z=2 &bull; gate=1</div>
+      <strong style="color:#8b5cf6;">blame at z = &minus;4</strong>
+    </div>
+    <div style="text-align:center;padding:0.75rem 1.25rem;background:#fef2f2;border-radius:8px;border-left:3px solid #ef4444;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">x=2 &bull; grad w=&minus;8</div>
+      <strong style="color:#ef4444;">deepest weight reached</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── LIVE CALCULATOR ─── -->
+<div class="slide"
+     data-say="Move x across zero and predict whether the hidden gradient will survive."
+     data-ask="Which value controls the next operation?"
+     data-time="5 min">
+  <h2>Open and close the backward ReLU gate</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:1.5rem;margin-top:1rem;">
+    <div class="card accent-blue" style="max-width:560px;width:100%;text-align:center;">
+      <p style="color:#8b90a5;margin-bottom:1rem;">Interactive lab: adjust <strong>x</strong> across zero and observe the hidden gradient switch on (green) or off (red).</p>
+      <div style="font-size:0.8rem;color:#3b6df0;font-weight:600;">[ backprop-gate interactive lab ]</div>
+    </div>
+    <div class="card accent-purple" style="max-width:560px;width:100%;">
+      <strong>Instructor tip:</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">Start with x = 2 (gate open), then move to x = &minus;2 (gate closed). Ask learners to predict grad w before revealing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── EXPERIMENT: RELU OFF (FORWARD) ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining a negative z blocks the hidden gradient."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>A negative z blocks the hidden gradient</h2>
+  <p style="color:var(--text-muted);margin-bottom:1rem;">Now try x = &minus;2. What does ReLU do?</p>
+  <div style="display:flex;flex-direction:column;gap:1rem;max-width:600px;margin:0 auto;">
+    <div class="card accent-blue" style="display:flex;gap:1.5rem;align-items:center;">
+      <span style="font-size:1.4rem;font-weight:900;color:#3b6df0;flex-shrink:0;">1</span>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#3b6df0;">z = w &times; x</div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#1a1d2e;">1 &times; (&minus;2) = <strong>&minus;2</strong></div>
+    </div>
+    <div class="card" style="display:flex;gap:1.5rem;align-items:center;background:#fef2f2;border:1.5px solid #ef4444;">
+      <span style="font-size:1.4rem;font-weight:900;color:#ef4444;flex-shrink:0;">2</span>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#ef4444;">h = ReLU(z)</div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#ef4444;">ReLU(&minus;2) = <strong>0</strong></div>
+    </div>
+    <div class="card" style="display:flex;gap:1.5rem;align-items:center;background:#fef2f2;border:1.5px solid #ef4444;">
+      <span style="font-size:1.4rem;font-weight:900;color:#ef4444;flex-shrink:0;">3</span>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#ef4444;">&ycirc; = v &times; h</div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#ef4444;">1 &times; 0 = <strong>0</strong></div>
+    </div>
+    <div class="card accent-red" style="display:flex;gap:1.5rem;align-items:center;">
+      <span style="font-size:1.4rem;font-weight:900;color:#ef4444;flex-shrink:0;">4</span>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#ef4444;">L = (&ycirc; &minus; y)&sup2;</div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:#ef4444;">(0 &minus; 4)&sup2; = <strong>16</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── BLOCKED BACKWARD PASS ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining large error · zero gradient for w."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Large error &bull; zero gradient for w</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-red" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STRONG OUTPUT BLAME</div>
+      <strong style="font-size:1.4rem;">2 &times; (0 &minus; 4) = &minus;8</strong>
+    </div>
+    <div style="font-size:1.8rem;color:#4a5068;">&rarr;</div>
+    <div class="card" style="text-align:center;min-width:180px;background:#fef2f2;border:2px solid #ef4444;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">CLOSED RELU GATE</div>
+      <strong style="font-size:1.4rem;color:#ef4444;">&minus;8 &times; 0 = 0</strong>
+    </div>
+    <div style="font-size:1.8rem;color:#4a5068;">&rarr;</div>
+    <div class="card" style="text-align:center;min-width:180px;background:#fef2f2;border:2px solid #ef4444;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">HIDDEN GRADIENT</div>
+      <strong style="font-size:1.4rem;color:#ef4444;">grad w = 0 &times; (&minus;2) = 0</strong>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#1a1d2e;">The network is very wrong, but <strong>w cannot learn</strong> from this example.</p>
+</div>
+
+<!-- 18 ─── COMPARE THE GATES ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining open learns · closed gets stuck."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Open learns &bull; closed gets stuck</h2>
+  <div class="two-col vs-layout" style="margin-top:2rem;gap:2rem;">
+    <div class="card" style="text-align:center;background:#f0fdf4;border:2px solid #10b981;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">x = 2 &bull; z = 2</div>
+      <strong style="font-size:1.3rem;color:#10b981;">gate open</strong>
+      <p style="margin:0.75rem 0;">blame at z = &minus;4</p>
+      <div style="font-weight:700;color:#10b981;padding:0.5rem;background:#dcfce7;border-radius:6px;">grad w = &minus;8 &bull; learns</div>
+    </div>
+    <div class="card" style="text-align:center;background:#fef2f2;border:2px solid #ef4444;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">x = &minus;2 &bull; z = &minus;2</div>
+      <strong style="font-size:1.3rem;color:#ef4444;">gate closed</strong>
+      <p style="margin:0.75rem 0;">blame at z = 0</p>
+      <div style="font-weight:700;color:#ef4444;padding:0.5rem;background:#fecaca;border-radius:6px;">grad w = 0 &bull; stuck</div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── DEAD RELU ─── -->
+<div class="slide"
+     data-say="Connect dead relu to the full backward-pass story. A fully closed gate can stop a neuron learning."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>A fully closed gate can stop a neuron learning</h2>
+
+  <!-- Dead ReLU illustration SVG -->
+  <svg viewBox="0 0 700 180" style="width:100%;max-width:660px;display:block;margin:1.5rem auto 0;border-radius:12px;background:#fef2f2;border:1.5px solid #ef4444;" role="img" aria-label="Dead ReLU illustration: every input maps to z below zero, ReLU outputs all zeros, no gradient flows back">
+    <defs>
+      <marker id="arD" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+        <polygon points="0 0,7 2.5,0 5" fill="#ef4444"/>
+      </marker>
+    </defs>
+    <!-- Title -->
+    <text x="350" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#ef4444" letter-spacing="0.06em">DEAD RELU — EVERY INPUT BLOCKED</text>
+    <!-- nodes -->
+    <circle cx="80"  cy="110" r="26" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+    <circle cx="240" cy="110" r="26" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+    <circle cx="400" cy="110" r="26" fill="#f8f9fb" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3"/>
+    <circle cx="560" cy="110" r="26" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+    <!-- forward arrows -->
+    <line x1="106" y1="110" x2="210" y2="110" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arD)"/>
+    <line x1="266" y1="110" x2="370" y2="110" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <line x1="430" y1="110" x2="530" y2="110" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arD)"/>
+    <!-- labels -->
+    <text x="80"  y="106" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#7f1d1d">z=&minus;5</text>
+    <text x="80"  y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#7f1d1d">negative</text>
+    <text x="240" y="106" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#7f1d1d">ReLU</text>
+    <text x="240" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#7f1d1d">&times; 0</text>
+    <text x="400" y="106" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#ef4444">h=0</text>
+    <text x="400" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#ef4444">dead</text>
+    <text x="560" y="106" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#7f1d1d">grad w</text>
+    <text x="560" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="900" fill="#ef4444">= 0</text>
+    <!-- backward "no flow" label -->
+    <text x="158" y="90" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444">no blame flows</text>
+  </svg>
+
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:1.5rem;">
+    <div class="formula" style="font-size:1.6rem;color:#ef4444;">loss = 16</div>
+    <div style="font-size:1.4rem;font-weight:700;color:#8b90a5;">but</div>
+    <div class="formula" style="font-size:1.6rem;color:#ef4444;">grad w = 0</div>
+  </div>
+  <p style="text-align:center;margin-top:0.75rem;color:#1a1d2e;">A neuron can be very wrong and still receive no learning signal.</p>
+</div>
+
+<!-- 20 ─── LEAKY RELU ─── -->
+<div class="slide"
+     data-say="Connect leaky relu keeps a tiny backward path open to the full backward-pass story."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Keep a tiny backward path open</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-red" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">RELU</div>
+      <div class="formula">max(0, z)</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">negative side slope = 0</p>
+      <div style="margin-top:0.75rem;font-size:0.85rem;color:#ef4444;font-weight:600;">gate fully closes</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">LEAKY RELU</div>
+      <div class="formula">max(0.01z, z)</div>
+      <p style="color:#8b90a5;margin-top:0.75rem;">negative side keeps a tiny slope</p>
+      <div style="margin-top:0.75rem;font-size:0.85rem;color:#10b981;font-weight:600;">gate never fully closes</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem;padding:0.75rem 1.5rem;background:#f0fdf4;border-radius:8px;max-width:480px;margin-left:auto;margin-right:auto;border-left:3px solid #10b981;">
+    The gate never fully closes, so a small gradient can still pass.
+  </div>
+</div>
+
+<!-- 21 ─── TRAINING LOOP ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining repeat forward → backward → update."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Repeat forward &rarr; backward &rarr; update</h2>
+  <div style="display:flex;flex-direction:column;gap:1rem;max-width:640px;margin:2rem auto;">
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;">01</span>
+      <div><strong>Forward</strong><p style="color:#8b90a5;margin-top:0.25rem;">save z, h, &ycirc;</p></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#8b5cf6;flex-shrink:0;">02</span>
+      <div><strong>Backward</strong><p style="color:#8b90a5;margin-top:0.25rem;">pass blame through every path</p></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#10b981;flex-shrink:0;">03</span>
+      <div><strong>Update</strong><p style="color:#8b90a5;margin-top:0.25rem;">move all weights together</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;">04</span>
+      <div><strong>Repeat</strong><p style="color:#8b90a5;margin-top:0.25rem;">use the next epoch</p></div>
+    </div>
+  </div>
+  <p style="text-align:center;color:#1a1d2e;max-width:500px;margin:0 auto;">The full two-neuron network repeats the same eight-step logic for <strong>each path</strong>.</p>
+</div>
+
+<!-- 22 ─── TRAINING RECORD ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining two thousand passes recover |x|."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Two thousand passes recover |x|</h2>
+  <table class="compare-table" style="margin-top:1.5rem;max-width:640px;margin-left:auto;margin-right:auto;">
+    <tr><th>Epoch</th><th>Loss</th><th>Status</th></tr>
+    <tr><td>1</td><td style="font-family:'JetBrains Mono',monospace;color:#ef4444;font-weight:700;">0.84801916</td><td>rough first step</td></tr>
+    <tr><td>100</td><td style="font-family:'JetBrains Mono',monospace;color:#8b5cf6;font-weight:700;">0.00230882</td><td>V-shape nearly learned</td></tr>
+    <tr class="highlight-row"><td><strong>2000</strong></td><td style="font-family:'JetBrains Mono',monospace;color:#10b981;font-weight:700;">0.00000000</td><td style="color:#10b981;font-weight:700;">exact relationship</td></tr>
+  </table>
+</div>
+
+<!-- 23 ─── LEARNED RESULT ─── -->
+<div class="slide"
+     data-say="Keep the backward chain visible while explaining the final predictions match every target."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>The final predictions match every target</h2>
+  <div style="display:flex;flex-direction:column;gap:1rem;max-width:480px;margin:2rem auto;">
+    <div class="card accent-blue" style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">INPUTS</div>
+      <strong style="font-family:'JetBrains Mono',monospace;">[&minus;2, &minus;1, 0, 1, 2]</strong>
+    </div>
+    <div class="card accent-blue" style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">TARGETS</div>
+      <strong style="font-family:'JetBrains Mono',monospace;">[2, 1, 0, 1, 2]</strong>
+    </div>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:2px solid #10b981;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;">PREDICTIONS</div>
+      <strong style="font-family:'JetBrains Mono',monospace;color:#10b981;">[2, 1, 0, 1, 2]</strong>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:0.75rem;padding:0.75rem 1.5rem;background:#f0fdf4;border-radius:8px;max-width:480px;margin-left:auto;margin-right:auto;border-left:3px solid #10b981;">
+    The network learned |x| by repeating Steps 1–8.
+  </div>
+</div>
+
+<!-- 24 ─── THE 8-STEP RECIPE ─── -->
+<div class="slide"
+     data-say="Connect backpropagation is a repeatable sequence to the full backward-pass story."
+     data-ask="Which value controls the next operation?"
+     data-time="2–3 min">
+  <h2>Backpropagation is a repeatable sequence</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:1.5rem;max-width:680px;margin-left:auto;margin-right:auto;">
+    <div class="card accent-blue" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">1</span>
+      <div><strong>Forward</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">save z, h, &ycirc;</div></div>
+    </div>
+    <div class="card accent-red" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#ef4444;flex-shrink:0;min-width:1.5rem;">2</span>
+      <div><strong>Output blame</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">2(&ycirc; &minus; target)</div></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#10b981;flex-shrink:0;min-width:1.5rem;">3</span>
+      <div><strong>Gradient for v</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">blame &times; h</div></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#8b5cf6;flex-shrink:0;min-width:1.5rem;">4</span>
+      <div><strong>Blame at h</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">blame &times; v</div></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#10b981;flex-shrink:0;min-width:1.5rem;">5</span>
+      <div><strong>Through ReLU</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">blame at h &times; gate</div></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;min-width:1.5rem;">6</span>
+      <div><strong>Gradient for w</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">blame at z &times; x</div></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#8b5cf6;flex-shrink:0;min-width:1.5rem;">7</span>
+      <div><strong>Update</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">all weights together</div></div>
+    </div>
+    <div class="card accent-red" style="display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#ef4444;flex-shrink:0;min-width:1.5rem;">8</span>
+      <div><strong>Check</strong><div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#8b90a5;margin-top:0.2rem;">run forward again</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 25 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide revealable"
+     data-say="Ask for reasons before revealing each answer."
+     data-ask="Ask for reasoning before revealing all five answers."
+     data-time="4 min">
+  <h2>Can you move blame through the network?</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">At each connection, what multiplies the blame?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">That connection's local influence on the next value.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">If z = 5, does ReLU pass blame?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">Yes — at Step 5, the gate equals 1.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">If z = &minus;3, does ReLU pass blame?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">No. The gate equals 0.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">Why save z in Step 1?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">Its sign determines the backward ReLU gate.</strong>
+    </div>
+    <div class="card accent-blue step">
+      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">05</span>
+      <p style="margin:0.25rem 0;font-size:0.9rem;">Why update after all gradients are computed?</p>
+      <strong class="reveal-answer" style="color:#10b981;display:none;">Every gradient must describe the same parameter state.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 26 ─── NEXT LESSON BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Connect from number prediction to real-or-fake probability to the next lesson."
+     data-ask="Which value controls the next operation?"
+     data-time="1 min">
+  <h2>From number prediction to real-or-fake probability</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">SO FAR</div>
+      <strong style="font-size:1.2rem;">predict a number</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">squared-error loss</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;text-align:center;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">GAN DISCRIMINATOR</div>
+      <strong style="font-size:1.2rem;">real or fake?</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">probability + classification loss</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;font-style:italic;color:#1a1d2e;font-size:1.05rem;">How do we turn any raw score into a probability between 0 and 1?</p>
+  <div style="text-align:center;margin-top:1rem;">
+    <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;color:#3b6df0;">NEXT &bull; LESSON 12</span>
+  </div>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L12.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L12 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../S3-neural-networks.html" style="color:#3b6df0;">back to S3 hub</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S3 — Neural Networks: The Complete Foundation</title>
+<link rel="stylesheet" href="deck.css">
+<style>
+  .nav-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; margin: 0.5rem 0; font-size: 0.9rem; }
+  .nav-table th { background: var(--bg-accent-light); color: var(--accent-blue); font-weight: 700; text-align: left; padding: 0.5rem 0.8rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 2px solid var(--accent-blue); }
+  .nav-table td { background: white; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border-light); }
+  .nav-table tr:last-child td { border-bottom: none; }
+  .nav-table tr:hover td { background: #f0f4ff; cursor: pointer; }
+  .nav-table a { color: var(--text-primary); text-decoration: none; font-weight: 600; display: block; }
+  .nav-table a:hover { color: var(--accent-blue); text-decoration: underline; }
+  .nav-table .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-blue); font-weight: 700; }
+  .nav-table .slides { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+  .nav-table .question { font-size: 0.8rem; color: var(--text-secondary); font-style: italic; }
+</style>
+</head>
+<body data-lesson="S3">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="S2-what-is-a-gan.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; S2</a><a href="index.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">S3 &bull; Day 1</a><a href="S4-build-gans.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">S4 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="index.html">Day 1</a> &bull; Session 3</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Session 3 is the neural network foundation. 15 lessons from a single neuron to PyTorch. Click any row in the tables to jump into that lesson."
+     data-ask="How comfortable are you with neural networks?"
+     data-time="1 min">
+  <div class="lesson-number">Day 1 &bull; Session 3</div>
+  <h1>🏗️ Neural Networks</h1>
+  <p class="subtitle">15 lessons &bull; 365 slides &bull; Click any row to start</p>
+</div>
+
+<!-- 2 ─── FOUNDATIONS TABLE ─── -->
+<div class="slide"
+     data-say="Foundations: eight lessons that build a learning neuron from scratch. Click any row to open that lesson."
+     data-ask="Start at L01 unless your audience needs the Gen-AI context."
+     data-time="1 min">
+  <h2>📐 Foundations (L00&ndash;L07)</h2>
+  <table class="nav-table">
+    <tr><th>L#</th><th>Topic</th><th>Key Question</th><th>Slides</th></tr>
+    <tr onclick="location.href='nn-lessons/NN-L00.html'"><td class="num">00</td><td><a href="nn-lessons/NN-L00.html">🌍 Overview of Generative AI</a></td><td class="question">What approaches exist?</td><td class="slides">29</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L01.html'"><td class="num">01</td><td><a href="nn-lessons/NN-L01.html">🧠 What Is a Neuron?</a></td><td class="question">What do weight and bias do?</td><td class="slides">16</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L02.html'"><td class="num">02</td><td><a href="nn-lessons/NN-L02.html">📏 How Wrong Is the Prediction?</a></td><td class="question">How do we measure wrongness?</td><td class="slides">20</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L03.html'"><td class="num">03</td><td><a href="nn-lessons/NN-L03.html">🧭 Which Direction?</a></td><td class="question">How does the gradient point downhill?</td><td class="slides">20</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L04.html'"><td class="num">04</td><td><a href="nn-lessons/NN-L04.html">📐 How Far?</a></td><td class="question">What if the step is too big?</td><td class="slides">21</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L05.html'"><td class="num">05</td><td><a href="nn-lessons/NN-L05.html">🔁 Learn Repeatedly</a></td><td class="question">Can the neuron find the answer alone?</td><td class="slides">20</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L06.html'"><td class="num">06</td><td><a href="nn-lessons/NN-L06.html">🎯 Exact Gradient</a></td><td class="question">Can calculus replace estimation?</td><td class="slides">22</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L07.html'"><td class="num">07</td><td><a href="nn-lessons/NN-L07.html">⚖️ Weight and Bias Together</a></td><td class="question">Two parameters learning at once?</td><td class="slides">25</td></tr>
+  </table>
+</div>
+
+<!-- 3 ─── NETWORKS + DISCRIMINATOR TABLE ─── -->
+<div class="slide"
+     data-say="Parts 2 and 3: scale to deep networks, then connect to GANs. ReLU, hidden layers, backprop, Sigmoid, BCE, build a classifier that IS a Discriminator, then PyTorch automates it all."
+     data-ask=""
+     data-time="1 min">
+  <h2>🔗 Networks + 🎯 Discriminator + 🔥 PyTorch</h2>
+  <table class="nav-table">
+    <tr><th>L#</th><th>Topic</th><th>Key Question</th><th>Slides</th></tr>
+    <tr onclick="location.href='nn-lessons/NN-L08.html'"><td class="num">08</td><td><a href="nn-lessons/NN-L08.html">🔀 Multiple Inputs</a></td><td class="question">How does dot product work?</td><td class="slides">26</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L09.html'"><td class="num">09</td><td><a href="nn-lessons/NN-L09.html">💥 Why One Isn&rsquo;t Enough</a></td><td class="question">What does ReLU fix?</td><td class="slides">27</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L10.html'"><td class="num">10</td><td><a href="nn-lessons/NN-L10.html">🏗️ Hidden Layer</a></td><td class="question">What happens inside hidden neurons?</td><td class="slides">26</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L11.html'"><td class="num">11</td><td><a href="nn-lessons/NN-L11.html">⬅️ Backpropagation</a></td><td class="question">How does blame flow backward?</td><td class="slides">27</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L12.html'" style="border-top:2px solid var(--accent-green);"><td class="num" style="color:var(--accent-green);">12</td><td><a href="nn-lessons/NN-L12.html">📊 Sigmoid and BCE</a></td><td class="question">How does a network output probability?</td><td class="slides">25</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L13.html'"><td class="num" style="color:var(--accent-green);">13</td><td><a href="nn-lessons/NN-L13.html">🔨 Build a Classifier</a></td><td class="question">This IS a Discriminator!</td><td class="slides">30</td></tr>
+    <tr onclick="location.href='nn-lessons/NN-L14.html'" style="border-top:2px solid var(--accent-red);"><td class="num" style="color:var(--accent-red);">14</td><td><a href="nn-lessons/NN-L14.html">🔥 PyTorch</a></td><td class="question">One line replaces all manual gradients?</td><td class="slides">31</td></tr>
+  </table>
+  <div style="text-align:center;margin-top:0.8rem;">
+    <a href="S4-build-gans.html" style="color:var(--accent-blue);font-weight:700;font-size:1rem;text-decoration:none;">After L14 &rarr; Session 4: 🎨 Building GANs &rarr;</a>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+<script src="deck.js"></script>
+</body>
+</html>

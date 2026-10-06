@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L01">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L00.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L00</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L01 / 19</a><a href="NN-L02.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L02 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L00.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L00</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L01 / 14</a><a href="NN-L02.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L02 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Phase 0 &bull; L01</div>
@@ -142,7 +142,7 @@
     <!-- Input node -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
       <svg width="80" height="80" viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="36" fill="#1e2235" stroke="#3b6df0" stroke-width="2.5"/>
+        <circle cx="40" cy="40" r="36" fill="#eef2ff" stroke="#3b6df0" stroke-width="2.5"/>
         <text x="40" y="36" text-anchor="middle" fill="#3b6df0" font-size="13" font-weight="700" font-family="monospace">Input</text>
         <text x="40" y="53" text-anchor="middle" fill="#3b6df0" font-size="20" font-weight="900" font-family="monospace">x</text>
       </svg>
@@ -170,9 +170,9 @@
         </svg>
       </div>
       <svg width="110" height="110" viewBox="0 0 110 110">
-        <circle cx="55" cy="55" r="50" fill="#1e2235" stroke="#3b6df0" stroke-width="3"/>
-        <text x="55" y="47" text-anchor="middle" fill="#3b6df0" font-size="11" font-weight="700" font-family="monospace">NEURON</text>
-        <text x="55" y="65" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="900" font-family="monospace">wx+b</text>
+        <circle cx="55" cy="55" r="50" fill="#eef2ff" stroke="#3b6df0" stroke-width="3"/>
+        <text x="55" y="47" text-anchor="middle" fill="#8b90a5" font-size="11" font-weight="700" font-family="monospace">NEURON</text>
+        <text x="55" y="65" text-anchor="middle" fill="#1a1d2e" font-size="16" font-weight="900" font-family="monospace">wx+b</text>
       </svg>
       <span style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">+ 5</span>
     </div>
@@ -190,7 +190,7 @@
     <!-- Output node -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
       <svg width="80" height="80" viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="36" fill="#1e2235" stroke="#10b981" stroke-width="2.5"/>
+        <circle cx="40" cy="40" r="36" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
         <text x="40" y="36" text-anchor="middle" fill="#10b981" font-size="13" font-weight="700" font-family="monospace">Output</text>
         <text x="40" y="53" text-anchor="middle" fill="#10b981" font-size="20" font-weight="900" font-family="monospace">ŷ</text>
       </svg>
@@ -336,48 +336,51 @@ for <span style="color:#3b6df0;">distance</span> in [<span style="color:#3b6df0;
 
 <!-- 10 ─── EXPERIMENT: CHANGE PARAMETERS ─── -->
 <div class="slide"
-     data-say="Ask learners to compute each answer in their head before revealing the table. The highlight is experiment C: when w = 0, the input is irrelevant and output is entirely the bias."
-     data-ask="For experiment C, what does the output tell you about the role of the weight?"
+     data-say="Ask learners to compute each answer in their head. Give them 30 seconds. Then press R to reveal the results. The highlight is experiment C: when w = 0, the input is irrelevant."
+     data-ask="Calculate each one: w × 4 + b = ?"
      data-time="3 min">
   <h2>Experiment: change the parameters</h2>
-  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Keep distance = 4. Calculate each answer in your head first.</p>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Keep distance = 4. Calculate each answer in your head first. Press <kbd style="background:#eef2ff;border:1px solid #ddd;border-radius:4px;padding:0.1rem 0.4rem;font-size:0.8rem;">R</kbd> to reveal.</p>
   <table class="compare-table" style="margin-bottom:1.5rem;">
     <thead>
-      <tr><th>Experiment</th><th>Weight w</th><th>Bias b</th><th>Your answer?</th><th>Result</th></tr>
+      <tr><th>Experiment</th><th>Weight w</th><th>Bias b</th><th>Formula</th><th>Result</th></tr>
     </thead>
     <tbody>
       <tr>
         <td><strong>A</strong></td>
         <td>3</td>
         <td>5</td>
-        <td style="color:var(--text-muted);">?</td>
-        <td style="color:#3b6df0;font-weight:700;">17</td>
+        <td style="color:var(--text-muted);">3 &times; 4 + 5 = ?</td>
+        <td class="answer" style="color:#3b6df0;font-weight:700;">17</td>
       </tr>
       <tr>
         <td><strong>B</strong></td>
         <td>2</td>
         <td>0</td>
-        <td style="color:var(--text-muted);">?</td>
-        <td style="color:#10b981;font-weight:700;">8</td>
+        <td style="color:var(--text-muted);">2 &times; 4 + 0 = ?</td>
+        <td class="answer" style="color:#10b981;font-weight:700;">8</td>
       </tr>
-      <tr style="background:rgba(245,158,11,0.07);">
+      <tr>
         <td><strong>C</strong></td>
         <td style="color:#ef4444;font-weight:700;">0</td>
         <td>5</td>
-        <td style="color:var(--text-muted);">?</td>
-        <td style="color:#3b6df0;font-weight:700;">5</td>
+        <td style="color:var(--text-muted);">0 &times; 4 + 5 = ?</td>
+        <td class="answer" style="color:#ef4444;font-weight:700;">5</td>
       </tr>
       <tr>
         <td><strong>D</strong></td>
         <td>1</td>
         <td>10</td>
-        <td style="color:var(--text-muted);">?</td>
-        <td style="color:#8b5cf6;font-weight:700;">14</td>
+        <td style="color:var(--text-muted);">1 &times; 4 + 10 = ?</td>
+        <td class="answer" style="color:#8b5cf6;font-weight:700;">14</td>
       </tr>
     </tbody>
   </table>
-  <div class="card" style="padding:0.85rem 1.5rem;border-left:3px solid #3b6df0;">
-    <strong style="color:#3b6df0;">Notice experiment C:</strong> when w = 0, the input doesn't matter at all. Output is always just the bias (5).
+  <p class="hint" style="text-align:center;">Think first, then press R to check your answers</p>
+  <div class="answer">
+    <div class="card" style="padding:0.85rem 1.5rem;border-left:3px solid #3b6df0;">
+      <strong style="color:#3b6df0;">Notice experiment C:</strong> when w = 0, the input doesn't matter at all. Output is always just the bias (5).
+    </div>
   </div>
 </div>
 

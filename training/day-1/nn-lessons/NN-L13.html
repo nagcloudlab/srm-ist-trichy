@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L13">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L12.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L12</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L13 / 19</a><a href="NN-L14.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L14 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L12.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L12</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L13 / 14</a><a href="NN-L14.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L14 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L13</div>
@@ -41,38 +41,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Connect turn all the pieces into one learning system to the full classify-and-learn loop."
-     data-ask="What number changes next, and why?"
-     data-time="2–3 min">
-  <h2>Turn all the pieces into one learning system</h2>
-  <p style="color:var(--text-muted);max-width:600px;">By the end, you should run the forward arithmetic, explain the BCE gradient, read the learned boundary, and connect the model to a GAN Discriminator.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Predict</strong>
-      <p>Turn x into a score, then a probability.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Learn</strong>
-      <p>Use p &minus; y to update weight and bias.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Classify</strong>
-      <p>Use 0.5 as the decision threshold.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── WHERE WE ARE ─── -->
-<div class="slide"
      data-say="Connect we have every piece. now we connect them. to the full classify-and-learn loop."
      data-ask="What number changes next, and why?"
      data-time="2–3 min">
   <h2>We have every piece. Now we connect them.</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:140px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 10</div>
       <strong>Hidden layer</strong>
     </div>
@@ -280,12 +254,12 @@
   <h2>The uncertain points cost the most</h2>
   <table class="compare-table" style="margin-top:1.5rem;max-width:720px;margin-left:auto;margin-right:auto;">
     <tr><th>x</th><th>target y</th><th>probability p</th><th>BCE loss</th></tr>
-    <tr><td>&minus;3</td><td>0</td><td>0.1824</td><td style="color:#ef4444;font-weight:700;">0.2015</td></tr>
+    <tr><td>&minus;3</td><td>0</td><td>0.1824</td><td style="color:#ef4444;font-weight:700;">0.2014</td></tr>
     <tr><td>&minus;2</td><td>0</td><td>0.2689</td><td style="color:#ef4444;font-weight:700;">0.3133</td></tr>
     <tr><td>&minus;1</td><td>0</td><td>0.3775</td><td style="color:#ef4444;font-weight:700;">0.4741</td></tr>
     <tr><td>1</td><td>1</td><td>0.6225</td><td style="color:#ef4444;font-weight:700;">0.4741</td></tr>
     <tr><td>2</td><td>1</td><td>0.7311</td><td style="color:#ef4444;font-weight:700;">0.3133</td></tr>
-    <tr><td>3</td><td>1</td><td>0.8176</td><td style="color:#ef4444;font-weight:700;">0.2015</td></tr>
+    <tr><td>3</td><td>1</td><td>0.8176</td><td style="color:#ef4444;font-weight:700;">0.2014</td></tr>
   </table>
 </div>
 
@@ -297,7 +271,7 @@
   <h2>Average the six penalties</h2>
   <div style="max-width:600px;margin:2rem auto;text-align:center;">
     <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#3b6df0;margin-bottom:1rem;line-height:1.8;">
-      0.2015 + 0.3133 + 0.4741 + 0.4741 + 0.3133 + 0.2015
+      0.2014 + 0.3133 + 0.4741 + 0.4741 + 0.3133 + 0.2014
     </div>
     <div style="font-size:1.1rem;color:#8b90a5;margin-bottom:1rem;">&divide; 6 examples</div>
     <div class="formula" style="font-size:1.6rem;">average BCE = 0.3296</div>
@@ -366,10 +340,10 @@
 
 <!-- 17 ─── FIRST UPDATE ─── -->
 <div class="slide"
-     data-say="Connect one step makes the boundary sharper to the full classify-and-learn loop."
+     data-say="Connect one makes the boundary sharper to the full classify-and-learn loop."
      data-ask="What number changes next, and why?"
      data-time="2–3 min">
-  <h2>One step makes the boundary sharper</h2>
+  <h2>One makes the boundary sharper</h2>
   <div class="two-col" style="margin-top:2rem;gap:2rem;">
     <div class="card accent-blue" style="text-align:center;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BATCH GRADIENTS</div>
@@ -410,7 +384,7 @@
   <h2>Loss falls from 0.3296 to 0.0335</h2>
   <div class="two-col" style="margin-top:2rem;gap:3rem;align-items:center;">
     <div class="card accent-red" style="text-align:center;">
-      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">RANDOM START</div>
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">START (w = 0.5)</div>
       <div style="font-size:3rem;font-weight:900;color:#ef4444;">0.3296</div>
     </div>
     <div style="text-align:center;color:#4a5068;">
@@ -641,46 +615,44 @@
 </div>
 
 <!-- 28 ─── KNOWLEDGE CHECK ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Connect can you explain the whole classifier? to the full classify-and-learn loop."
      data-ask="Ask for reasoning before revealing all six answers."
      data-time="4 min">
-  <h2>Can you explain the whole classifier?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What does the Sigmoid output represent?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Probability that the input belongs to class 1.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; What does the Sigmoid output represent?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Probability that the input belongs to class 1 (positive/real).</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Which loss trains this binary classifier?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Binary cross-entropy, or BCE.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; What loss function for classification?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Binary Cross-Entropy (BCE).</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">BCE + Sigmoid simplifies to which gradient?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">p &minus; y.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; The gradient for BCE + Sigmoid simplifies to?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">p − y (prediction minus target).</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What does a large |w| do?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Makes the probability transition sharper and predictions more confident.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; What does a large w do to Sigmoid?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Makes the transition sharper — more confident predictions.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">05</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What does b control?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Where the 0.5 decision boundary sits.</strong>
+    <div class="revealable card accent-blue">
+      <h4>05 &mdash; What does b control?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Where the decision boundary is — shifts the 0.5 crossover point.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">06</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">How is this like a GAN Discriminator?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Both use learned features, Sigmoid probability, and BCE to make a binary judgment.</strong>
+    <div class="revealable card accent-blue">
+      <h4>06 &mdash; How is this classifier similar to a GAN Discriminator?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Same output (Sigmoid probability) and same BCE loss — D just has more layers. Replace positive/negative with real/fake.</p></div>
     </div>
   </div>
 </div>
-
-<!-- 29 ─── NEXT LESSON ─── -->
 <div class="slide cover"
      data-say="Connect now build the other player: the generator to the full classify-and-learn loop."
      data-ask="What number changes next, and why?"

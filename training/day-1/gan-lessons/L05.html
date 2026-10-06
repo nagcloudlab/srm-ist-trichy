@@ -323,7 +323,7 @@
     <tr><td><strong>Optimizer</strong></td><td>Adam</td><td>Adapts learning rate per weight</td></tr>
     <tr><td><strong>Learning rate</strong></td><td>0.0002</td><td>Small enough for stable training</td></tr>
     <tr class="highlight-row"><td><strong>Adam betas</strong></td><td>(0.5, 0.999)</td><td>Lower momentum (0.5 vs default 0.9) for GANs</td></tr>
-    <tr><td><strong>Batch size</strong></td><td>64</td><td>Good balance of speed and stability</td></tr>
+    <tr><td><strong>Batch size</strong></td><td>64</td><td>Our lab&rsquo;s choice (the paper used 128)</td></tr>
     <tr><td><strong>Noise size</strong></td><td>100</td><td>Enough variety in outputs</td></tr>
   </table>
   <div class="card mt-2" style="background:#f8f9fb;">
@@ -364,7 +364,7 @@
           <div style="width:60px;height:60px;background:linear-gradient(135deg,#ddd,#aaa,#ccc);border-radius:6px;filter:blur(2px);"></div>
           <div style="width:60px;height:60px;background:linear-gradient(135deg,#bbb,#999,#ddd);border-radius:6px;filter:blur(2px);"></div>
         </div>
-        <p><strong>Blurry</strong> &mdash; each pixel generated independently</p>
+        <p><strong>Blurry</strong> &mdash; no notion of neighbouring pixels</p>
       </div>
     </div>
     <div>
@@ -380,10 +380,10 @@
   </div>
   <table class="compare-table mt-2">
     <tr><th>Linear GAN</th><th>DCGAN</th></tr>
-    <tr><td>Each pixel generated independently</td><td><strong>Nearby pixels generated together</strong></td></tr>
+    <tr><td>No notion of neighbours, no weight sharing</td><td><strong>Nearby pixels generated together</strong></td></tr>
     <tr><td>No spatial structure</td><td><strong>Understands spatial structure</strong></td></tr>
-    <tr><td>Flat connections (784&rarr;512&rarr;256)</td><td>Filter-based (3&times;3 patches)</td></tr>
-    <tr><td>550K params, poorly used</td><td>Fewer params, efficiently used</td></tr>
+    <tr><td>Flat connections (784&rarr;512&rarr;256)</td><td>Filter-based (4&times;4 kernels, shared weights)</td></tr>
+    <tr><td>G 550,416 &middot; D 533,505 params</td><td>G 1,793,665 (<em>more</em>, mostly the first Linear) &middot; D 138,817 (fewer)</td></tr>
   </table>
 </div>
 

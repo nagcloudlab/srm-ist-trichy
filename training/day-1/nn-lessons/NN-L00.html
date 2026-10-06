@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L00">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><span style="color:#b0b5c8;">&larr;</span><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L00 / 19</a><a href="NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L01 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><span style="color:#b0b5c8;">&larr;</span><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L00 / 14</a><a href="NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L01 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Phase 0 &bull; L00</div>
@@ -439,7 +439,7 @@
 
 <!-- 15 ─── BEFORE AND AFTER GANS ─── -->
 <div class="slide"
-     data-say="Make the before-after contrast visceral. Before 2014 the best generative images looked like smeared watercolors. After Goodfellow's paper, faces were sharp enough to fool humans. That was the revolution."
+     data-say="Make the before-after contrast visceral. Before 2014 the best generative images looked like smeared watercolors. Goodfellow's 2014 paper started the revolution — its own samples were still small and fuzzy. Within five years (ProGAN 2017, StyleGAN 2019) GAN faces were sharp enough to fool humans."
      data-ask="Why do you think blurry outputs were the norm before GANs?"
      data-time="2 min">
   <h2>GANs were the first models to produce photorealistic images</h2>
@@ -456,15 +456,15 @@
     </div>
     <div style="align-self:center;font-size:2.5rem;color:#3b6df0;">&rarr;</div>
     <div style="text-align:center;flex:1;">
-      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:1rem;">AFTER GANS (2014+)</div>
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:1rem;">AFTER GANS (2014 &rarr; 2019)</div>
       <div style="background:var(--card-bg);border:2px solid #3b6df0;border-radius:0.5rem;padding:1.25rem;max-width:280px;margin:0 auto;min-height:80px;display:flex;align-items:center;justify-content:center;">
         <span style="color:#10b981;font-weight:700;font-size:1rem;">A face so real<br>you can't tell.</span>
       </div>
-      <p style="color:#10b981;font-weight:600;margin-top:0.75rem;">Photorealistic. Indistinguishable.</p>
+      <p style="color:#10b981;font-weight:600;margin-top:0.75rem;">Photorealistic by 2017&ndash;19 (ProGAN, StyleGAN).</p>
     </div>
   </div>
   <div class="card" style="margin-top:1.5rem;text-align:center;padding:0.9rem;">
-    Key paper: <strong>"Generative Adversarial Nets"</strong> — Ian Goodfellow et al., 2014
+    Key paper: <strong>"Generative Adversarial Nets"</strong> — Ian Goodfellow et al., 2014 &nbsp;&middot;&nbsp; <span style="color:var(--text-muted);">its own samples were still low-res; photorealism took ~5 years of follow-up work</span>
   </div>
 </div>
 
@@ -698,65 +698,63 @@
     <svg viewBox="0 0 720 340" width="720" height="340" style="max-width:100%;font-family:inherit;">
       <!-- root -->
       <rect x="290" y="10" width="140" height="40" rx="8" fill="#3b6df0" opacity="0.9"/>
-      <text x="360" y="35" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">GAN (2014)</text>
+      <text x="360" y="35" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">GAN (2014)</text>
 
       <!-- level 1 connectors -->
       <line x1="360" y1="50" x2="360" y2="75" stroke="#4a5068" stroke-width="1.5"/>
-      <line x1="100" y1="75" x2="620" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+      <line x1="80" y1="75" x2="640" y2="75" stroke="#4a5068" stroke-width="1.5"/>
 
       <!-- DCGAN -->
-      <line x1="100" y1="75" x2="100" y2="100" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="30" y="100" width="140" height="40" rx="8" fill="#1e2233" stroke="#10b981" stroke-width="1.5"/>
-      <text x="100" y="120" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">DCGAN (2015)</text>
-      <text x="100" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Convolutional layers</text>
+      <line x1="80" y1="75" x2="80" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="12" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#10b981" stroke-width="1.5"/>
+      <text x="80" y="120" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">DCGAN (2015)</text>
+      <text x="80" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Convolutional layers</text>
 
       <!-- CGAN -->
-      <line x1="240" y1="75" x2="240" y2="100" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="170" y="100" width="140" height="40" rx="8" fill="#1e2233" stroke="#8b5cf6" stroke-width="1.5"/>
-      <text x="240" y="120" text-anchor="middle" fill="#8b5cf6" font-size="12" font-weight="700">CGAN (2014)</text>
-      <text x="240" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Conditional generation</text>
+      <line x1="220" y1="75" x2="220" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="152" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#8b5cf6" stroke-width="1.5"/>
+      <text x="220" y="120" text-anchor="middle" fill="#8b5cf6" font-size="12" font-weight="700">CGAN (2014)</text>
+      <text x="220" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Conditional generation</text>
 
       <!-- WGAN -->
-      <line x1="380" y1="75" x2="380" y2="100" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="310" y="100" width="140" height="40" rx="8" fill="#1e2233" stroke="#3b6df0" stroke-width="1.5"/>
-      <text x="380" y="120" text-anchor="middle" fill="#3b6df0" font-size="12" font-weight="700">WGAN (2017)</text>
-      <text x="380" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Wasserstein loss</text>
+      <line x1="360" y1="75" x2="360" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="292" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="360" y="120" text-anchor="middle" fill="#3b6df0" font-size="12" font-weight="700">WGAN (2017)</text>
+      <text x="360" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Wasserstein loss</text>
 
       <!-- Pix2Pix -->
-      <line x1="510" y1="75" x2="510" y2="100" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="440" y="100" width="140" height="40" rx="8" fill="#1e2233" stroke="#06b6d4" stroke-width="1.5"/>
-      <text x="510" y="120" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="700">Pix2Pix (2017)</text>
-      <text x="510" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Paired img translation</text>
+      <line x1="500" y1="75" x2="500" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="432" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="500" y="120" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="700">Pix2Pix (2017)</text>
+      <text x="500" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Paired img translation</text>
 
       <!-- StyleGAN -->
-      <line x1="620" y1="75" x2="620" y2="100" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="550" y="100" width="140" height="40" rx="8" fill="#1e2233" stroke="#ef4444" stroke-width="1.5"/>
-      <text x="620" y="120" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700">StyleGAN (2019)</text>
-      <text x="620" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Best face synthesis</text>
+      <line x1="640" y1="75" x2="640" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="572" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="640" y="120" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700">StyleGAN (2019)</text>
+      <text x="640" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Best face synthesis</text>
 
       <!-- level 2 connectors from DCGAN -->
-      <line x1="100" y1="140" x2="100" y2="175" stroke="#4a5068" stroke-width="1.5"/>
-      <line x1="100" y1="175" x2="240" y2="175" stroke="#4a5068" stroke-width="1.5"/>
-      <line x1="170" y1="175" x2="170" y2="200" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="100" y="200" width="140" height="40" rx="8" fill="#1e2233" stroke="#10b981" stroke-width="1"/>
-      <text x="170" y="220" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">BEGAN / ProGAN</text>
-      <text x="170" y="234" text-anchor="middle" fill="#8b90a5" font-size="10">Progressive growing</text>
+      <line x1="80" y1="140" x2="80" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="12" y="175" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#10b981" stroke-width="1"/>
+      <text x="80" y="195" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">ProGAN (2017)</text>
+      <text x="80" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Progressive growing</text>
 
       <!-- level 2 from Pix2Pix -->
-      <line x1="510" y1="140" x2="510" y2="175" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="440" y="175" width="140" height="40" rx="8" fill="#1e2233" stroke="#06b6d4" stroke-width="1"/>
-      <text x="510" y="195" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="700">CycleGAN (2017)</text>
-      <text x="510" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Unpaired translation</text>
+      <line x1="500" y1="140" x2="500" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="432" y="175" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#06b6d4" stroke-width="1"/>
+      <text x="500" y="195" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="700">CycleGAN (2017)</text>
+      <text x="500" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Unpaired translation</text>
 
       <!-- level 2 from StyleGAN -->
-      <line x1="620" y1="140" x2="620" y2="175" stroke="#4a5068" stroke-width="1.5"/>
-      <rect x="550" y="175" width="140" height="40" rx="8" fill="#1e2233" stroke="#ef4444" stroke-width="1"/>
-      <text x="620" y="195" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">StyleGAN2/3 (2020+)</text>
-      <text x="620" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Artifact removal</text>
+      <line x1="640" y1="140" x2="640" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="572" y="175" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#ef4444" stroke-width="1"/>
+      <text x="640" y="195" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">StyleGAN2/3 (2020/21)</text>
+      <text x="640" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Artifact removal</text>
 
       <!-- legend -->
       <text x="30" y="290" fill="#8b90a5" font-size="11">Coverage in this course:</text>
-      <rect x="30" y="298" width="12" height="12" rx="2" fill="#3b6df0"/>
+      <rect x="30" y="298" width="12" height="12" rx="2" fill="#10b981"/>
       <text x="48" y="308" fill="#8b90a5" font-size="10">Core (Day 1)</text>
       <rect x="130" y="298" width="12" height="12" rx="2" fill="#3b6df0"/>
       <text x="148" y="308" fill="#8b90a5" font-size="10">Advanced (Day 2)</text>
@@ -770,7 +768,7 @@
 
 <!-- 24 ─── GAN FORMULA FIRST LOOK ─── -->
 <div class="slide"
-     data-say="Don't try to teach this formula today. The goal is to demystify it — show that it is composed of symbols they will know well by Day 2. Make it feel approachable rather than scary."
+     data-say="Don't try to teach this formula today. The goal is to demystify it — show that it is composed of symbols they will know well by Lesson 15. Make it feel approachable rather than scary."
      data-ask="Which symbol here is most unfamiliar to you?"
      data-time="2 min">
   <h2>The GAN formula — a first look</h2>
@@ -832,60 +830,6 @@
 </div>
 
 <!-- 26 ─── KNOWLEDGE CHECK (reveal) ─── -->
-<div class="slide"
-     data-say="Give 2 minutes of silent thinking time. Then reveal answers one question at a time. These six questions map directly to the six objectives on slide 2."
-     data-ask="Which answer took you the longest to formulate? That's where to spend review time."
-     data-time="5 min">
-  <h2>Knowledge check — six questions</h2>
-  <div class="two-col" style="margin-top:1.25rem;gap:0.85rem;">
-
-    <div class="revealable card" style="padding:1.1rem;">
-      <div style="font-size:1.1rem;font-weight:900;color:#3b6df0;margin-bottom:0.4rem;">01</div>
-      <p style="margin-bottom:0.6rem;">What is the difference between discriminative and generative AI?</p>
-      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
-      <strong class="answer" style="color:#10b981;">Discriminative maps input &rarr; label. Generative maps noise &rarr; new data.</strong>
-    </div>
-
-    <div class="revealable card" style="padding:1.1rem;">
-      <div style="font-size:1.1rem;font-weight:900;color:#3b6df0;margin-bottom:0.4rem;">02</div>
-      <p style="margin-bottom:0.6rem;">Name three types of generative models.</p>
-      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
-      <strong class="answer" style="color:#10b981;">VAE, GAN, Diffusion (also: Flow, Transformer)</strong>
-    </div>
-
-    <div class="revealable card" style="padding:1.1rem;">
-      <div style="font-size:1.1rem;font-weight:900;color:#3b6df0;margin-bottom:0.4rem;">03</div>
-      <p style="margin-bottom:0.6rem;">What are the two GAN networks and what does each do?</p>
-      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
-      <strong class="answer" style="color:#10b981;">Generator: noise &rarr; fake data. Discriminator: real/fake &rarr; probability.</strong>
-    </div>
-
-    <div class="revealable card" style="padding:1.1rem;">
-      <div style="font-size:1.1rem;font-weight:900;color:#3b6df0;margin-bottom:0.4rem;">04</div>
-      <p style="margin-bottom:0.6rem;">Why are GAN outputs sharper than VAE outputs?</p>
-      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
-      <strong class="answer" style="color:#10b981;">Adversarial pressure: G must fool D, so blurry outputs are rejected.</strong>
-    </div>
-
-    <div class="revealable card" style="padding:1.1rem;">
-      <div style="font-size:1.1rem;font-weight:900;color:#3b6df0;margin-bottom:0.4rem;">05</div>
-      <p style="margin-bottom:0.6rem;">Give three real-world applications of GANs.</p>
-      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
-      <strong class="answer" style="color:#10b981;">Face generation, super-resolution, medical imaging, Pix2Pix, data augmentation…</strong>
-    </div>
-
-    <div class="revealable card" style="padding:1.1rem;">
-      <div style="font-size:1.1rem;font-weight:900;color:#3b6df0;margin-bottom:0.4rem;">06</div>
-      <p style="margin-bottom:0.6rem;">Why study GANs when diffusion models produce better images?</p>
-      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
-      <strong class="answer" style="color:#10b981;">Speed, adversarial thinking, real-world systems, conceptual foundation for diffusion</strong>
-    </div>
-
-  </div>
-  <p style="text-align:center;margin-top:1rem;color:var(--text-muted);font-size:0.85rem;">Press <kbd>R</kbd> to reveal all answers</p>
-</div>
-
-<!-- 27 ─── RECAP ─── -->
 <div class="slide"
      data-say="Consolidate everything from this lesson into five sentences. Ask students to close their notes and reconstruct the story from the five points."
      data-ask="Without looking at the slide, can you explain the GAN idea in under 30 seconds?"

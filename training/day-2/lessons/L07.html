@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L07 — Why BCE Loss Fails</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L07">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="../index.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; Day 2</a><a href="../index.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L07 &bull; Day 2</a><a href="L08.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L08 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../index.html">Day 2</a> &bull; L07</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This lesson is the turning point. We stop patching symptoms and diagnose the real disease. By the end, students will understand WHY BCE fails and be hungry for WGAN."
+     data-ask="Remember Day 1&#39;s last section &mdash; label smoothing, instance noise, learning-rate balance? What if they were all band-aids?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 07</div>
+  <h1>Why BCE Loss Fails</h1>
+  <p class="subtitle">The loss function itself is the root cause of GAN instability</p>
+</div>
+
+<!-- 2 ─── HOOK ─── -->
+<div class="slide"
+     data-say="Pick up exactly where Day 1 ended: S5 GANs for Images, last section When GANs break (after the MNIST GAN and DCGAN). We applied one-sided label smoothing, instance noise, learning-rate balance / TTUR. They helped. But they treat symptoms. Today we find the disease."
+     data-ask="If you had a headache every day, would you keep taking painkillers or go find the cause?"
+     data-time="2 min">
+  <h2>Band-Aids vs Surgery</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Day 1 &middot; S5 &ldquo;When GANs Break&rdquo;</h4>
+        <ul>
+          <li>One-sided label smoothing (real = 0.9)</li>
+          <li>Instance noise on D&rsquo;s inputs</li>
+          <li>Learning-rate balance / TTUR</li>
+        </ul>
+        <p class="mt-1" style="font-style:italic;"><strong>Result:</strong> Training improved... somewhat.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card step" style="background:#fef2f2;">
+        <h4>The Uncomfortable Truth</h4>
+        <p>All those tricks fight <strong>symptoms</strong>.</p>
+        <p class="mt-1">The <strong>disease</strong> is the loss function itself &mdash; BCE.</p>
+        <p class="mt-1" style="font-style:italic;">Today we understand why. L08 brings the cure.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── BCE RECAP ─── -->
+<div class="slide"
+     data-say="Quick recap of Day 1. D is trained with BCE. G is trained with the NON-saturating loss −log D(G(z)) = BCE(D(fake), 1), not the original minimax log(1 − D(G(z))). Simple — but flawed."
+     data-ask="Can you write the BCE loss for D and G from memory?"
+     data-time="2 min">
+  <h2>Quick Recap: BCE Loss in GANs</h2>
+  <div style="max-width:700px;">
+    <div class="formula" style="margin-bottom:1rem;">
+      L<sub>D</sub> = &minus;[ log D(x) + log(1 &minus; D(G(z))) ]
+    </div>
+    <div class="formula" style="margin-bottom:1.5rem;">
+      L<sub>G</sub> = &minus;log( D(G(z)) ) &nbsp;<span style="font-size:0.8rem;color:#8b90a5;">non-saturating &mdash; what Day 1 trained</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="card" style="background:#fef2f2;">
+        <h4>D's Job</h4>
+        <p>Push D(real) &rarr; 1<br>Push D(fake) &rarr; 0</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>G's Job</h4>
+        <p>Push D(fake) &rarr; 1<br>(fool the Discriminator)</p>
+      </div>
+    </div>
+    <p class="mt-2" style="font-weight:600;text-align:center;">This works... until it doesn't.</p>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Read the two losses aloud, then walk the symbols. Every piece is Day 1 BCE: real → 1, fake → 0, and G trains with target 1 (the non-saturating form)."
+     data-ask="Which term of L_D does G’s update actually depend on?"
+     data-time="3 min">
+  <h2>Both BCE losses <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">L<sub>D</sub> = −[ log D(x) + log(1 − D(G(z))) ] &nbsp;&nbsp;·&nbsp;&nbsp; L<sub>G</sub> = −log D(G(z))</div>
+    <div class="fx-read">Read it: D’s loss = minus [ log of D’s score on real + log of (1 − D’s score on fake) ] · G’s loss = minus log of D’s score on fake</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">x</span><div><strong>Real image</strong><span class="fx-job">Drawn from the training set</span></div><span class="fx-chip">784 pixels</span></div>
+      <div class="fx-term fx-blue"><span class="fx-sym">z</span><div><strong>Noise</strong><span class="fx-job">G’s random input</span></div><span class="fx-chip">64 numbers (labs)</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">G(z)</span><div><strong>Fake image</strong><span class="fx-job">What G makes from z</span></div><span class="fx-chip">same shape as x</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">D(·)</span><div><strong>D’s score</strong><span class="fx-job">Probability the input is real</span></div><span class="fx-chip">0 … 1</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">log D(x)</span><div><strong>Real term</strong><span class="fx-job">0 when D(x) = 1 · very negative as D(x) → 0</span></div><span class="fx-chip">−∞ … 0</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">log(1 − D(G(z)))</span><div><strong>Fake term</strong><span class="fx-job">0 when D(fake) = 0</span></div><span class="fx-chip">−∞ … 0</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">−log D(G(z))</span><div><strong>G’s loss (non-saturating)</strong><span class="fx-job">Small when D is fooled — what Day 1 trained</span></div><span class="fx-chip">0 … ∞</span></div>
+    </div>
+    <div class="fx-key">Same BCE pieces as Day 1 — today asks what happens to them when D becomes near-perfect.</div>
+  </div>
+</div>
+
+<!-- 4 ─── SECTION: VANISHING GRADIENTS ─── -->
+<div class="slide section-divider"
+     data-say="Four problems with BCE. Start with the one Day 1 already half-solved — and see what is left."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">1</div>
+  <h2>Saturation &mdash; and What Day 1&rsquo;s Fix Leaves Behind</h2>
+</div>
+
+<!-- 5 ─── SATURATION: MINIMAX VS NON-SATURATING ─── -->
+<div class="slide"
+     data-say="Write D(fake) = σ(a), where a is D's logit. The original minimax G loss log(1 − D(G(z))) has gradient −σ(a) on the logit: when D confidently says 'fake' (D ≈ 0), that is ≈ 0 — it saturates exactly when G is worst. Day 1's non-saturating loss −log D(G(z)) has gradient σ(a) − 1 ≈ −1 there: strong. So the textbook 'vanishing gradient' is the minimax loss, and Day 1 already fixed it. Don't tell students that −log D vanishes — it doesn't."
+     data-ask="Day 1 trained G with BCE(D(fake), 1). Which curve is that?"
+     data-time="3 min">
+  <h2>Problem 1: The Minimax Loss Saturates</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>Let D(fake) = &sigma;(a), a = D&rsquo;s logit. Gradient of G&rsquo;s loss w.r.t. a:</p>
+      <table class="compare-table mt-1">
+        <tr><th>G loss</th><th>&part;L/&part;a</th><th>D(fake) = 0.0001</th></tr>
+        <tr class="highlight-row"><td>Minimax: log(1 &minus; D(G(z)))</td><td>&minus;&sigma;(a)</td><td><strong>&minus;0.0001</strong> &rarr; vanishes</td></tr>
+        <tr><td>Non-saturating: &minus;log D(G(z))</td><td>&sigma;(a) &minus; 1</td><td><strong>&minus;0.9999</strong> &rarr; strong</td></tr>
+      </table>
+      <ul class="mt-1">
+        <li>Minimax: <strong>no signal exactly when G is worst</strong></li>
+        <li>Non-saturating (Goodfellow 2014, used on Day 1): <strong>fixes that</strong></li>
+      </ul>
+    </div>
+    <div>
+      <svg viewBox="0 0 300 230" style="width:100%;max-width:320px;">
+        <text x="160" y="16" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#1a1d2e">|&part;L/&part;a| vs D(G(z))</text>
+        <line x1="40" y1="190" x2="280" y2="190" stroke="#4a5068" stroke-width="1.5"/>
+        <line x1="40" y1="190" x2="40" y2="30" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="160" y="222" text-anchor="middle" font-family="Inter" font-size="10" fill="#8b90a5">D(G(z)) &mdash; D&rsquo;s belief the fake is real</text>
+        <text x="40" y="204" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">0</text>
+        <text x="280" y="204" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">1</text>
+        <text x="32" y="44" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">1</text>
+        <line x1="40" y1="40" x2="280" y2="190" stroke="#10b981" stroke-width="3"/>
+        <line x1="40" y1="190" x2="280" y2="40" stroke="#ef4444" stroke-width="3"/>
+        <rect x="46" y="44" width="102" height="20" rx="4" fill="#ecfdf5" stroke="#10b981"/>
+        <text x="97" y="58" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#1a1d2e">non-saturating: 1 &minus; D</text>
+        <rect x="170" y="44" width="100" height="20" rx="4" fill="#fef2f2" stroke="#ef4444"/>
+        <text x="220" y="58" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#1a1d2e">minimax: D</text>
+        <rect x="44" y="160" width="74" height="20" rx="4" fill="#fefce8" stroke="#eab308"/>
+        <text x="81" y="174" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#1a1d2e">early training</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Derive both derivatives with the chain rule. The sigmoid derivative has two factors; each loss cancels a different one. That single cancellation is the whole saturation story."
+     data-ask="If D(fake) were 0.5 instead, how would the two gradients compare?"
+     data-time="3 min">
+  <h2>Where −0.0001 and −0.9999 come from <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">D(G(z)) = σ(a) &nbsp;&nbsp;·&nbsp;&nbsp; minimax: log(1 − σ(a)) &nbsp;&nbsp;·&nbsp;&nbsp; non-saturating: −log σ(a)</div>
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>D(G(z)) = 0.0001</li><li>σ(a) = 1 / (1 + e<sup>−a</sup>)</li><li>σ′(a) = σ(a)(1 − σ(a))</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">a = log(0.0001 / 0.9999) = −9.21</span><span class="fx-note">the fake logit, before the sigmoid</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">∂/∂a log(1 − σ(a)) = −σ(a) = −0.0001</span><span class="fx-note">minimax: chain rule cancels (1 − σ), leaves tiny σ</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">∂/∂a [−log σ(a)] = σ(a) − 1 = −0.9999</span><span class="fx-note">non-saturating: cancels tiny σ, leaves 1 − σ</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">0.9999 / 0.0001 ≈ 10,000</span><span class="fx-note">ratio of the two gradient sizes</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">non-saturating gives ≈ 10,000× more signal</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">At D(fake) = 0.5 both gradients are −0.5 — they only differ once D starts winning.</div>
+  </div>
+</div>
+
+<!-- 6 ─── WHAT NON-SATURATING DOES NOT FIX ─── -->
+<div class="slide"
+     data-say="Numbers from −log and σ. G's loss climbs from 0.69 to 8.1 as D wins, and the logit gradient stays near −1. So why does Day 1 training still break? The gradient's SIZE survives, but its DIRECTION comes from back-propagating through a D that is almost perfect: near the fakes it is flat or erratic. Arjovsky & Bottou (2017) show that with a near-optimal D the −log D updates become noisy and unstable. Problem 2 explains why D can become near-perfect so easily."
+     data-ask="If the gradient isn't small, why can G still fail to improve?"
+     data-time="2 min">
+  <h2>What the Non-Saturating Loss Does NOT Fix</h2>
+  <div style="max-width:760px;">
+    <table class="compare-table">
+      <tr><th>D(fake)</th><th>G loss &minus;log D</th><th>|&part;L/&part;a| non-sat.</th><th>|&part;L/&part;a| minimax</th></tr>
+      <tr><td>0.50</td><td>0.69</td><td>0.50</td><td>0.50</td></tr>
+      <tr><td>0.04</td><td>3.22</td><td>0.96</td><td>0.04</td></tr>
+      <tr class="highlight-row"><td>0.0003</td><td>8.11</td><td><strong>0.9997</strong></td><td>0.0003</td></tr>
+    </table>
+    <div class="card mt-2" style="background:#fef2f2;">
+      <h4>Size survives &mdash; direction doesn&rsquo;t</h4>
+      <ul>
+        <li>G&rsquo;s update = gradient flowing <strong>through D</strong> back to the image</li>
+        <li>A near-perfect D is <strong>flat or erratic</strong> around the fakes</li>
+        <li>Result: big, <strong>noisy, uninformative</strong> steps (Arjovsky &amp; Bottou, 2017)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── SECTION: JS DIVERGENCE ─── -->
+<div class="slide section-divider"
+     data-say="Problem 2 is even more fundamental. It's about what BCE is actually measuring behind the scenes."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">2</div>
+  <h2>The JS Divergence Problem</h2>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Define JS from KL and the mixture before we see why it gets stuck. Point at the range chip: JS can never exceed log 2."
+     data-ask="Why does the mixture M keep JS finite even when the two distributions do not overlap?"
+     data-time="3 min">
+  <h2>JS divergence <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">JS(P<sub>r</sub> ‖ P<sub>g</sub>) = ½ KL(P<sub>r</sub> ‖ M) + ½ KL(P<sub>g</sub> ‖ M), &nbsp;&nbsp; M = ½ (P<sub>r</sub> + P<sub>g</sub>)</div>
+    <div class="fx-read">Read it: the average KL distance of each distribution from their 50/50 mixture</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">P<sub>r</sub></span><div><strong>Real distribution</strong><span class="fx-job">Where real images live</span></div><span class="fx-chip">probability</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">P<sub>g</sub></span><div><strong>Generated distribution</strong><span class="fx-job">Where G’s fakes live</span></div><span class="fx-chip">probability</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">M</span><div><strong>Mixture</strong><span class="fx-job">Half real, half fake — the “middle” distribution</span></div><span class="fx-chip">½ P<sub>r</sub> + ½ P<sub>g</sub></span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">KL(P ‖ Q)</span><div><strong>KL divergence</strong><span class="fx-job">Σ P(x) · log(P(x) / Q(x)) — cost of using Q when P is true</span></div><span class="fx-chip">0 … ∞</span></div>
+      <div class="fx-term fx-ink"><span class="fx-sym">½ + ½</span><div><strong>Symmetric average</strong><span class="fx-job">JS(P<sub>r</sub> ‖ P<sub>g</sub>) = JS(P<sub>g</sub> ‖ P<sub>r</sub>)</span></div><span class="fx-chip">always finite</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">D*(x)</span><div><strong>Best possible D</strong><span class="fx-job">p<sub>r</sub>(x) / (p<sub>r</sub>(x) + p<sub>g</sub>(x)) — then BCE value = 2·JS − 2 log 2</span></div><span class="fx-chip">0 … 1</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">JS</span><div><strong>Result</strong><span class="fx-job">0 when P<sub>g</sub> = P<sub>r</sub> · log 2 when they never overlap</span></div><span class="fx-chip">0 … 0.693</span></div>
+    </div>
+    <div class="fx-key">Training D to optimum turns the BCE game into “minimize JS” — so JS’s flaws become G’s flaws.</div>
+  </div>
+</div>
+
+<!-- 8 ─── JS DIVERGENCE EXPLAINED ─── -->
+<div class="slide"
+     data-say="With an optimal D, the minimax objective equals 2·JS(P_real, P_fake) − 2 log 2 (Goodfellow 2014). If the two distributions do not overlap, JS = log 2 ≈ 0.693 no matter how far apart they are — a constant has zero gradient. And no-overlap is the NORMAL case: real digits sit on a thin, low-dimensional manifold inside 784-D pixel space, G&#39;s outputs come from a 64-D z — two thin surfaces almost never intersect (Arjovsky &amp; Bottou 2017). That is also why D can become near-perfect so easily."
+     data-ask="Early in training, does G's random noise look anything like real digits?"
+     data-time="3 min">
+  <h2>Problem 2: No Overlap &rarr; JS Stuck at log 2</h2>
+  <div class="two-col align-center">
+    <div>
+      <!-- SVG: Two non-overlapping distributions -->
+      <svg viewBox="0 0 340 180" style="width:100%;max-width:340px;">
+        <text x="170" y="16" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">Non-overlapping distributions</text>
+        <!-- Real distribution -->
+        <path d="M30,140 Q50,100 70,60 Q90,30 110,60 Q130,100 150,140" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="90" y="155" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#10b981">Real</text>
+        <!-- Gap -->
+        <line x1="155" y1="80" x2="195" y2="80" stroke="#4a5068" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="175" y="72" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">gap</text>
+        <!-- Fake distribution -->
+        <path d="M200,140 Q220,100 240,70 Q260,40 280,70 Q300,100 320,140" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+        <text x="260" y="155" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#ef4444">Fake</text>
+      </svg>
+      <div class="formula mt-1" style="font-size:0.95rem;">
+        Optimal D: V = 2&middot;JS(P<sub>r</sub>, P<sub>g</sub>) &minus; 2 log 2
+      </div>
+      <div class="formula" style="font-size:0.95rem;">
+        No overlap &rarr; JS = log 2 &asymp; 0.693 &rarr; &nabla; = 0
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>No Overlap Is the Normal Case</h4>
+        <ul>
+          <li>Real digits: a thin <strong>low-dimensional manifold</strong> in 784-D pixel space</li>
+          <li>Fakes: another thin surface, made from a 64-D z</li>
+          <li>Two thin surfaces <strong>almost never overlap</strong></li>
+          <li>&rArr; a near-perfect D is easy to find, and JS is <strong>stuck at log 2</strong></li>
+        </ul>
+        <p class="mt-1" style="font-style:italic;">Arjovsky &amp; Bottou, 2017</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Work it on the board. The punchline is the last step: moving the fake pile ten times further away does not change JS at all, so the loss gives G no direction."
+     data-ask="What would JS be if the fake pile moved to overlap the real one exactly?"
+     data-time="3 min">
+  <h2>Two piles that never touch: JS = log 2 <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>P<sub>r</sub>: ½ at x = 0, ½ at x = 1</li><li>P<sub>g</sub>: ½ at x = 5, ½ at x = 6</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">M = ¼ at 0, 1, 5, 6</span><span class="fx-note">each pile contributes half its mass</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">KL(P<sub>r</sub> ‖ M) = 2 · ½ · log(½ / ¼) = log 2</span><span class="fx-note">only P<sub>r</sub>’s two points count</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">KL(P<sub>g</sub> ‖ M) = log 2</span><span class="fx-note">same by symmetry</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">JS = ½ log 2 + ½ log 2 = log 2 ≈ 0.693</span><span class="fx-note">the maximum possible value</span></li>
+        <li><span class="fx-n">5</span><span class="fx-m">D*(0) = ½ / (½ + 0) = 1 &nbsp;·&nbsp; D*(5) = 0</span><span class="fx-note">a perfect D exists</span></li>
+        <li><span class="fx-n">6</span><span class="fx-m">move P<sub>g</sub> to 50, 51 → JS still log 2</span><span class="fx-note">distance never enters the formula</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">BCE value at D* = 2 · log 2 − 2 log 2 = 0, whatever the gap</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Same answer for 5 units or 50 units apart → the loss cannot say “closer”.</div>
+  </div>
+</div>
+
+<!-- 9 ─── GPS ANALOGY ─── -->
+<div class="slide"
+     data-say="The GPS analogy makes it crystal clear. BCE tells you distance but not direction. What we need is a GPS that tells you both. That's Wasserstein — next lesson."
+     data-ask="If your GPS only said 'you are far away' without direction, could you navigate?"
+     data-time="2 min">
+  <h2>The GPS Analogy</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#fef2f2;">
+      <h4>BCE / JS Divergence</h4>
+      <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+        "You are 500 km from destination"<br>
+        "You are 500 km from destination"<br>
+        "You are 500 km from destination"
+      </p>
+      <p class="mt-1"><strong>Distance only. No direction.</strong> You're stuck.</p>
+    </div>
+    <div class="vs">VS</div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>What We Need (Wasserstein)</h4>
+      <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+        "You are 500 km <strong>NORTH</strong>"<br>
+        "You are 300 km <strong>NORTH</strong>"<br>
+        "You are 100 km <strong>NORTH</strong>"
+      </p>
+      <p class="mt-1"><strong>Distance AND direction.</strong> You can navigate.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── SECTION: TRAINING INSTABILITY ─── -->
+<div class="slide section-divider"
+     data-say="Problem 3: even if gradients exist, the sweet spot for D is impossibly narrow."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">3</div>
+  <h2>Training Instability</h2>
+</div>
+
+<!-- 11 ─── NARROW SWEET SPOT ─── -->
+<div class="slide"
+     data-say="D doing its job well HURTS G. That's the fundamental conflict. D needs to be good enough to give feedback, but not so good the feedback becomes useless. The sweet spot is razor thin."
+     data-ask="How would you feel if your job required you to be 'good but not too good'?"
+     data-time="3 min">
+  <h2>Problem 3: The Narrow Sweet Spot</h2>
+  <div class="two-col align-center">
+    <div>
+      <!-- SVG: Sweet spot diagram -->
+      <svg viewBox="0 0 320 180" style="width:100%;max-width:320px;">
+        <text x="160" y="16" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">D Strength vs G Learning</text>
+        <!-- axis -->
+        <line x1="30" y1="150" x2="300" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="165" y="172" text-anchor="middle" font-family="Inter" font-size="10" fill="#8b90a5">D strength &rarr;</text>
+        <!-- zones -->
+        <rect x="30" y="40" width="80" height="110" rx="0" fill="#fef2f2" opacity="0.5"/>
+        <text x="70" y="100" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#ef4444">Too weak</text>
+        <text x="70" y="115" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">G gets lazy</text>
+        <rect x="110" y="40" width="50" height="110" rx="0" fill="#ecfdf5" opacity="0.6"/>
+        <text x="135" y="80" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#10b981">Sweet</text>
+        <text x="135" y="95" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#10b981">spot</text>
+        <text x="135" y="115" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">Works!</text>
+        <rect x="160" y="40" width="140" height="110" rx="0" fill="#fef2f2" opacity="0.5"/>
+        <text x="230" y="100" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#ef4444">Too strong</text>
+        <text x="230" y="115" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">G signal useless</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The Fundamental Conflict</h4>
+        <ul>
+          <li>D needs to be <strong>good enough</strong> to give G useful feedback</li>
+          <li>But if D is <strong>too good</strong>, the feedback disappears</li>
+          <li>You need D "good but not too good" &mdash; <strong>hard to control</strong></li>
+        </ul>
+        <p class="mt-1" style="font-style:italic;">You spend more time tuning D's strength than actually training the GAN.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── MODE COLLAPSE ─── -->
+<div class="slide"
+     data-say="Problem 4: BCE only asks can you fool D — never are your outputs diverse. Precisely: with an optimal D, the non-saturating gradient equals the gradient of KL(P_g‖P_r) − 2·JS (Arjovsky &amp; Bottou 2017). That reverse KL punishes fakes where there is no real data, but dropping a whole real mode is nearly free. Mode collapse is built into the objective."
+     data-ask="If a student gets an A by copying the same answer, does that mean they learned?"
+     data-time="2 min">
+  <h2>Problem 4: Mode Collapse (Again)</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>What BCE Asks G</h4>
+        <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+          BCE: "Can you fool D?"<br>
+          G: "Yes, this one image works!"<br>
+          BCE: "Great! Low loss!"
+        </p>
+        <p class="mt-1"><strong>BCE does NOT ask:</strong> "Are your outputs varied?"</p>
+        <div class="formula mt-1" style="font-size:0.85rem;">&minus;log D* trains G on KL(P<sub>g</sub>&Vert;P<sub>r</sub>) &minus; 2&middot;JS</div>
+        <ul style="font-size:0.9rem;">
+          <li>Fake where no real data: <strong>huge cost</strong></li>
+          <li>Real mode with no fakes: <strong>almost free</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>What a Better Loss Would Ask</h4>
+        <p>"How similar is your <strong>output distribution</strong> to the <strong>real distribution</strong>?"</p>
+        <p class="mt-1">A missing mode should <strong>cost</strong> something &mdash; mass that still has to be moved.</p>
+        <p class="mt-1" style="font-weight:600;">That's exactly what Wasserstein distance does.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Let's pause and make sure everyone has all four problems clear. Each one is a different way BCE breaks your GAN."
+     data-ask="Which of these four problems have you personally seen in training?"
+     data-time="1.5 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:750px;">
+    <tr><th>Problem</th><th>What Happens with BCE</th><th>Root Cause</th></tr>
+    <tr><td><strong>Saturation</strong></td><td>Minimax G gradient &rarr; 0 when D wins</td><td>log(1 &minus; &sigma;) flat; NS loss fixes size only</td></tr>
+    <tr><td><strong>No overlap</strong></td><td>Near-perfect D, uninformative gradient</td><td>JS stuck at log 2 for disjoint supports</td></tr>
+    <tr><td><strong>Narrow sweet spot</strong></td><td>D must be "good but not too good"</td><td>D&rsquo;s strength fights G&rsquo;s signal</td></tr>
+    <tr><td><strong>Mode collapse</strong></td><td>Dropping modes is cheap</td><td>NS loss &asymp; reverse KL &minus; 2&middot;JS</td></tr>
+  </table>
+</div>
+
+<!-- 14 ─── TRICKS REVISITED ─── -->
+<div class="slide"
+     data-say="Now we can see what Day 1&#39;s band-aids were REALLY doing. Each one fights a specific symptom caused by BCE. None changes what the loss measures."
+     data-ask="If all tricks fight symptoms, what would a cure look like?"
+     data-time="2 min">
+  <h2>What Day 1&rsquo;s Band-Aids Were Really Doing</h2>
+  <div style="max-width:700px;">
+    <table class="compare-table">
+      <tr><th>Trick</th><th>What It Really Does</th><th>Which Problem It Fights</th></tr>
+      <tr><td><strong>One-sided label smoothing</strong></td><td>Caps D&rsquo;s confidence on reals at 0.9</td><td>Near-perfect D</td></tr>
+      <tr><td><strong>Instance noise</strong></td><td>Blurs both distributions so they overlap</td><td>JS stuck at log 2</td></tr>
+      <tr><td><strong>LR balance / TTUR</strong></td><td>Keeps D near the &ldquo;not too good&rdquo; zone</td><td>Narrow sweet spot</td></tr>
+    </table>
+    <div class="card mt-2" style="background:#fef2f2;">
+      <p style="font-size:1.1rem;text-align:center;"><strong>All tricks fight the SYMPTOMS. The disease is the loss function.</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── PREVIEW: WASSERSTEIN ─── -->
+<div class="slide"
+     data-say="Here's the preview of what WGAN fixes. Every single problem on the left gets solved on the right. Stronger D becomes a GOOD thing. Loss becomes meaningful. This is the cure."
+     data-ask="Which improvement excites you most?"
+     data-time="3 min">
+  <h2>What We Need: Wasserstein Distance</h2>
+  <table class="compare-table" style="max-width:750px;">
+    <tr><th></th><th>BCE (JS Divergence)</th><th>Wasserstein Distance</th></tr>
+    <tr><td><strong>No overlap</strong></td><td>JS constant &rarr; no useful signal</td><td><strong>Distance still shrinks as fakes move closer</strong></td></tr>
+    <tr><td><strong>D too strong</strong></td><td>Uninformative signal for G</td><td><strong>Better critic = better gradient</strong></td></tr>
+    <tr><td><strong>Mode collapse</strong></td><td>Dropping a mode is nearly free</td><td><strong>A missing mode still costs distance</strong></td></tr>
+    <tr><td><strong>Training stability</strong></td><td>Narrow sweet spot</td><td><strong>Much more stable</strong></td></tr>
+    <tr class="highlight-row"><td><strong>Loss meaning</strong></td><td>Tracks the D&ndash;G fight, not quality</td><td><strong>Estimate correlates with sample quality</strong></td></tr>
+  </table>
+  <div class="card mt-2" style="background:#f8f9fb;max-width:750px;">
+    <p style="text-align:center;font-size:1.05rem;">
+      <strong>BCE/JS:</strong> "Are these distributions the same or different?" (binary answer)<br>
+      <strong>Wasserstein:</strong> "HOW different are they, and in WHICH DIRECTION?" (continuous answer)
+    </p>
+  </div>
+</div>
+
+<!-- 16 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Three key takeaways from today. BCE is fundamentally broken for GANs — and now you know exactly why."
+     data-ask="Which takeaway feels most important?"
+     data-time="1.5 min">
+  <h2>Lesson 07 Summary</h2>
+  <div class="three-col">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>Saturation Is Half the Story</h4>
+      <p>Minimax saturates; Day 1&rsquo;s &minus;log D fixes the size &mdash; not the information.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>JS Divergence Is Blind</h4>
+      <p>Disjoint supports (the normal case) &rarr; JS = log 2, whatever the distance.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Tricks Are Band-Aids</h4>
+      <p>Smoothing, noise, LR balance fight symptoms. The disease is what BCE measures.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Three eye-opener questions. Give them 2 minutes to think before revealing answers. Q1 is the myth most textbooks repeat."
+     data-ask="Try to answer each one before clicking to reveal."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:760px;">
+    <div class="revealable card">
+      <h4>Day 1&rsquo;s G loss is &minus;log D(G(z)). D(fake) = 0.0001. Does G&rsquo;s gradient vanish?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1"><strong>No.</strong> On D&rsquo;s logit it is &sigma;(a) &minus; 1 &asymp; &minus;0.9999 (minimax would give &minus;0.0001). The real problem: it flows back through a near-perfect D that is flat or erratic around the fakes &mdash; big but <strong>uninformative</strong> steps.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Fakes 1 pixel-shift away from the reals vs 100 pixel-shifts away, supports disjoint. What does JS say? What would you want?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">JS = log 2 &asymp; 0.693 for <strong>both</strong> &mdash; it can&rsquo;t tell &ldquo;almost there&rdquo; from &ldquo;hopeless&rdquo;. You want a distance that <strong>shrinks as the fakes move closer</strong> &mdash; that is Wasserstein (L08).</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Instance noise makes the distributions overlap. If it works, why replace the loss?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">It blurs <strong>what D sees</strong>, so D judges noisy images, and it must be decayed &mdash; which brings the disjoint-support problem back. A loss that is informative <strong>without</strong> overlap removes the need.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Now you know the disease. Next lesson brings the cure. WGAN replaces BCE with Wasserstein distance, replaces the Discriminator with a Critic, and makes the loss meaningful."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>WGAN &mdash; Wasserstein Distance</h1>
+  <p class="subtitle">Lesson 08: Replace JS with a distance that still shrinks when the distributions don&rsquo;t overlap &mdash; the Discriminator becomes a Critic</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

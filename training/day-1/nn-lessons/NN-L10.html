@@ -685,7 +685,7 @@
 </style>
 </head>
 <body data-lesson="NN-L10">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L09</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L10 / 19</a><a href="NN-L11.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L11 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L09</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L10 / 14</a><a href="NN-L11.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L11 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L10</div>
@@ -709,7 +709,7 @@
       <!-- Input node -->
       <circle cx="70" cy="90" r="36" fill="#f0f4ff" stroke="#3b6df0" stroke-width="2.5"/>
       <text x="70" y="85" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">INPUT</text>
-      <text x="70" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#1a1d2e" font-weight="900">x</text>
+      <text x="70" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#3b6df0" font-weight="900">x</text>
 
       <!-- Lines input → hidden -->
       <line x1="106" y1="75" x2="218" y2="56" stroke="#3b6df0" stroke-width="2" opacity="0.5"/>
@@ -718,12 +718,12 @@
       <!-- Hidden neuron 1 -->
       <circle cx="254" cy="46" r="36" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
       <text x="254" y="41" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#10b981" font-weight="700">HIDDEN 1</text>
-      <text x="254" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1a1d2e" font-weight="700">ReLU</text>
+      <text x="254" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b6df0" font-weight="700">ReLU</text>
 
       <!-- Hidden neuron 2 -->
       <circle cx="254" cy="134" r="36" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
       <text x="254" y="129" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ef4444" font-weight="700">HIDDEN 2</text>
-      <text x="254" y="144" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1a1d2e" font-weight="700">ReLU</text>
+      <text x="254" y="144" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b6df0" font-weight="700">ReLU</text>
 
       <!-- Lines hidden → output -->
       <line x1="290" y1="56" x2="418" y2="82" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
@@ -732,41 +732,13 @@
       <!-- Output node -->
       <circle cx="454" cy="90" r="36" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
       <text x="454" y="85" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">OUTPUT</text>
-      <text x="454" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#1a1d2e" font-weight="900">ŷ</text>
+      <text x="454" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#3b6df0" font-weight="900">ŷ</text>
     </svg>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
   2 — LEARNING OUTCOMES
-════════════════════════════════════════════════════ -->
-<div class="slide"
-     data-say="Promise one complete forward pass, a parameter count, and two experiments."
-     data-ask="What do you expect ReLU to do inside the network?"
-     data-time="1 min">
-  <h2>Open the network and trace every value</h2>
-  <p style="color:var(--text-muted);max-width:600px;margin-bottom:1.5rem;">By the end you can trace z and h through a network, count every parameter, and explain why hidden neurons need different starting values.</p>
-  <div class="three-col">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Trace the flow</strong>
-      <p>Input &rarr; hidden activations &rarr; prediction.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Count connections</strong>
-      <p>Every weight and bias has a job.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Protect diversity</strong>
-      <p>Different starts create different features.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════
-  3 — WHERE WE ARE
 ════════════════════════════════════════════════════ -->
 <div class="slide"
      data-say="Connect the need for nonlinear pieces to the hidden layer that contains them."
@@ -805,7 +777,7 @@
      data-time="2 min">
   <h2>Put useful neurons in the middle</h2>
   <div style="display:flex;flex-direction:column;gap:1.5rem;margin-top:1.5rem;max-width:700px;">
-    <div class="card accent-blue">
+    <div class="revealable card accent-blue">
       <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.75rem;">Lesson 1 &bull; One neuron</div>
       <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;font-size:1.05rem;">
         <span style="background:#f0f4ff;border:1.5px solid #3b6df0;border-radius:8px;padding:0.3rem 0.8rem;">Input</span>
@@ -839,7 +811,7 @@
      data-time="2 min">
   <h2>We never give hidden neurons target answers</h2>
   <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
-    <div class="card accent-blue">
+    <div class="revealable card accent-blue">
       <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.75rem;">We provide</div>
       <div style="display:flex;flex-direction:column;gap:0.6rem;">
         <div style="background:#dbeafe;border-radius:8px;padding:0.5rem 1rem;font-weight:700;color:#3b6df0;font-size:1rem;">input x</div>
@@ -894,22 +866,22 @@
       <!-- Input node -->
       <circle cx="100" cy="120" r="44" fill="#f0f4ff" stroke="#3b6df0" stroke-width="2.5"/>
       <text x="100" y="113" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">INPUT</text>
-      <text x="100" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#1a1d2e" font-weight="900">x</text>
+      <text x="100" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#3b6df0" font-weight="900">x</text>
 
       <!-- Hidden neuron 1 -->
       <circle cx="350" cy="65" r="56" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
       <text x="350" y="54" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">HIDDEN 1</text>
-      <text x="350" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#1a1d2e" font-weight="700">ReLU(z&#8321;)</text>
+      <text x="350" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" font-weight="700">ReLU(z&#8321;)</text>
 
       <!-- Hidden neuron 2 -->
       <circle cx="350" cy="183" r="56" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
       <text x="350" y="172" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">HIDDEN 2</text>
-      <text x="350" y="188" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#1a1d2e" font-weight="700">ReLU(z&#8322;)</text>
+      <text x="350" y="188" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" font-weight="700">ReLU(z&#8322;)</text>
 
       <!-- Output node -->
       <circle cx="600" cy="120" r="44" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
       <text x="600" y="113" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">OUTPUT</text>
-      <text x="600" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#1a1d2e" font-weight="900">ŷ</text>
+      <text x="600" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#3b6df0" font-weight="900">ŷ</text>
     </svg>
   </div>
 </div>
@@ -944,7 +916,7 @@
       <strong>0</strong>
     </article>
   </div>
-  <p class="takeaway">Data moves <strong>forward</strong>. Every step uses the output of the step before it.</p>
+  <p class="takeaway">Data moves <strong>forward</strong>. Every neuron uses the output of the layer before it.</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
@@ -1096,13 +1068,13 @@
       <!-- Hidden 1 — active green -->
       <circle cx="360" cy="62" r="62" fill="#ecfdf5" stroke="#10b981" stroke-width="3"/>
       <text x="360" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">HIDDEN 1</text>
-      <text x="360" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#1a1d2e" font-weight="700">z&#8321;=3 &rarr; h&#8321;=3</text>
+      <text x="360" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#3b6df0" font-weight="700">z&#8321;=3 &rarr; h&#8321;=3</text>
       <text x="360" y="80" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">gate OPEN</text>
 
       <!-- Hidden 2 — blocked red -->
       <circle cx="360" cy="196" r="62" fill="#fef2f2" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,3"/>
       <text x="360" y="182" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">HIDDEN 2</text>
-      <text x="360" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#1a1d2e" font-weight="700">z&#8322;=&minus;3 &rarr; h&#8322;=0</text>
+      <text x="360" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#3b6df0" font-weight="700">z&#8322;=&minus;3 &rarr; h&#8322;=0</text>
       <text x="360" y="214" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">gate CLOSED</text>
 
       <!-- Output node -->
@@ -1153,7 +1125,7 @@
       <!-- Hidden 2 — active -->
       <circle cx="360" cy="196" r="62" fill="#ecfdf5" stroke="#10b981" stroke-width="3"/>
       <text x="360" y="182" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">HIDDEN 2</text>
-      <text x="360" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#1a1d2e" font-weight="700">z&#8322;=3 &rarr; h&#8322;=3</text>
+      <text x="360" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#3b6df0" font-weight="700">z&#8322;=3 &rarr; h&#8322;=3</text>
       <text x="360" y="214" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">gate OPEN</text>
 
       <!-- Output -->
@@ -1472,53 +1444,39 @@
 <!-- ═══════════════════════════════════════════════════
   24 — KNOWLEDGE CHECK (revealable)
 ════════════════════════════════════════════════════ -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask all questions before revealing the answers."
-     data-ask="Which question checks the difference between z and h?"
+     data-ask="Try all before revealing."
      data-time="4 min">
-  <h2>Can you trace a hidden-layer forward pass?</h2>
-  <div class="l10-quiz">
-    <article>
-      <span>01</span>
-      <div>
-        <p>What does "hidden" mean?</p>
-        <strong class="reveal-answer">We do not supply direct target outputs for those neurons.</strong>
-      </div>
-    </article>
-    <article>
-      <span>02</span>
-      <div>
-        <p>What are z and h?</p>
-        <strong class="reveal-answer">z is before ReLU; h is after ReLU.</strong>
-      </div>
-    </article>
-    <article>
-      <span>03</span>
-      <div>
-        <p>How many parameters does this network have?</p>
-        <strong class="reveal-answer">Seven: four input-to-hidden, two hidden-to-output, and one output bias.</strong>
-      </div>
-    </article>
-    <article>
-      <span>04</span>
-      <div>
-        <p>What if both hidden weights start identical?</p>
-        <strong class="reveal-answer">The neurons learn the same feature and waste capacity.</strong>
-      </div>
-    </article>
-    <article>
-      <span>05</span>
-      <div>
-        <p>What is a forward pass?</p>
-        <strong class="reveal-answer">The sequence of calculations from input to prediction.</strong>
-      </div>
-    </article>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; What does 'hidden' mean?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">We don't tell hidden neurons what to output — they figure it out.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; What is z? What is h?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">z = before ReLU (pre-activation). h = after ReLU (activation).</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; How many parameters?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">7: four weights (w₁, w₂, v₁, v₂) and three biases.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; What if both hidden weights are identical?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Both neurons learn the same feature — one is wasted.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>05 &mdash; What is a forward pass?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Data flows from input through layers to produce a prediction.</p></div>
+    </div>
   </div>
 </div>
-
-<!-- ═══════════════════════════════════════════════════
-  25 — NEXT LESSON BRIDGE
-════════════════════════════════════════════════════ -->
 <div class="slide cover"
      data-say="Forward pass explains prediction. Backpropagation explains learning."
      data-ask="What information must reach the hidden weights?"

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L12">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L11.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L11</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L12 / 19</a><a href="NN-L13.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L13 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L11.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L11</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L12 / 14</a><a href="NN-L13.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L13 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L12</div>
@@ -50,38 +50,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Connect build the output logic for real or fake to the Discriminator's real-or-fake decision."
-     data-ask="Would this prediction be confident, uncertain, or wrong?"
-     data-time="2–3 min">
-  <h2>Build the output logic for real or fake</h2>
-  <p style="color:var(--text-muted);max-width:600px;">By the end, you should convert a score into probability, calculate BCE for either class, and explain why confident mistakes cost more.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Read Sigmoid</strong>
-      <p>Any score becomes a value from 0 to 1.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Calculate BCE</strong>
-      <p>Real and fake use mirrored log penalties.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Connect to GANs</strong>
-      <p>The Discriminator reports realness confidence.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── WHERE WE ARE ─── -->
-<div class="slide"
      data-say="Connect the network can learn. now it must classify. to the Discriminator's real-or-fake decision."
      data-ask="Would this prediction be confident, uncertain, or wrong?"
      data-time="2–3 min">
   <h2>The network can learn. Now it must classify.</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:140px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 9</div>
       <strong>ReLU</strong>
     </div>
@@ -457,8 +431,8 @@
       <!-- axes -->
       <line x1="50" y1="240" x2="390" y2="240" stroke="#4a5068" stroke-width="1.5"/>
       <line x1="50" y1="240" x2="50" y2="20" stroke="#4a5068" stroke-width="1.5"/>
-      <!-- -log(p) curve: from p=0.01 to p=0.99 -->
-      <path d="M55,236 L70,220 L90,198 L110,177 L130,158 L160,131 L190,108 L220,88 L260,63 L300,43 L340,29 L370,22 L388,20"
+      <!-- -log(p) curve: p near 0 → loss high (top), p near 1 → loss low (bottom) -->
+      <path d="M55,20 L70,28 L100,48 L140,78 L180,108 L220,138 L260,168 L300,198 L340,218 L370,232 L388,238"
             fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
       <!-- axis labels -->
       <text x="220" y="260" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#8b90a5">probability p</text>
@@ -468,8 +442,8 @@
       <text x="220" y="258" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">0.5</text>
       <text x="388" y="258" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
       <!-- annotation -->
-      <text x="300" y="38" font-family="Inter,sans-serif" font-size="11" fill="#10b981" font-weight="700">p&rarr;1, loss&rarr;0</text>
-      <text x="58" y="200" font-family="Inter,sans-serif" font-size="11" fill="#ef4444" font-weight="700">p&rarr;0, loss&rarr;&infin;</text>
+      <text x="58" y="38" font-family="Inter,sans-serif" font-size="11" fill="#ef4444" font-weight="700">p&rarr;0, loss&rarr;&infin;</text>
+      <text x="300" y="228" font-family="Inter,sans-serif" font-size="11" fill="#10b981" font-weight="700">p&rarr;1, loss&rarr;0</text>
       <text x="50" y="14" font-family="Inter,sans-serif" font-size="12" fill="#10b981" font-weight="700">&minus;log(p)</text>
     </svg>
     <table class="compare-table" style="flex:1;min-width:220px;max-width:300px;margin-top:0;">
@@ -494,8 +468,8 @@
       <!-- axes -->
       <line x1="50" y1="240" x2="390" y2="240" stroke="#4a5068" stroke-width="1.5"/>
       <line x1="50" y1="240" x2="50" y2="20" stroke="#4a5068" stroke-width="1.5"/>
-      <!-- -log(1-p) curve: mirror of previous -->
-      <path d="M55,22 L70,24 L100,30 L140,43 L180,62 L220,88 L250,108 L280,131 L310,157 L340,178 L360,198 L375,220 L384,236"
+      <!-- -log(1-p) curve: p near 0 → loss low (bottom), p near 1 → loss high (top) -->
+      <path d="M55,238 L70,232 L100,218 L140,198 L180,168 L220,138 L260,108 L300,78 L340,48 L370,28 L384,20"
             fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
       <!-- axis labels -->
       <text x="220" y="260" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#8b90a5">probability p</text>
@@ -504,7 +478,7 @@
       <text x="220" y="258" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">0.5</text>
       <text x="388" y="258" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
       <!-- annotation -->
-      <text x="58" y="38" font-family="Inter,sans-serif" font-size="11" fill="#10b981" font-weight="700">p&rarr;0, loss&rarr;0</text>
+      <text x="58" y="232" font-family="Inter,sans-serif" font-size="11" fill="#10b981" font-weight="700">p&rarr;0, loss&rarr;0</text>
       <text x="280" y="200" font-family="Inter,sans-serif" font-size="11" fill="#ef4444" font-weight="700">p&rarr;1, loss&rarr;&infin;</text>
       <text x="50" y="14" font-family="Inter,sans-serif" font-size="12" fill="#ef4444" font-weight="700">&minus;log(1&minus;p)</text>
     </svg>
@@ -686,46 +660,44 @@
 </div>
 
 <!-- 23 ─── KNOWLEDGE CHECK ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask learners to justify high versus low loss before revealing."
      data-ask="Ask learners to justify high versus low loss before revealing."
      data-time="4 min">
-  <h2>Can you reason about probability and BCE?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What range does Sigmoid output?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Between 0 and 1.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; What range does Sigmoid output?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Always between 0 and 1 — a valid probability.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What is &sigma;(0)?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">0.5 — exact uncertainty.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; What does sigmoid(0) return?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Exactly 0.5 — the midpoint, 'no idea'.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why use BCE instead of MSE?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">BCE strongly penalizes confident wrong classifications.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; Why not use MSE for classification?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">MSE gives mild punishment for confident mistakes. BCE punishes harshly.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">y = 1 and p = 0.99: high or low loss?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Low. The prediction is almost exactly right.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; If target=1 and prediction=0.99, is BCE high or low?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Very low — the prediction is almost perfect.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">05</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">y = 0 and p = 0.99: high or low loss?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">High. It confidently calls a fake real.</strong>
+    <div class="revealable card accent-blue">
+      <h4>05 &mdash; If target=0 and prediction=0.99, is BCE high or low?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Very high — confidently wrong gets severely punished.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">06</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What does a GAN Discriminator output mean?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Its estimated probability that the input is real.</strong>
+    <div class="revealable card accent-blue">
+      <h4>06 &mdash; In a GAN, what does D's Sigmoid output mean?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The probability that the input is real (not fake).</p></div>
     </div>
   </div>
 </div>
-
-<!-- 24 ─── NEXT LESSON ─── -->
 <div class="slide cover"
      data-say="Connect put the pieces into a classification network to the Discriminator's real-or-fake decision."
      data-ask="Would this prediction be confident, uncertain, or wrong?"

@@ -1,0 +1,5 @@
+/* LOSS part: long formula symbols use a slightly smaller face so they fit their column */
+.part-loss .ftx-sym { font-size: clamp(20px, 1.9vw, 30px); }
+.loss-legend { display: flex; flex-wrap: wrap; gap: 18px; padding: 0 6px; color: var(--ink-2); font: 800 clamp(12px, .95vw, 15px) var(--mono); }
+.loss-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.loss-legend i { display: inline-block; width: 26px; border-top: 4px solid; }

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L08">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L07.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L07</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L08 / 19</a><a href="NN-L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L09 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L07.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L07</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L08 / 14</a><a href="NN-L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L09 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L08</div>
@@ -46,38 +46,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Promise one multi-input calculation, three gradients, and compact vector notation."
-     data-ask="What might each new input require?"
-     data-time="1 min">
-  <h2>Scale one neuron from one input to many</h2>
-  <p style="color:var(--text-muted);max-width:600px;">By the end, you should combine independent inputs, assign their gradients, and read dot-product notation.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Combine evidence</strong>
-      <p>One weighted contribution per input.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Learn every influence</strong>
-      <p>One gradient per parameter.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Think in vectors</strong>
-      <p>Scale the same idea to many inputs.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── PHASE MAP ─── -->
-<div class="slide"
      data-say="Locate this lesson at the start of deep neural networks."
      data-ask="Which ideas follow multiple inputs in Phase 2?"
      data-time="2 min">
   <h2>The learning loop is ready for more powerful models</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:150px;opacity:0.6;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:150px;opacity:0.6;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PHASE 1 &bull; DONE</div>
       <strong>One input + learning loop</strong>
     </div>
@@ -417,7 +391,7 @@
 <!-- 14 ─── TRAIN ALL THREE ─── -->
 <div class="slide"
      data-say="Accumulate all three gradients before making one simultaneous update."
-     data-ask="Which step preserves a fair shared starting point?"
+     data-ask="Which preserves a fair shared starting point?"
      data-time="3 min">
   <h2>Calculate every gradient, then update every parameter</h2>
   <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:640px;margin:1.5rem auto;">
@@ -748,71 +722,34 @@
 </div>
 
 <!-- 23 ─── SECTION DIVIDER: CHECK ─── -->
-<div class="slide section-divider"
-     data-say="Ask all four questions before revealing the answers."
-     data-ask="What is the dot product in question four?"
-     data-time="4 min">
-  <div style="max-width:820px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:2rem;">
-      <span style="font-size:0.85rem;font-weight:700;letter-spacing:0.12em;color:#10b981;">KNOWLEDGE CHECK</span>
-      <h2 style="margin-top:0.5rem;">Can you reason about a multi-input neuron?</h2>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-      <div class="card accent-blue step">
-        <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-        <p style="margin:0.25rem 0;font-size:0.9rem;">Does a second input create a second neuron?</p>
-        <strong class="reveal-answer" style="color:#10b981;display:none;">No. It creates another incoming connection.</strong>
-      </div>
-      <div class="card accent-blue step">
-        <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-        <p style="margin:0.25rem 0;font-size:0.9rem;">How many weights are needed for five inputs?</p>
-        <strong class="reveal-answer" style="color:#10b981;display:none;">Five&mdash;one matching weight per input.</strong>
-      </div>
-      <div class="card accent-blue step">
-        <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-        <p style="margin:0.25rem 0;font-size:0.9rem;">Why does w&#8321;&rsquo;s gradient contain x&#8321;, not x&#8322;?</p>
-        <strong class="reveal-answer" style="color:#10b981;display:none;">w&#8321; directly multiplies x&#8321;.</strong>
-      </div>
-      <div class="card accent-blue step">
-        <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-        <p style="margin:0.25rem 0;font-size:0.9rem;">What is [1, 2] &middot; [3, 4]?</p>
-        <strong class="reveal-answer" style="color:#10b981;display:none;">1&times;3 + 2&times;4 = 11.</strong>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 24 ─── REVEALABLE KNOWLEDGE CHECK (interactive) ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask all four questions before revealing the answers."
      data-ask="Ask for reasoning before revealing all four answers."
      data-time="4 min">
-  <h2>Can you reason about a multi-input neuron?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Does a second input create a second neuron?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">No. It creates another incoming connection.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; Does a second input create a second neuron?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">No — one neuron, more connections. Still one output.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">How many weights are needed for five inputs?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Five&mdash;one matching weight per input.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; How many weights for 5 inputs?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">5 weights + 1 bias = 6 learnable parameters.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why does w&#8321;&rsquo;s gradient contain x&#8321;, not x&#8322;?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">w&#8321; directly multiplies x&#8321;.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; Why does w₁'s gradient contain x₁?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">w₁ only touches x₁ — so x₁ determines how much w₁ should change.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What is [1, 2] &middot; [3, 4]?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">1&times;3 + 2&times;4 = 11.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; What is [1,2]·[3,4]?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">1×3 + 2×4 = 3 + 8 = 11.</p></div>
     </div>
   </div>
 </div>
-
-<!-- 25 ─── NEXT LIMIT / BRIDGE ─── -->
 <div class="slide cover"
      data-say="Multiple inputs still combine linearly, so curved patterns remain out of reach."
      data-ask="What new mechanism might bend a straight-line model?"

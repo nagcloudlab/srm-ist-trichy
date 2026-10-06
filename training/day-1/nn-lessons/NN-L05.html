@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L05">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L04.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L04</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L05 / 19</a><a href="NN-L06.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L06 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L04.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L04</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L05 / 14</a><a href="NN-L06.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L06 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L05</div>
@@ -40,38 +40,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Learners will run, read, and diagnose a training loop."
-     data-ask="What evidence would convince you that the neuron learned?"
-     data-time="1 min">
-  <h2>Turn one useful update into reliable learning</h2>
-  <p style="color:var(--text-muted);max-width:600px;">By the end, you should explain convergence, recognize divergence, and read a training record.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Run the loop</strong>
-      <p>Repeat loss, gradient, and update.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Read convergence</strong>
-      <p>Connect smaller slopes to smaller steps.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Diagnose divergence</strong>
-      <p>Recognize growing overshoots.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── WHERE WE ARE ─── -->
-<div class="slide"
      data-say="Rebuild the course sequence from prediction to repetition."
      data-ask="Which earlier four ingredients must repeat?"
      data-time="1 min">
   <h2>The fifth ingredient is repetition</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:120px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L01</div>
       <strong>Predict</strong>
     </div>
@@ -236,6 +210,7 @@
      data-ask="Between which steps does the largest improvement happen?"
      data-time="3 min">
   <h2>The weight settles as the loss disappears</h2>
+  <p style="text-align:center;color:#8b90a5;font-size:0.85rem;margin-bottom:0.5rem;">This pattern &mdash; loss decreasing, weights settling &mdash; is called <strong style="color:#3b6df0;">convergence</strong>.</p>
   <table class="compare-table" style="margin-top:1.5rem;max-width:700px;margin-left:auto;margin-right:auto;">
     <tr><th>Step</th><th>Weight</th><th>Loss</th><th>What changed?</th></tr>
     <tr><td>0</td><td style="font-family:'JetBrains Mono',monospace;">1.0000</td><td style="color:#ef4444;font-weight:700;">4.666667</td><td style="color:#8b90a5;">starting point</td></tr>
@@ -255,7 +230,7 @@
   <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem;max-width:680px;margin-left:auto;margin-right:auto;">
     <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
       <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">01</span>
-      <div><strong>Biggest jump at step 1</strong><p style="color:#8b90a5;margin-top:0.2rem;">The gradient is largest far from the minimum.</p></div>
+      <div><strong>Biggest jump at 1</strong><p style="color:#8b90a5;margin-top:0.2rem;">The gradient is largest far from the minimum.</p></div>
     </div>
     <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
       <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">02</span>
@@ -329,66 +304,75 @@
      data-ask="Which line shows divergence most clearly?"
      data-time="3 min">
   <h2>Stable learning falls while divergence explodes</h2>
-  <div style="margin-top:1.5rem;display:flex;justify-content:center;">
-    <svg viewBox="0 0 760 380" style="width:100%;max-width:720px;border-radius:16px;background:#f8f9fb;border:1.5px solid #e2e5ef;" role="img" aria-label="Loss vs step for three learning rates. eta=0.01 slowly descends. eta=0.10 drops steeply to near zero. eta=0.30 shoots upward exponentially.">
-      <defs>
-        <marker id="axArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <polygon points="0 0,8 3,0 6" fill="#4a5068"/>
-        </marker>
-      </defs>
-      <!-- axes -->
-      <line x1="72" y1="320" x2="720" y2="320" stroke="#4a5068" stroke-width="1.5" marker-end="url(#axArrow)"/>
-      <line x1="72" y1="30" x2="72" y2="330" stroke="#4a5068" stroke-width="1.5" marker-end="url(#axArrow)"/>
-      <!-- axis labels -->
-      <text x="700" y="340" font-family="Inter,sans-serif" font-size="12" fill="#8b90a5">step</text>
-      <text x="10" y="44" font-family="Inter,sans-serif" font-size="12" fill="#8b90a5">loss</text>
-      <text x="15" y="58" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5">(log)</text>
-      <!-- x-axis step labels: 0..10 -->
-      <text x="72"  y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">0</text>
-      <text x="136" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">1</text>
-      <text x="200" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">2</text>
-      <text x="264" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">3</text>
-      <text x="328" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">4</text>
-      <text x="392" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">5</text>
-      <text x="456" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">6</text>
-      <text x="520" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">7</text>
-      <text x="584" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">8</text>
-      <text x="648" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">9</text>
-      <text x="710" y="338" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b90a5">10</text>
-      <!-- y-axis reference labels (log scale: top=high, bottom=low) -->
-      <text x="66" y="322" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">~0</text>
-      <text x="66" y="220" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">0.1</text>
-      <text x="66" y="140" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
-      <text x="66" y="80" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">100</text>
-      <text x="58" y="42" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#ef4444">600K</text>
-      <!-- horizontal grid lines (light) -->
-      <line x1="72" y1="220" x2="720" y2="220" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="72" y1="140" x2="720" y2="140" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="72" y1="80"  x2="720" y2="80"  stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
-
-      <!-- eta=0.01 (yellow/amber): slow descent, stays high — logarithmic: 0.66→0.60→0.55→0.50→0.46→0.43→0.40→0.37→0.35→0.33→0.31 -->
-      <!-- map log(0.66)→high y, log(0.001)→low y. Approx linear slow drop: y from 225→205 -->
-      <polyline points="72,225 136,218 200,212 264,206 328,200 392,196 456,192 520,188 584,184 648,181 710,179"
-        fill="none" stroke="#3b6df0" stroke-width="2.5" stroke-dasharray="7,3"/>
-      <text x="715" y="179" font-family="Inter,sans-serif" font-size="11" fill="#3b6df0" font-weight="700">&eta;=0.01</text>
-
-      <!-- eta=0.10 (blue): rapid drop, step 0=4.67 (≈log space y=155), step 1=0.021 (y=290), step 2=0.000114 (y=313), step 3+=~315 -->
-      <polyline points="72,155 136,290 200,313 264,316 328,317 392,317 456,317 520,317 584,317 648,317 710,318"
-        fill="none" stroke="#3b6df0" stroke-width="2.5"/>
-      <text x="715" y="315" font-family="Inter,sans-serif" font-size="11" fill="#3b6df0" font-weight="700">&eta;=0.10</text>
-
-      <!-- eta=0.30 (red): step 0=4.67 (y=155), step 1=15.1 (y=120), step 2=48.9 (y=90), step 3=158 (y=66), step 4=513 (y=50), step 5+: shoots off chart -->
-      <polyline points="72,155 136,120 200,90 264,66 328,50 392,38"
-        fill="none" stroke="#ef4444" stroke-width="2.5"/>
-      <!-- arrow off top -->
-      <line x1="392" y1="38" x2="420" y2="20" stroke="#ef4444" stroke-width="2" marker-end="url(#axArrow)"/>
-      <text x="425" y="20" font-family="Inter,sans-serif" font-size="11" fill="#ef4444" font-weight="700">&eta;=0.30</text>
-
-      <!-- dots at step 0 for all three -->
-      <circle cx="72" cy="225" r="5" fill="#3b6df0"/>
-      <circle cx="72" cy="155" r="5" fill="#3b6df0"/>
-      <circle cx="72" cy="155" r="5" fill="none" stroke="#ef4444" stroke-width="2"/>
+  <div style="display:flex;gap:2rem;align-items:flex-start;margin-top:0.5rem;flex-wrap:wrap;">
+    <svg viewBox="0 0 520 300" style="flex:1;min-width:320px;max-width:500px;" role="img" aria-label="Loss over 10 training steps for three learning rates">
+      <!-- Background -->
+      <rect x="55" y="20" width="440" height="240" rx="6" fill="#fafbfd" stroke="#e2e5ef" stroke-width="1"/>
+      <!-- Grid lines -->
+      <line x1="55" y1="260" x2="495" y2="260" stroke="#e2e5ef" stroke-width="0.5"/>
+      <line x1="55" y1="200" x2="495" y2="200" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <line x1="55" y1="140" x2="495" y2="140" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <line x1="55" y1="80" x2="495" y2="80" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <line x1="55" y1="20" x2="495" y2="20" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <!-- Y labels -->
+      <text x="48" y="264" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">~0</text>
+      <text x="48" y="204" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
+      <text x="48" y="144" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">10</text>
+      <text x="48" y="84" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">100</text>
+      <text x="48" y="24" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1K+</text>
+      <!-- X labels (steps 0-10) -->
+      <text x="55" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">0</text>
+      <text x="99" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
+      <text x="143" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">2</text>
+      <text x="187" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">3</text>
+      <text x="231" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">4</text>
+      <text x="275" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">5</text>
+      <text x="363" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">7</text>
+      <text x="495" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">10</text>
+      <!-- Axis titles -->
+      <text x="275" y="296" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="600">training step</text>
+      <text x="15" y="140" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="600" transform="rotate(-90 15 140)">loss (log)</text>
+      <!-- η=0.10 — GOOD: drops fast to near zero -->
+      <polyline points="55,160 99,256 143,258 187,258 231,258 275,258 319,258 363,258 407,258 451,258 495,258"
+        fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="55" cy="160" r="4" fill="#10b981"/>
+      <circle cx="143" cy="258" r="4" fill="#10b981"/>
+      <!-- η=0.01 — SLOW: barely moves -->
+      <polyline points="55,160 99,165 143,170 187,175 231,180 275,185 319,190 363,196 407,201 451,206 495,211"
+        fill="none" stroke="#8b90a5" stroke-width="2.5" stroke-dasharray="6,3"/>
+      <circle cx="55" cy="160" r="4" fill="#8b90a5"/>
+      <!-- η=0.30 — EXPLODES: shoots off chart -->
+      <polyline points="55,160 99,129 143,99 187,68 231,37 255,20"
+        fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="55" cy="160" r="4" fill="none" stroke="#ef4444" stroke-width="2"/>
+      <!-- Explosion arrow -->
+      <line x1="255" y1="20" x2="275" y2="10" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="280" y="14" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">&uarr; ~594K at step 10</text>
     </svg>
+    <!-- Legend -->
+    <div style="display:flex;flex-direction:column;gap:0.8rem;min-width:160px;">
+      <div class="card" style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.8rem;">
+        <div style="width:24px;height:3px;background:#10b981;border-radius:2px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:#10b981;">&eta; = 0.10</div>
+          <div style="font-size:0.75rem;color:#8b90a5;">Drops to ~0 in 2 steps</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.8rem;">
+        <div style="width:24px;height:3px;background:#8b90a5;border-radius:2px;border-top:1px dashed #8b90a5;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:#8b90a5;">&eta; = 0.01</div>
+          <div style="font-size:0.75rem;color:#8b90a5;">Still at 0.66 after 10 steps</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.8rem;background:#fef2f2;">
+        <div style="width:24px;height:3px;background:#ef4444;border-radius:2px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:#ef4444;">&eta; = 0.30</div>
+          <div style="font-size:0.75rem;color:#ef4444;">Passes 1,600 by step 5; ~594K by step 10</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -403,7 +387,7 @@
 
 <!-- 14 ─── DIVERGENCE STORY ─── -->
 <div class="slide"
-     data-say="Follow the sign flip and growing magnitude step by step."
+     data-say="Follow the sign flip and growing magnitude by step."
      data-ask="What is growing: only the weight, only the loss, or both?"
      data-time="3 min">
   <h2>With &eta; = 0.30, every overshoot grows</h2>
@@ -507,36 +491,34 @@
 </div>
 
 <!-- 17 ─── KNOWLEDGE CHECK (revealable) ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Pause before revealing. Require an explanation for every answer."
-     data-ask="Which answer connects slope, step size, and stability?"
+     data-ask="Which answer connects slope, size, and stability?"
      data-time="4 min">
-  <h2>Can you diagnose a training run?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why recalculate the gradient each step?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">The slope changes after the weight moves.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; Why recalculate the gradient each step?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The weight moved — the slope at the new position is different.</p></div>
     </div>
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why do updates shrink near the minimum?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">The gradient becomes smaller.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; Why do updates shrink near the minimum?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The gradient gets smaller as the curve flattens near the bottom.</p></div>
     </div>
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What does &eta; = 0.01 do in 10 steps?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Learns safely, but remains short of 2.0.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; What does η = 0.01 do in 10 steps?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Barely moves — loss still at 0.66. Too slow.</p></div>
     </div>
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why does &eta; = 0.30 diverge?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Each overshoot creates an even larger next update.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; Why does η = 0.30 diverge?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Each overshoot lands on a steeper slope, making the next step even bigger.</p></div>
     </div>
   </div>
 </div>
-
-<!-- 18 ─── RECAP ─── -->
 <div class="slide"
      data-say="Summarize training as repeated correction guided by fresh gradients."
      data-ask="Explain why the first step is usually the largest."

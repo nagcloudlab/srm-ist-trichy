@@ -72,8 +72,95 @@ html, body {
   padding-top: clamp(2rem, 4vh, 4rem);
   background: #ffffff;
   opacity: 0; transition: opacity 0.35s ease;
+  overflow: hidden;  /* NO vertical scrolling — content must fit */
 }
 .slide.active { display: flex; opacity: 1; }
+
+/* ==============================
+   PPT-STYLE CONSISTENT LAYOUT
+   ============================== */
+
+/* All slide content auto-centered with max-width */
+.slide > h2,
+.slide > h3,
+.slide > p,
+.slide > div:not(.progress-bar):not(.slide-counter):not(.lesson-nav),
+.slide > table,
+.slide > blockquote {
+  max-width: 1000px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Consistent spacing after title + thin line below */
+.slide h2 {
+  margin-bottom: clamp(0.8rem, 2vh, 1.4rem);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Cards: compact padding */
+.card {
+  padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.8rem, 1.5vw, 1.2rem);
+}
+.card h4 { margin-bottom: 0.3rem; }
+.card p { margin-top: 0.2rem; }
+
+/* Tables: compact cells */
+.compare-table {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.compare-table td,
+.compare-table th {
+  padding: clamp(0.35rem, 0.8vw, 0.55rem) clamp(0.5rem, 1vw, 0.8rem);
+  font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+}
+
+/* Two-col: fill available height */
+.two-col {
+  gap: clamp(0.8rem, 2vw, 2rem);
+  flex: 1;
+}
+
+/* Formula: tight margins */
+.formula {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.8rem 1.2rem;
+}
+
+/* Diagram: tight */
+.diagram {
+  margin: 0.5rem 0;
+}
+
+/* Slide text: slightly smaller for fitting */
+.slide p, .slide li {
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  line-height: 1.6;
+}
+
+/* SVGs: never taller than available space */
+.slide svg {
+  max-height: 55vh;
+}
+
+/* Cover: centered */
+.slide.cover {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Section dividers: centered */
+.slide.section-divider {
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
 
 /* --- Incremental Steps --- */
 .step { opacity: 0; transform: translateY(12px); transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none; }
@@ -291,10 +378,10 @@ html, body {
   padding: 1.2rem 1.8rem;
   font-family: var(--font-mono);
   font-size: clamp(1rem, 1.8vw, 1.3rem);
-  color: var(--accent-blue);
+  color: var(--text-primary);
   text-align: center;
   margin: 0.8rem 0;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -375,20 +462,24 @@ html, body {
 /* ==============================
    REVEAL / KNOWLEDGE CHECK
    ============================== */
-.revealable { cursor: pointer; position: relative; }
+.revealable { cursor: pointer; position: relative; overflow: visible !important; }
 .revealable .answer {
   max-height: 0; overflow: hidden; opacity: 0;
-  transition: max-height 0.5s ease, opacity 0.35s ease, padding 0.3s;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
   padding-top: 0;
 }
 .revealable.revealed .answer {
-  max-height: 400px; opacity: 1; padding-top: 0.5rem;
+  max-height: 300px; opacity: 1; padding-top: 0.4rem;
+  overflow: visible;
 }
 .revealable .hint {
   color: var(--accent-blue); font-size: 0.8rem; font-weight: 500;
-  margin-top: 0.3rem;
+  margin-top: 0.3rem; cursor: pointer;
 }
 .revealable.revealed .hint { display: none; }
+
+/* Slides with revealable content need overflow for answers */
+.slide:has(.revealable) { overflow-y: auto !important; }
 
 /* ==============================
    PROGRESS BAR
@@ -795,3 +886,7 @@ img { max-width: 100%; height: auto; border-radius: 10px; }
 .flex-col { display: flex; flex-direction: column; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
 .text-center { text-align: center; }
+
+/* Knowledge check cards: lighter question text */
+.revealable.card h4 { font-weight: 500; font-size: 0.9rem; }
+.revealable.card .answer p { font-weight: 400; }

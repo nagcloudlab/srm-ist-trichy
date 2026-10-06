@@ -193,7 +193,7 @@ Final:    0.396 (in [-1, 1])</pre>
 )</pre>
       </div>
       <div class="card mt-1" style="background:#f8f9fb;">
-        <h4>Parameters: 550,656</h4>
+        <h4>Parameters: 550,416</h4>
         <p class="text-muted" style="font-size:0.85rem;">Compare with L02's Generator: 49 params. 784 pixels need <strong>much more</strong> capacity.</p>
       </div>
     </div>
@@ -250,7 +250,7 @@ Final:    0.396 (in [-1, 1])</pre>
 )</pre>
       </div>
       <div class="card mt-1" style="background:#f8f9fb;">
-        <h4>Parameters: 534,017</h4>
+        <h4>Parameters: 533,505</h4>
         <p class="text-muted" style="font-size:0.85rem;">Similar size to G. Both networks are roughly balanced.</p>
       </div>
     </div>
@@ -397,7 +397,7 @@ Final:    0.396 (in [-1, 1])</pre>
         <tr><td><strong>Layer 2</strong></td><td>256 &rarr; 512 + ReLU</td></tr>
         <tr><td><strong>Layer 3</strong></td><td>512 &rarr; 784 + Tanh</td></tr>
         <tr><td><strong>Output</strong></td><td>784 (fake image)</td></tr>
-        <tr><td><strong>Params</strong></td><td>550,656</td></tr>
+        <tr><td><strong>Params</strong></td><td>550,416</td></tr>
       </table>
       <p style="font-weight:600;margin-top:0.5rem;text-align:center;">EXPANDS (small &rarr; big)</p>
     </div>
@@ -410,7 +410,7 @@ Final:    0.396 (in [-1, 1])</pre>
         <tr><td><strong>Layer 2</strong></td><td>512 &rarr; 256 + LeakyReLU</td></tr>
         <tr><td><strong>Layer 3</strong></td><td>256 &rarr; 1 + Sigmoid</td></tr>
         <tr><td><strong>Output</strong></td><td>1 (probability)</td></tr>
-        <tr><td><strong>Params</strong></td><td>534,017</td></tr>
+        <tr><td><strong>Params</strong></td><td>533,505</td></tr>
       </table>
       <p style="font-weight:600;margin-top:0.5rem;text-align:center;">COMPRESSES (big &rarr; small)</p>
     </div>
@@ -526,7 +526,7 @@ Final:    0.396 (in [-1, 1])</pre>
 
 <!-- 13 ─── WHY BLURRY ─── -->
 <div class="slide"
-     data-say="Our Generator uses nn.Linear — it treats every pixel independently. Pixel (5,5) has no idea pixel (5,6) exists. Real images have spatial structure: neighbors are related, edges are continuous. Linear layers can't see that."
+     data-say="Our Generator uses nn.Linear — every output pixel gets its own separate weights, and the layer has no notion of which pixels are neighbours. Pixel (5,5) is not treated as 'next to' pixel (5,6). Real images have spatial structure: neighbors are related, edges are continuous. Linear layers can't see that."
      data-ask="How would you teach a network that nearby pixels are related?"
      data-time="2 min">
   <h2>Why Are the Images Blurry?</h2>
@@ -535,8 +535,8 @@ Final:    0.396 (in [-1, 1])</pre>
       <div class="card" style="background:#fef2f2;">
         <h4>nn.Linear thinks:</h4>
         <ul>
-          <li>Pixel (5,5) has <strong>no connection</strong> to pixel (5,6)</li>
-          <li>Each pixel generated <strong>independently</strong></li>
+          <li>Pixel (5,5) is not &ldquo;next to&rdquo; pixel (5,6) &mdash; <strong>no notion of neighbours</strong></li>
+          <li>Separate weights per pixel &mdash; <strong>no weight sharing</strong></li>
           <li>No concept of neighbors, edges, or shapes</li>
         </ul>
       </div>
@@ -628,7 +628,7 @@ Final:    0.396 (in [-1, 1])</pre>
     <div class="revealable card">
       <h4>D uses LeakyReLU but G uses plain ReLU. What happens if you give D plain ReLU too?</h4>
       <p class="hint">Click to reveal</p>
-      <div class="answer"><p class="mt-1">D's neurons can <strong>die</strong> (gradient = 0 for negative inputs). When D loses neurons, it becomes a weaker critic. G gets lazy because it doesn't need to try hard. The result: lower quality outputs and potentially training collapse. The DCGAN paper found LeakyReLU in D is critical for stability.</p></div>
+      <div class="answer"><p class="mt-1">D's neurons can <strong>die</strong> (gradient = 0 for negative inputs). When D loses neurons, it becomes a weaker critic. Weaker, sparser gradients then flow back to G, so G's feedback gets worse. The result: lower quality outputs and less stable training. The DCGAN paper reported that LeakyReLU in D worked well, especially at higher resolution.</p></div>
     </div>
     <div class="revealable card">
       <h4>We flatten 28&times;28 into 784. What information is lost by flattening?</h4>

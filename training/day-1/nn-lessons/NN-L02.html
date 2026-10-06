@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L02">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L01</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L02 / 19</a><a href="NN-L03.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L03 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L01</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L02 / 14</a><a href="NN-L03.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L03 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L02</div>
@@ -31,32 +31,6 @@
 </div>
 
 <!-- 2 ─── OBJECTIVES ─── -->
-<div class="slide"
-     data-say="Promise a concrete outcome: learners will calculate one complete MSE by hand."
-     data-ask="Which word—error, square, or mean—needs the most clarification?"
-     data-time="1 min">
-  <h2>Turn prediction mistakes into one useful number</h2>
-  <p style="color:var(--text-muted);max-width:620px;margin-bottom:2rem;">By the end, you should be able to explain and calculate mean squared error.</p>
-  <div class="three-col">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Calculate signed error</strong>
-      <p>Use prediction minus actual.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Explain why we square</strong>
-      <p>Prevent cancellation and emphasize large mistakes.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Calculate MSE</strong>
-      <p>Turn several errors into one loss.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── PREDICTION GAP ─── -->
 <div class="slide"
      data-say="Separate making a prediction from evaluating it. Learning needs both."
      data-ask="Can a neuron improve if it never measures its result?"
@@ -419,15 +393,15 @@
     <div class="arrow">&rarr;</div>
     <div class="box">Record</div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:320px;margin:0 auto;">
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.25rem;">
-      <strong>w = 1</strong><span style="color:var(--text-muted);">4.67</span>
+  <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:400px;margin:0 auto;">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.5rem;">
+      <strong>w = 1</strong><span style="flex:1;"></span><span style="color:var(--text-muted);">MSE = 4.67</span>
     </div>
-    <div class="card accent-green" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.25rem;">
-      <strong style="color:#10b981;">w = 2</strong><strong style="color:#10b981;">0.00</strong>
+    <div class="card accent-green" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.5rem;">
+      <strong style="color:#10b981;">w = 2</strong><span style="flex:1;"></span><strong style="color:#10b981;">MSE = 0.00</strong>
     </div>
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.25rem;">
-      <strong>w = 3</strong><span style="color:var(--text-muted);">4.67</span>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.5rem;">
+      <strong>w = 3</strong><span style="flex:1;"></span><span style="color:var(--text-muted);">MSE = 4.67</span>
     </div>
   </div>
 </div>

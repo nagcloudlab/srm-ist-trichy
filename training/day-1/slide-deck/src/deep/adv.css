@@ -1,0 +1,15 @@
+/* ADV · training toolkit — local visuals only */
+.adv-hint { margin: 0; color: var(--muted); font-size: 12px; }
+.adv-norm-grid { width: 100%; height: auto; display: block; max-height: min(40vh, 400px); }
+.adv-axis { fill: var(--muted); font: 800 13px var(--mono); }
+.adv-cell { fill: #eef0f3; stroke: rgba(17, 24, 39, .12); transition: fill .2s ease; }
+.adv-cell.on { fill: var(--blue); stroke: var(--blue); }
+.adv-block { cursor: pointer; }
+.adv-block:hover .adv-cell:not(.on) { fill: #e2e6f3; }
+.adv-anchor { fill: none; stroke: var(--coral); stroke-width: 3; }
+
+.adv-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.adv-curve { width: 100%; height: auto; display: block; }
+
+.kit-lab .kit-body svg.adv-norm-grid { max-height: min(36vh, 360px); }
+.slide-adv-checklist .steps { grid-template-columns: 1fr 1fr; }

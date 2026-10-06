@@ -84,9 +84,7 @@
     // Notes
     updateNotes();
 
-    // Save position
-    const lesson = document.body.dataset.lesson || '00';
-    localStorage.setItem('deck-' + lesson, currentSlide);
+    // No position saving — always start from slide 1
 
     // Hash
     history.replaceState(null, '', '#slide-' + (currentSlide + 1));
@@ -116,7 +114,7 @@
 
     panel.querySelector('.note-say').textContent = say || 'No notes for this slide.';
     panel.querySelector('.note-ask').textContent = ask ? 'Ask: ' + ask : '';
-    panel.querySelector('.note-time').textContent = time;
+    panel.querySelector('.note-time').textContent = '';  // timing intentionally not shown
   }
 
   function toggleNotes() {
@@ -195,10 +193,8 @@
 
   /* --- Init --- */
   document.addEventListener('DOMContentLoaded', function () {
-    const lesson = document.body.dataset.lesson || '00';
     const hashMatch = location.hash.match(/slide-(\d+)/);
-    const saved = parseInt(localStorage.getItem('deck-' + lesson) || '0', 10);
-    const startAt = hashMatch ? parseInt(hashMatch[1], 10) - 1 : saved;
+    const startAt = hashMatch ? parseInt(hashMatch[1], 10) - 1 : 0;
     goTo(startAt);
   });
 })();

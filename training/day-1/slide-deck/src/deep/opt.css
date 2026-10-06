@@ -1,0 +1,13 @@
+/* Deep dive · OPT part */
+.opt-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; font: 800 clamp(11px, .85vw, 14px) var(--mono); color: var(--ink-2); }
+.opt-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.opt-legend i { display: inline-block; width: 22px; height: 4px; border-radius: 2px; }
+
+.opt-trace { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; font: 700 clamp(11px, .85vw, 14px) var(--mono); }
+.opt-trace-row { display: grid; grid-template-columns: .5fr 1fr 1.1fr 1.3fr 1fr 1fr 1.1fr; }
+.opt-trace-row > * { padding: 5px 10px; border-right: 1px solid var(--line); text-align: right; }
+.opt-trace-row > *:last-child { border-right: 0; }
+.opt-trace-row + .opt-trace-row { border-top: 1px solid var(--line); }
+.opt-trace-head { background: #efeadf; color: #525b6a; font-size: clamp(10px, .75vw, 12px); letter-spacing: .06em; }
+.opt-trace-row.now { background: var(--mint-soft); }
+.opt-trace-row b { color: var(--mint); }

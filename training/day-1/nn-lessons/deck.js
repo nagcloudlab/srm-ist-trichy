@@ -84,9 +84,7 @@
     // Notes
     updateNotes();
 
-    // Save position
-    const lesson = document.body.dataset.lesson || '00';
-    localStorage.setItem('deck-' + lesson, currentSlide);
+    // No position saving — always start from slide 1
 
     // Hash
     history.replaceState(null, '', '#slide-' + (currentSlide + 1));
@@ -116,7 +114,7 @@
 
     panel.querySelector('.note-say').textContent = say || 'No notes for this slide.';
     panel.querySelector('.note-ask').textContent = ask ? 'Ask: ' + ask : '';
-    panel.querySelector('.note-time').textContent = time;
+    panel.querySelector('.note-time').textContent = '';  // timing intentionally not shown
   }
 
   function toggleNotes() {
@@ -145,10 +143,19 @@
   function handleReveal() {
     const slide = slides()[currentSlide];
     if (!slide) return;
-    // Reveal all revealables on current slide
+    // Reveal card-level revealables first
     const revs = slide.querySelectorAll('.revealable:not(.revealed)');
     if (revs.length > 0) {
       revs[0].classList.add('revealed');
+      return;
+    }
+    // Fallback: reveal slide-level .answer / .hide-until-reveal elements
+    const hides = slide.querySelectorAll('.hide-until-reveal');
+    const answers = slide.querySelectorAll('.answer:not(.revealable .answer)');
+    if (hides.length > 0 && !slide.classList.contains('slide-revealed')) {
+      slide.classList.add('slide-revealed');
+      hides.forEach(el => { el.style.display = 'none'; });
+      answers.forEach(el => { el.style.maxHeight = '300px'; el.style.opacity = '1'; });
     }
   }
 
@@ -195,10 +202,8 @@
 
   /* --- Init --- */
   document.addEventListener('DOMContentLoaded', function () {
-    const lesson = document.body.dataset.lesson || '00';
     const hashMatch = location.hash.match(/slide-(\d+)/);
-    const saved = parseInt(localStorage.getItem('deck-' + lesson) || '0', 10);
-    const startAt = hashMatch ? parseInt(hashMatch[1], 10) - 1 : saved;
+    const startAt = hashMatch ? parseInt(hashMatch[1], 10) - 1 : 0;
     goTo(startAt);
   });
 })();

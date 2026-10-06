@@ -1,0 +1,15 @@
+/* deep dive · activations part */
+.fn-sep { margin: 0 .5em; color: var(--muted); }
+.fn-lab-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.fn-bars { display: grid; gap: 14px; padding: 8px 6px; }
+.fn-bar { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 4.5rem; gap: 14px; align-items: center; }
+.fn-bar-name { font: 760 clamp(15px, 1.3vw, 20px) var(--display); }
+.fn-bar-name small { display: block; color: var(--muted); font: 700 11px var(--mono); }
+.fn-bar-track { height: 34px; border-radius: 10px; background: var(--paper-2); overflow: hidden; }
+.fn-bar-track span { display: block; height: 100%; background: var(--violet); border-radius: 10px; transition: width .2s ease; }
+.fn-bar b { font: 800 clamp(16px, 1.4vw, 22px) var(--math); text-align: right; }
+
+.fn-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; font: 700 12px var(--mono); color: var(--ink-2); }
+.fn-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.fn-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; }
+.fn-legend-note { color: var(--muted); }

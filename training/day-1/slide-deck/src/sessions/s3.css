@@ -1,0 +1,77 @@
+/* Session 3 — local styles (all prefixed s3-) */
+
+.s3-delivery { display: grid; grid-template-columns: auto auto; gap: 0; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); background: var(--card); font-size: 1.25rem; align-self: center; }
+.s3-delivery > span { padding: .55rem 1.6rem; border-bottom: 1px solid var(--line); }
+.s3-delivery > span:nth-child(odd) { color: var(--blue); font-weight: 650; }
+.s3-delivery > span:nth-child(even) { font-family: var(--mono); font-weight: 700; text-align: right; }
+.s3-delivery .s3-head { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted) !important; background: var(--paper-2); font-family: var(--sans) !important; }
+.s3-delivery .s3-mystery { background: var(--yellow-soft); border-bottom: 0; }
+
+/* hidden-layer lab gates */
+.s3-gates { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.s3-gate { display: flex; flex-direction: column; gap: .15rem; padding: .6rem .8rem; border-radius: var(--r-sm); border: 2px solid var(--line-strong); background: var(--paper); font-size: .9rem; }
+.s3-gate small { font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 750; color: var(--muted); }
+.s3-gate span { font-family: var(--mono); color: var(--ink-2); }
+.s3-gate strong { font-family: var(--mono); font-size: 1rem; }
+.s3-gate em { font-style: normal; font-weight: 750; font-size: .78rem; letter-spacing: .06em; }
+.s3-gate.on { border-color: var(--mint); background: var(--mint-soft); }
+.s3-gate.on em { color: var(--mint); }
+.s3-gate.off { opacity: .75; }
+.s3-gate.off em { color: var(--coral); }
+
+/* branch trace for x = 3 */
+.s3-branches { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.s3-branch { display: flex; flex-direction: column; align-items: stretch; gap: .35rem; padding: 1rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.s3-branch > small { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 750; color: var(--muted); }
+.s3-branch-row { display: grid; grid-template-columns: 6.5rem 1fr; align-items: baseline; gap: .6rem; padding: .35rem .6rem; border-radius: 8px; background: var(--paper); font-size: 1.05rem; }
+.s3-branch-row b { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.s3-branch-row span { font-family: var(--mono); font-weight: 650; }
+.s3-branch-row.on { background: var(--mint-soft); }
+.s3-branch-row.on span { color: var(--mint); }
+.s3-branch-row.off { background: var(--coral-soft); }
+.s3-branch-row.off span { color: var(--coral); }
+.s3-sum { text-align: center; font-size: 1.6rem; font-family: var(--mono); font-weight: 750; padding: .6rem; border-radius: var(--r); background: var(--yellow-soft); }
+
+/* diagrams */
+.s3-net, .s3-bp { width: 100%; height: auto; display: block; font-family: var(--sans); }
+.s3-net-label { font-size: 30px; font-weight: 750; font-family: var(--math); font-style: italic; fill: var(--ink); }
+.s3-net-sub { font-size: 14px; font-weight: 650; fill: var(--muted); letter-spacing: .08em; }
+.s3-net-w { font-size: 16px; font-weight: 700; fill: var(--violet); font-family: var(--mono); }
+.s3-net-cap { font-size: 14px; font-weight: 750; letter-spacing: .1em; fill: var(--mint); }
+.s3-bp-label { font-size: 24px; font-weight: 750; font-family: var(--math); font-style: italic; fill: var(--ink); }
+.s3-bp-val { font-size: 15px; font-weight: 700; font-family: var(--mono); fill: var(--ink-2); }
+.s3-bp-edge-label { font-size: 16px; font-weight: 700; font-family: var(--mono); fill: var(--ink); }
+.s3-bp-target { font-size: 15px; font-weight: 700; fill: var(--muted); }
+.s3-bp-back { font-size: 15px; font-weight: 750; fill: var(--coral); letter-spacing: .06em; }
+.s3-bp-detail { padding: .6rem .9rem; border-radius: var(--r); background: var(--blue-soft); border-left: 5px solid var(--blue); }
+.s3-bp-detail.back { background: var(--coral-soft); border-left-color: var(--coral); }
+.s3-bp-detail small { font-size: .66rem; letter-spacing: .14em; font-weight: 750; color: var(--muted); }
+.s3-bp-detail strong { display: block; font-size: 1.2rem; margin-top: .15rem; }
+.s3-bp-detail p { margin: .25rem 0 0; font-family: var(--mono); font-size: .98rem; line-height: 1.45; }
+.s3-bp-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .05rem; font-size: .8rem; }
+.s3-bp-list li { display: flex; gap: .5rem; align-items: center; padding: .12rem .4rem; border-radius: 6px; color: var(--muted); }
+.s3-bp-list li span { font-family: var(--mono); font-size: .72rem; width: 1.3rem; height: 1.3rem; border-radius: 50%; display: grid; place-items: center; background: var(--paper-2); }
+.s3-bp-list li.done { color: var(--ink-2); }
+.s3-bp-list li.now { background: var(--yellow-soft); color: var(--ink); font-weight: 700; }
+.s3-bp-list li.now span { background: var(--ink); color: var(--paper); }
+
+/* tiny inline chain on the "blame" slide */
+.s3-figure { margin: 0; padding: 1rem 1.2rem; border-radius: var(--r-lg); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); }
+
+/* the bend diagram */
+.s3-pipe { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .5rem; font-family: var(--mono); font-weight: 700; font-size: 1.05rem; margin-top: .4rem; }
+.s3-pipe span { padding: .35rem .7rem; border-radius: 8px; background: var(--paper); border: 1px solid var(--line-strong); }
+.s3-pipe span.relu { background: var(--yellow-soft); border-color: var(--yellow-bright); }
+.s3-pipe b { color: var(--muted); }
+
+@media (max-width: 860px) {
+  .s3-gates, .s3-branches { grid-template-columns: 1fr; }
+}
+
+.s3-legend text { font-size: 15px; font-weight: 750; font-family: var(--sans); }
+.slide-s3-predict-curve .predict { grid-template-columns: 1fr; }
+.slide-s3-trace-x3 .s3-branch-row { font-size: 1.25rem; padding: .55rem .8rem; }
+
+/* formula slides: long symbols (ŷᵢ − yᵢ, ∂MSE/∂w, 2(ŷᵢ − yᵢ)) need a wider symbol column */
+.part-s3 .ftx-term { grid-template-columns: clamp(110px, 10vw, 168px) minmax(0, 1fr) auto; }
+.part-s3 .ftx-sym { justify-self: start; font-size: clamp(18px, 1.65vw, 27px); }

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L07">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L06.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L06</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L07 / 19</a><a href="NN-L08.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L08 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L06.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L06</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L07 / 14</a><a href="NN-L08.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L08 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L07</div>
@@ -42,38 +42,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Promise two gradients, simultaneous updates, and a complete training story."
-     data-ask="What might go wrong when two values change at once?"
-     data-time="1 min">
-  <h2>Coordinate two parameters without mixing their gradients</h2>
-  <p style="color:var(--text-muted);max-width:600px;">By the end, you should calculate two gradients, update them fairly, and explain their shared training path.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Separate influence</strong>
-      <p>See why weight uses x and bias does not.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Update together</strong>
-      <p>Keep both gradients at the same point.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Read the journey</strong>
-      <p>Follow compensation toward the exact rule.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── WHERE WE ARE ─── -->
-<div class="slide"
      data-say="Connect every earlier lesson to today's two-parameter learner."
      data-ask="Which lesson gave us the exact 2ex formula?"
      data-time="1 min">
   <h2>The seventh ingredient completes the learning system</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:120px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L1</div>
       <strong>Predict</strong>
     </div>
@@ -552,7 +526,7 @@
 <!-- 21 ─── PHASE 1 COMPLETE ─── -->
 <div class="slide"
      data-say="Reconstruct the seven-part system from prediction through simultaneous updates."
-     data-ask="Which step turns separate gradient votes into learning?"
+     data-ask="Which turns separate gradient votes into learning?"
      data-time="4 min">
   <h2>Seven ideas now form one learning system</h2>
   <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:680px;margin:1.5rem auto;">
@@ -635,36 +609,34 @@
 </div>
 
 <!-- 23 ─── KNOWLEDGE CHECK ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask all four questions before revealing concise answers."
      data-ask="Which answer explains simultaneous updates most precisely?"
      data-time="4 min">
-  <h2>Can you coordinate two learnable parameters?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why does only the weight gradient contain x?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Weight's effect on prediction depends on x; bias's effect is always 1.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; Why does weight gradient contain x but bias doesn't?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Weight multiplies x, so x appears in its derivative. Bias adds a constant.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why calculate both gradients before updating?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Both must describe the same current model — updating w first would corrupt the bias gradient.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; Why calculate both gradients before updating?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Both must describe the same point. Updating one changes the landscape for the other.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Can a parameter move away from its final value?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Yes &mdash; parameters can compensate while total loss still falls.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; What happens if w overshoots on step 1?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">b compensates — the two parameters correct each other over time.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What rule was learned after 1000 epochs?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">&#375; = 2x + 5.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; Can this process scale to 1000 parameters?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Yes — same recipe: compute all gradients, then update all parameters.</p></div>
     </div>
   </div>
 </div>
-
-<!-- 24 ─── BRIDGE TO PHASE 2 ─── -->
 <div class="slide cover"
      data-say="Phase 2 begins when one neuron receives several features."
      data-ask="How many weights will two inputs require?"

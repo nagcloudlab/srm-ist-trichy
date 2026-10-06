@@ -329,29 +329,30 @@
   /* ── Lab CSS ── */
   const css = document.createElement('style');
   css.textContent = `
-    .lab-shell { background: var(--bg-card, #f8f9fb); border: 1px solid var(--border, #e2e5ef); border-radius: 14px; padding: 1.2rem; margin: 0.5rem 0; }
-    .lab-title { font-size: 0.85rem; font-weight: 700; color: var(--accent-blue, #3b6df0); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.8rem; }
-    .lab-row { display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: flex-start; }
-    .lab-left { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 0.5rem; }
-    .lab-ctrl { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.85rem; color: var(--text-secondary, #4a5068); }
+    .lab-shell { background: var(--bg-card, #f8f9fb); border: 1px solid var(--border, #e2e5ef); border-radius: 14px; padding: 1rem; margin: 0.3rem 0; }
+    .lab-title { font-size: 0.75rem; font-weight: 700; color: var(--accent-blue, #3b6df0); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+    .lab-row { display: flex; gap: 1rem; align-items: stretch; }
+    .lab-left { flex: 0 0 240px; display: flex; flex-direction: column; gap: 0.4rem; }
+    .lab-ctrl { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.8rem; color: var(--text-secondary, #4a5068); }
     .lab-ctrl b { color: var(--accent-blue, #3b6df0); font-family: 'JetBrains Mono', monospace; }
-    .lab-ctrl input[type=range] { -webkit-appearance: none; height: 6px; border-radius: 3px; background: #ddd; outline: none; }
-    .lab-ctrl input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-blue, #3b6df0); cursor: pointer; }
-    .lab-metrics { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.3rem; }
-    .lab-metric { background: white; border: 1px solid var(--border-light, #eef0f5); border-radius: 8px; padding: 0.4rem 0.7rem; text-align: center; min-width: 80px; }
-    .lab-metric small { display: block; font-size: 0.65rem; color: var(--text-muted, #8b90a5); text-transform: uppercase; letter-spacing: 0.06em; }
-    .lab-metric strong { display: block; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace; color: var(--text-primary, #1a1d2e); }
+    .lab-ctrl input[type=range] { -webkit-appearance: none; height: 5px; border-radius: 3px; background: #ddd; outline: none; width: 100%; }
+    .lab-ctrl input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-blue, #3b6df0); cursor: pointer; }
+    .lab-metrics { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.2rem; }
+    .lab-metric { background: white; border: 1px solid var(--border-light, #eef0f5); border-radius: 6px; padding: 0.3rem 0.5rem; text-align: center; min-width: 65px; }
+    .lab-metric small { display: block; font-size: 0.6rem; color: var(--text-muted, #8b90a5); text-transform: uppercase; letter-spacing: 0.05em; }
+    .lab-metric strong { display: block; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; color: var(--text-primary, #1a1d2e); }
     .lab-metric.good strong { color: #10b981; }
     .lab-metric.bad strong { color: #ef4444; }
-    .lab-chart { flex: 1; min-width: 280px; max-width: 100%; height: auto; background: white; border-radius: 10px; border: 1px solid var(--border-light, #eef0f5); }
-    .lab-arith { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary, #4a5068); background: white; padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-light, #eef0f5); }
+    .lab-chart { flex: 1; min-width: 0; height: auto; background: white; border-radius: 8px; border: 1px solid var(--border-light, #eef0f5); }
+    .lab-arith { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-secondary, #4a5068); background: white; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid var(--border-light, #eef0f5); line-height: 1.5; }
     .lab-arith b { color: var(--accent-blue, #3b6df0); }
-    .lab-btn { font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; padding: 0.4rem 1rem; border-radius: 8px; border: 1px solid var(--accent-blue, #3b6df0); background: var(--accent-blue, #3b6df0); color: white; cursor: pointer; transition: all 0.2s; }
+    .lab-btn { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.8rem; border-radius: 6px; border: 1px solid var(--accent-blue, #3b6df0); background: var(--accent-blue, #3b6df0); color: white; cursor: pointer; transition: all 0.2s; }
     .lab-btn:hover { opacity: 0.85; }
     .lab-btn.secondary, .lab-btn:not(.active).secondary { background: white; color: var(--text-secondary, #4a5068); border-color: var(--border, #e2e5ef); }
     .lab-btn.active { background: var(--accent-blue, #3b6df0); color: white; }
     @media (max-width: 768px) {
       .lab-row { flex-direction: column; }
+      .lab-left { flex: 0 0 auto; }
       .lab-chart { min-width: 100%; }
     }
   `;

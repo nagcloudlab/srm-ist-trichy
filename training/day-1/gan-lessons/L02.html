@@ -31,10 +31,11 @@
      data-ask="If I never tell you the answer, but only say 'warmer' or 'colder' — can you guess my number?"
      data-time="2 min">
   <h2>The Task</h2>
+  <p style="text-align:center;color:#8b90a5;font-size:0.85rem;margin-bottom:0.75rem;">Recall from S2: G creates fakes, D judges real vs fake, both improve through competition.</p>
   <div class="two-col align-center">
     <div>
       <table class="compare-table">
-        <tr><th>Component</th><th>What it is</th></tr>
+        <tr><th>Component</th><th>Our Setup</th></tr>
         <tr><td><strong>Real data</strong></td><td>The number 7.0</td></tr>
         <tr><td><strong>Generator</strong></td><td>Takes noise &rarr; tries to output 7.0</td></tr>
         <tr><td><strong>Discriminator</strong></td><td>Sees a number &rarr; says "real" (1) or "fake" (0)</td></tr>
@@ -230,7 +231,7 @@
         <h4>D says 0.9 for fake (y=0)</h4>
         <pre style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;color:var(--text-primary);">BCE = -[log(1 - 0.9)]
     = -log(0.1)
-    = <strong>2.302</strong></pre>
+    = <strong>2.303</strong></pre>
         <p style="font-weight:600;">Wrong &rarr; huge penalty</p>
       </div>
     </div>
@@ -239,7 +240,7 @@
       <table class="compare-table">
         <tr><th>Loss</th><th>Who learns</th><th>Goal</th></tr>
         <tr><td><strong>L<sub>D</sub> = &minus;log D(7) &minus; log(1&minus;D(G(z)))</strong></td><td>Discriminator</td><td>Say 1 for real, 0 for fake</td></tr>
-        <tr><td><strong>L<sub>G</sub> = &minus;log D(G(z))</strong></td><td>Generator</td><td>Make D say 1 for fake</td></tr>
+        <tr><td><strong>L<sub>G</sub> = &minus;log D(G(z))</strong></td><td>Generator</td><td>Make D say 1 for fake <span style="font-size:0.8em;color:var(--text-muted);">(non-saturating form; minimax G would minimize log(1&minus;D(G(z))))</span></td></tr>
       </table>
     </div>
   </div>
@@ -352,7 +353,7 @@ gen_optimizer.step()</pre>
 
 <!-- 9 ─── WATCH IT LEARN (number line SVG) ─── -->
 <div class="slide"
-     data-say="Run the training. Show how the Generator's output creeps toward 7. At epoch 1 it's random garbage. By epoch 2000, it's nearly 7. Use the number line to visualize the journey."
+     data-say="Run the training. Show how the Generator's output creeps toward 7. At epoch 1 it's random garbage. By epoch 2000, it's nearly 7. Use the number line to visualize the journey. Be honest: this table is an idealized, smoothed path - a real run typically overshoots to around 9-11 near epochs 800-1000 and then settles near 7."
      data-ask="At what point did G 'discover' the number 7?"
      data-time="3 min">
   <h2>Watch It Learn</h2>
@@ -366,6 +367,7 @@ gen_optimizer.step()</pre>
         <tr><td><strong>1000</strong></td><td>6.54</td><td>Almost!</td></tr>
         <tr class="highlight-row"><td><strong>2000</strong></td><td><strong>6.98</strong></td><td><strong>Nearly 7!</strong></td></tr>
       </table>
+      <p class="text-muted" style="font-size:0.75rem;margin-top:0.4rem;">Illustrative, smoothed trajectory. Real runs usually overshoot (&asymp;9&ndash;11 around epoch 800&ndash;1000) before settling near 7.</p>
     </div>
     <div style="text-align:center;">
       <svg viewBox="0 0 340 190" style="width:100%;max-width:340px;">
@@ -470,7 +472,7 @@ gen_optimizer.step()</pre>
 
 <!-- 12 ─── .detach() DEEP DIVE ─── -->
 <div class="slide"
-     data-say="Deep dive into .detach(). Without it, D's training would send gradients back to G too — both networks learn at the same time, causing chaos. With .detach(), only D updates in Step A."
+     data-say="Deep dive into .detach(). In Step A we only want to update D. Without detach, dis_loss.backward() also flows into G and fills G's .grad buffers. In our code order that does not actually corrupt G, because gen_optimizer.zero_grad() clears those stray gradients before Step B's backward. The real reasons: Step A is D's step only, we avoid wasted backprop through G, and if anyone moves or forgets zero_grad the stale gradients would leak into G's update."
      data-ask="What would go wrong if we skipped .detach() in Step A?"
      data-time="2 min">
   <h2>Why <strong>.detach()</strong>?</h2>
@@ -478,14 +480,14 @@ gen_optimizer.step()</pre>
     <div class="card" style="background:#fef2f2;">
       <h4>Without .detach()</h4>
       <p>D's backward pass sends gradients through G too.</p>
-      <p class="mt-1"><strong>Result:</strong> D and G both change simultaneously. G learns D's objective (catch fakes) instead of its own (make fakes). Training destabilizes.</p>
+      <p class="mt-1"><strong>Result:</strong> G's .grad fills with gradients of <em>D's</em> loss. Only dis_optimizer steps, and gen_optimizer.zero_grad() clears them before Step B &mdash; so G isn't corrupted here, but it's wasted compute and stale grads would leak if zero_grad moved.</p>
       <pre style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.7;color:var(--text-primary);margin-top:0.5rem;">fake = generator(noise)
-# Gradient: D &larr; fake &larr; G  (both update!)</pre>
+# Gradient: D &larr; fake &larr; G  (G gets stray grads)</pre>
     </div>
     <div class="card" style="background:#ecfdf5;">
       <h4>With .detach()</h4>
       <p>"Use this value, but <strong>don't send gradients back</strong> to G."</p>
-      <p class="mt-1"><strong>Result:</strong> Only D updates. Clean, stable, controlled.</p>
+      <p class="mt-1"><strong>Result:</strong> Backprop stops at fake. Step A touches only D. Clean and cheap.</p>
       <pre style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.7;color:var(--text-primary);margin-top:0.5rem;">fake = generator(noise).detach()
 # Gradient: D &larr; fake  (stops here!)</pre>
     </div>
@@ -617,7 +619,7 @@ gen_optimizer.step()</pre>
     <div class="revealable card">
       <h4>What breaks if you remove .detach() from Step A?</h4>
       <p class="hint">Click to reveal</p>
-      <div class="answer"><p class="mt-1">D's backward pass sends gradients through G too. Both networks update simultaneously &mdash; G gets trained on D's objective (catch fakes) instead of its own (make fakes). Training becomes unstable and the GAN may never converge.</p></div>
+      <div class="answer"><p class="mt-1">Less than you might think! D's backward pass also flows into G and fills G's .grad with gradients of D's loss &mdash; but only dis_optimizer.step() runs, and gen_optimizer.zero_grad() clears those stray grads before Step B. So in this code order G is not corrupted. Why detach anyway: Step A should only be D's step, it avoids wasted backprop through G, and if zero_grad were moved or forgotten the stale gradients would leak into G's update.</p></div>
     </div>
     <div class="revealable card">
       <h4>If the GAN perfectly converges, what should D output for everything?</h4>

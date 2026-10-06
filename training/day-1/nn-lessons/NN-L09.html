@@ -223,7 +223,7 @@
 </style>
 </head>
 <body data-lesson="NN-L09">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L08.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L08</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L09 / 19</a><a href="NN-L10.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L10 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L08.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L08</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L09 / 14</a><a href="NN-L10.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L10 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L09</div>
@@ -265,34 +265,6 @@
 
 <!-- ─────────────────────────────────────────────
   2  LEARNING OUTCOMES
-───────────────────────────────────────────── -->
-<div class="slide"
-     data-say="Promise a failed linear fit, a diagnosis, and one new operation that creates a bend."
-     data-ask="How might a model create a corner?"
-     data-time="1 min">
-  <h2>Find the limit — then add the bend</h2>
-  <p style="color:var(--text-muted);margin-top:0.5rem;max-width:560px;">By the end, you should diagnose a capacity limit, evaluate ReLU, and combine two neurons into a nonlinear shape.</p>
-  <div class="three-col" style="margin-top:1.75rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>See the limit</strong>
-      <p>A line cannot represent a U-shape.</p>
-    </div>
-    <div class="card accent-blue" style="border-color:#3b6df0;background:#fffbeb;">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">02</div>
-      <strong>Add nonlinearity</strong>
-      <p>ReLU introduces a bend at zero.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Build a shape</strong>
-      <p>Two gated neurons form a V.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ─────────────────────────────────────────────
-  3  WHERE WE ARE
 ───────────────────────────────────────────── -->
 <div class="slide"
      data-say="The optimizer and learning loop are no longer the mystery. Capacity is."
@@ -381,7 +353,7 @@
       <text x="726" y="325" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600">x</text>
       <text x="416" y="44" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600">y</text>
       <!-- dashed U-curve hint -->
-      <path d="M234 34 Q404 634 574 34" fill="none" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,4" opacity="0.35"/>
+      <path d="M234,34 L242,63 L251,91 L260,117 L268,142 L276,165 L285,187 L294,207 L302,226 L310,243 L319,259 L328,273 L336,286 L344,297 L353,307 L362,315 L370,322 L378,327 L387,331 L396,333 L404,334 L412,333 L421,331 L430,327 L438,322 L446,315 L455,307 L464,297 L472,286 L480,273 L489,259 L498,243 L506,226 L514,207 L523,187 L532,165 L540,142 L548,117 L557,91 L566,63 L574,34" fill="none" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,4" opacity="0.35"/>
       <!-- data points: x=-2→y=4, x=-1→y=1, x=0→y=0, x=1→y=1, x=2→y=4 -->
       <!-- y=4 → svg y = 334 - 4*75 = 34; y=1 → 334-75=259; y=0→334; y=1→259; y=4→34 -->
       <circle cx="234" cy="34" r="10" fill="#3b6df0"/>
@@ -501,7 +473,7 @@
       <text x="726" y="325" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600">x</text>
       <text x="416" y="44" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600">y</text>
       <!-- dashed U curve -->
-      <path d="M234 34 Q404 634 574 34" fill="none" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,4" opacity="0.4"/>
+      <path d="M234,34 L242,63 L251,91 L260,117 L268,142 L276,165 L285,187 L294,207 L302,226 L310,243 L319,259 L328,273 L336,286 L344,297 L353,307 L362,315 L370,322 L378,327 L387,331 L396,333 L404,334 L412,333 L421,331 L430,327 L438,322 L446,315 L455,307 L464,297 L472,286 L480,273 L489,259 L498,243 L506,226 L514,207 L523,187 L532,165 L540,142 L548,117 L557,91 L566,63 L574,34" fill="none" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,4" opacity="0.4"/>
       <!-- flat prediction line at y=2 → svg y=184 -->
       <line x1="64" y1="184" x2="744" y2="184" stroke="#ef4444" stroke-width="3"/>
       <text x="626" y="174" font-family="Inter,sans-serif" font-size="13" fill="#ef4444" font-weight="700">prediction = 2</text>
@@ -619,11 +591,11 @@
     <svg viewBox="0 0 720 80" style="max-width:640px;width:100%;" role="img" aria-label="Two stacked linear layers collapse into one linear rule">
       <rect x="2" y="10" width="160" height="60" rx="10" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
       <text x="82" y="36" font-family="Inter,sans-serif" font-size="12" fill="#8b90a5" text-anchor="middle" font-weight="700">LAYER 1</text>
-      <text x="82" y="56" font-family="JetBrains Mono,monospace" font-size="13" fill="#1a1d2e" text-anchor="middle">h = 2x + 1</text>
+      <text x="82" y="56" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" text-anchor="middle">h = 2x + 1</text>
       <text x="196" y="44" font-family="Inter,sans-serif" font-size="18" fill="#4a5068" text-anchor="middle">&rarr;</text>
       <rect x="222" y="10" width="160" height="60" rx="10" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
       <text x="302" y="36" font-family="Inter,sans-serif" font-size="12" fill="#8b90a5" text-anchor="middle" font-weight="700">LAYER 2</text>
-      <text x="302" y="56" font-family="JetBrains Mono,monospace" font-size="13" fill="#1a1d2e" text-anchor="middle">y = 3h + 4</text>
+      <text x="302" y="56" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" text-anchor="middle">y = 3h + 4</text>
       <text x="418" y="44" font-family="Inter,sans-serif" font-size="18" fill="#4a5068" text-anchor="middle">=</text>
       <rect x="444" y="10" width="270" height="60" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
       <text x="579" y="36" font-family="Inter,sans-serif" font-size="12" fill="#ef4444" text-anchor="middle" font-weight="700">STILL ONE LINE</text>
@@ -650,7 +622,7 @@
       Choose zero when z is negative.<br>Otherwise, let z pass through.
     </p>
     <div style="display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center;">
-      <div class="card accent-red" style="text-align:center;min-width:160px;">
+      <div class="revealable card accent-red" style="text-align:center;min-width:160px;">
         <div style="font-size:0.65rem;font-weight:700;color:#8b90a5;letter-spacing:0.1em;margin-bottom:0.5rem;">z &lt; 0</div>
         <div class="formula" style="font-size:1.4rem;">output = 0</div>
         <p style="color:#ef4444;font-size:0.82rem;margin-top:0.4rem;">gate closed</p>
@@ -972,7 +944,7 @@
   </div>
   <div style="margin-top:1.5rem;display:flex;justify-content:center;">
     <div class="card" style="max-width:560px;width:100%;background:#f8f9fb;border:1.5px solid #e2e5ef;text-align:center;padding:1rem 1.5rem;">
-      <p style="color:#8b90a5;font-size:0.88rem;">Without ReLU, every layer stack collapses to one linear function — and a linear GAN cannot generate images.</p>
+      <p style="color:#8b90a5;font-size:0.88rem;">Without ReLU, every layer stack collapses to one linear function — and a purely linear Generator cannot produce realistic images.</p>
     </div>
   </div>
 </div>
@@ -1000,54 +972,44 @@
 <!-- ─────────────────────────────────────────────
   25  KNOWLEDGE CHECK (revealable)
 ───────────────────────────────────────────── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask all six questions before revealing the answers."
-     data-ask="Which answer distinguishes training from capacity?"
+     data-ask="Try all before revealing."
      data-time="4 min">
-  <h2>Can you explain why the bend matters?</h2>
-  <div class="l9-quiz">
-    <article>
-      <span>01</span>
-      <p>Why can't &ycirc;&nbsp;=&nbsp;wx&nbsp;+&nbsp;b learn y&nbsp;=&nbsp;x&sup2;?</p>
-      <strong class="reveal-answer">It can draw only a straight line, not a U-shape.</strong>
-      <strong style="color:#8b90a5;" class="placeholder-answer">Explain first&hellip;</strong>
-    </article>
-    <article>
-      <span>02</span>
-      <p>Will more epochs solve a capacity problem?</p>
-      <strong class="reveal-answer">No. Training cannot add a missing shape.</strong>
-      <strong style="color:#8b90a5;" class="placeholder-answer">Explain first&hellip;</strong>
-    </article>
-    <article>
-      <span>03</span>
-      <p>Why do two linear layers still make one line?</p>
-      <strong class="reveal-answer">Substitution collapses them into one linear rule.</strong>
-      <strong style="color:#8b90a5;" class="placeholder-answer">Explain first&hellip;</strong>
-    </article>
-    <article>
-      <span>04</span>
-      <p>What is ReLU(&minus;3)?</p>
-      <strong class="reveal-answer">0</strong>
-      <strong style="color:#8b90a5;" class="placeholder-answer">Explain first&hellip;</strong>
-    </article>
-    <article>
-      <span>05</span>
-      <p>What is ReLU(5)?</p>
-      <strong class="reveal-answer">5</strong>
-      <strong style="color:#8b90a5;" class="placeholder-answer">Explain first&hellip;</strong>
-    </article>
-    <article>
-      <span>06</span>
-      <p>Without ReLU, what is x&nbsp;+&nbsp;(&minus;x)?</p>
-      <strong class="reveal-answer">0 — the paths cancel completely.</strong>
-      <strong style="color:#8b90a5;" class="placeholder-answer">Explain first&hellip;</strong>
-    </article>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; Why can't ŷ = wx + b learn y = x²?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">A straight line cannot bend into a curve — model capacity problem.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; Does training longer fix this?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">No. More epochs can't fix insufficient model capacity.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; Why does stacking linear layers collapse?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Linear functions composed are still one linear function.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; What does ReLU(−3) return?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">0 — negative inputs are blocked.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>05 &mdash; What does ReLU(5) return?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">5 — positive inputs pass through unchanged.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>06 &mdash; Without ReLU, what is x + (−x)?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">0 — the signals cancel completely.</p></div>
+    </div>
   </div>
 </div>
-
-<!-- ─────────────────────────────────────────────
-  26  NEXT LESSON — BRIDGE
-───────────────────────────────────────────── -->
 <div class="slide cover"
      data-say="The V-shape used hand-picked weights. Next, a hidden layer learns them."
      data-ask="What must flow backward so those weights can change?"

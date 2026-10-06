@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L11">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L10.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L10</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L11 / 19</a><a href="NN-L12.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L12 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L10.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L10</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L11 / 14</a><a href="NN-L12.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L12 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L11</div>
@@ -25,7 +25,7 @@
   <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
     <span style="font-size:1.6rem;font-weight:900;color:#ef4444;">loss</span>
     <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
-    <span style="font-size:1.6rem;font-weight:900;color:#8b5cf6;">&#375;&#770;</span>
+    <span style="font-size:1.6rem;font-weight:900;color:#8b5cf6;">&#375;</span>
     <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
     <span style="font-size:1.6rem;font-weight:900;color:#eab308;">h</span>
     <span style="font-size:1.8rem;color:#4a5068;">&larr;</span>
@@ -37,38 +37,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Connect trace the error all the way to a hidden weight to the full backward-pass story."
-     data-ask="Which value controls the next operation?"
-     data-time="2–3 min">
-  <h2>Trace the error all the way to a hidden weight</h2>
-  <p style="color:var(--text-muted);max-width:620px;">By the end, you should calculate both gradients, explain the ReLU gate, and verify that one update improves the network.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Save the forward pass</strong>
-      <p>Backward calculations reuse z, h, and ŷ.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Pass blame backward</strong>
-      <p>Multiply by each connection's local influence.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Respect the gate</strong>
-      <p>ReLU may pass or block the gradient.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── WHERE WE ARE ─── -->
-<div class="slide"
      data-say="Connect the forward pass predicts. the backward pass learns. to the full backward-pass story."
      data-ask="Which value controls the next operation?"
      data-time="2–3 min">
   <h2>The forward pass predicts. The backward pass learns.</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:140px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 9</div>
       <strong>ReLU + V-shape</strong>
     </div>
@@ -386,11 +360,11 @@
     </div>
     <div class="card accent-blue" style="text-align:center;min-width:140px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW &ycirc;</div>
-      <strong>1.08 &times; 2.16 = 2.33</strong>
+      <strong>1.08 &times; 2.16 = 2.3328</strong>
     </div>
     <div class="card" style="text-align:center;min-width:140px;background:#f0fdf4;border:2px solid #10b981;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW LOSS</div>
-      <strong style="color:#10b981;">(2.33 &minus; 4)&sup2; = 2.78</strong>
+      <strong style="color:#10b981;">(2.3328 &minus; 4)&sup2; &asymp; 2.78</strong>
     </div>
   </div>
   <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1.5rem;">
@@ -398,7 +372,7 @@
     <span style="font-size:1.8rem;color:#4a5068;">&rarr;</span>
     <span style="font-size:2.4rem;font-weight:900;color:#10b981;">2.78</span>
   </div>
-  <p style="text-align:center;color:#10b981;font-weight:600;margin-top:0.5rem;">Loss dropped. One step learned.</p>
+  <p style="text-align:center;color:#10b981;font-weight:600;margin-top:0.5rem;">Loss dropped. One learned.</p>
 </div>
 
 <!-- 14 ─── FULL BACKWARD FLOW ─── -->
@@ -732,41 +706,39 @@
 </div>
 
 <!-- 25 ─── KNOWLEDGE CHECK ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask for reasons before revealing each answer."
      data-ask="Ask for reasoning before revealing all five answers."
      data-time="4 min">
-  <h2>Can you move blame through the network?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">At each connection, what multiplies the blame?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">That connection's local influence on the next value.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; At each connection, what do we multiply the blame by?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The local derivative of that connection.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">If z = 5, does ReLU pass blame?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Yes — at Step 5, the gate equals 1.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; If z = 5, does ReLU pass the blame?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Yes — z is positive, gate is OPEN, blame passes through.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">If z = &minus;3, does ReLU pass blame?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">No. The gate equals 0.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; If z = −3, does ReLU pass the blame?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">No — z is negative, gate is CLOSED, blame is blocked (gradient = 0).</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why save z in Step 1?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Its sign determines the backward ReLU gate.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; Why save z during the forward pass?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The backward pass needs z to decide if the ReLU gate was open or closed.</p></div>
     </div>
-    <div class="card accent-blue step">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">05</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why update after all gradients are computed?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Every gradient must describe the same parameter state.</strong>
+    <div class="revealable card accent-blue">
+      <h4>05 &mdash; Why update all weights AFTER computing all gradients?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">All gradients must describe the same parameter state.</p></div>
     </div>
   </div>
 </div>
-
-<!-- 26 ─── NEXT LESSON BRIDGE ─── -->
 <div class="slide cover"
      data-say="Connect from number prediction to real-or-fake probability to the next lesson."
      data-ask="Which value controls the next operation?"

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="deck.css">
 </head>
 <body data-lesson="NN-L06">
-<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L05.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L05</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L06 / 19</a><a href="NN-L07.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L07 &rarr;</a></div>
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L05.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L05</a><a href="../S3-neural-networks.html" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L06 / 14</a><a href="NN-L07.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L07 &rarr;</a></div>
 <div class="progress-bar"></div>
 <div class="slide-counter"></div>
 <div class="lesson-nav"><a href="../index.html">Day 1</a> &bull; Neural Networks &bull; L06</div>
@@ -37,38 +37,12 @@
 
 <!-- 2 ─── LEARNING OUTCOMES ─── -->
 <div class="slide"
-     data-say="Promise one complete derivation, one dataset average, and one comparison."
-     data-ask="Which sounds more useful: memorizing a formula or understanding its links?"
-     data-time="1 min">
-  <h2>Follow cause and effect from weight to loss</h2>
-  <p style="color:var(--text-muted);max-width:640px;">By the end, you should derive one gradient contribution, average a dataset, and explain why the result is exact.</p>
-  <div class="three-col" style="margin-top:2rem;">
-    <div class="card accent-blue">
-      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
-      <strong>Follow the chain</strong>
-      <p>Weight &rarr; prediction &rarr; error &rarr; loss.</p>
-    </div>
-    <div class="card accent-green">
-      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
-      <strong>Multiply local effects</strong>
-      <p>Derive 2 &times; error &times; input.</p>
-    </div>
-    <div class="card accent-purple">
-      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
-      <strong>Train exactly</strong>
-      <p>Replace the small-change estimate.</p>
-    </div>
-  </div>
-</div>
-
-<!-- 3 ─── WHERE WE ARE ─── -->
-<div class="slide"
      data-say="Place exact gradients as the sixth ingredient in the learning system."
      data-ask="Which earlier lesson introduced the approximate gradient?"
      data-time="1 min">
   <h2>Repetition works better with an exact gradient</h2>
   <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
-    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:120px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L01</div>
       <strong>Predict</strong>
     </div>
@@ -349,9 +323,9 @@
       <p style="color:#8b90a5;">How strongly does this weight influence the prediction?</p>
     </div>
     <div style="font-size:1.5rem;color:#4a5068;">=</div>
-    <div style="text-align:center;max-width:220px;">
+    <div class="card accent-purple" style="text-align:center;min-width:200px;max-width:280px;">
       <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">GRADIENT CONTRIBUTION</div>
-      <div class="formula" style="font-size:1.2rem;">how much this example<br>wants w to change</div>
+      <p style="font-size:1rem;color:var(--text-primary);">How much this example wants w to change</p>
     </div>
   </div>
 </div>
@@ -402,8 +376,8 @@
     <div style="font-size:2.5rem;font-weight:900;color:#ef4444;margin-top:1.5rem;">&minus;9.3333&hellip;</div>
     <div class="two-col" style="margin-top:1.5rem;gap:1.5rem;">
       <div class="card" style="background:#f8f9fb;border:1.5px solid #e2e5ef;text-align:center;">
-        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">ESTIMATED</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#8b90a5;">&minus;9.2867</div>
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">ESTIMATED (nudge 0.001)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#8b90a5;">&minus;9.3287</div>
       </div>
       <div class="card accent-green" style="text-align:center;">
         <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.25rem;">EXACT</div>
@@ -447,7 +421,7 @@
 <!-- 16 ─── TRAINING RECORD ─── -->
 <div class="slide"
      data-say="Trace the gradient collapsing to zero as the weight reaches exactly two."
-     data-ask="At which step is the model effectively finished?"
+     data-ask="At which is the model effectively finished?"
      data-time="3 min">
   <h2>Exact gradients reach exactly w = 2</h2>
   <div style="max-width:780px;margin:1.5rem auto;overflow-x:auto;">
@@ -475,7 +449,7 @@
       <tr><th></th><th>Estimated</th><th style="color:#10b981;">Exact</th></tr>
       <tr><td>Method</td><td>Nudge and measure</td><td style="color:#10b981;font-weight:600;">Chain-rule formula</td></tr>
       <tr><td>Needs small_change?</td><td style="color:#ef4444;font-weight:700;">Yes</td><td style="color:#10b981;font-weight:700;">No</td></tr>
-      <tr><td>Gradient at w = 1</td><td>&minus;9.2867</td><td style="color:#10b981;font-weight:700;">&minus;9.3333</td></tr>
+      <tr><td>Gradient at w = 1</td><td>&minus;9.3287</td><td style="color:#10b981;font-weight:700;">&minus;9.3333</td></tr>
       <tr><td>Final weight</td><td>1.9995</td><td style="color:#10b981;font-weight:700;">2.0000</td></tr>
       <tr><td>Work per step</td><td>2 loss calculations</td><td style="color:#10b981;font-weight:700;">1 formula</td></tr>
     </table>
@@ -503,36 +477,34 @@
 </div>
 
 <!-- 19 ─── KNOWLEDGE CHECK ─── -->
-<div class="slide revealable"
+<div class="slide"
      data-say="Ask for explanations before revealing the answers."
      data-ask="Which answer best captures the meaning of the chain rule?"
      data-time="4 min">
-  <h2>Can you explain the chain rule in plain language?</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">01</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">What does d&#375;/dw = x mean?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Changing w by 1 changes the prediction by x.</strong>
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; What does dŷ/dw = x mean?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The prediction changes by x for every unit change in w.</p></div>
     </div>
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">02</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why multiply error by input?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Combine wrongness with the weight's influence on the prediction.</strong>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; Why multiply error by input?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Large inputs amplify the error's effect on the weight.</p></div>
     </div>
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">03</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why average the contributions?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">Because MSE averages the squared errors, so its gradient averages too.</strong>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; What is the exact gradient formula?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">gradient = 2 × error × input (for one example).</p></div>
     </div>
-    <div class="card accent-blue">
-      <span style="font-size:0.75rem;font-weight:900;color:#3b6df0;">04</span>
-      <p style="margin:0.25rem 0;font-size:0.9rem;">Why prefer the exact derivative?</p>
-      <strong class="reveal-answer" style="color:#10b981;display:none;">No nudge needed; faster, and exactly accurate at every step.</strong>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; How is the exact gradient better than estimation?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">No approximation error — reaches w=2.0000 precisely.</p></div>
     </div>
   </div>
 </div>
-
-<!-- 20 ─── RECAP ─── -->
 <div class="slide"
      data-say="Reconstruct exact gradient calculation without symbols first."
      data-ask="Summarize 2ex in one sentence."

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L11 — Controllable Generation</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L11">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L10.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L10</a><a href="../../../index.html#unit-2" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L11 &bull; Unit 2</a><a href="../../../index.html#unit-2" style="color:#3b6df0;text-decoration:none;font-weight:600;">Unit 2 Home &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-2">Unit 2</a> &bull; L11</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This is the final lesson of Unit 2. We've learned to control WHAT to generate (cGAN). Now we learn to control HOW it looks — thickness, tilt, style."
+     data-ask="If you could change one visual feature of a generated digit, what would it be?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 11</div>
+  <h1>Controllable Generation</h1>
+  <p class="subtitle">Beyond class labels — fine-grained control over thickness, tilt, and style</p>
+</div>
+
+<!-- 2 ─── HOOK: WHERE WE ARE ─── -->
+<div class="slide"
+     data-say="Quick recap: L10 gave us class control — pick a digit. But what if you want a THICK 7? A TILTED 3? Labels can't do that. That's what this lesson solves."
+     data-ask="Can a cGAN generate a thick 7 vs a thin 7 on demand?"
+     data-time="2 min">
+  <h2>Where We Are</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>L10: Conditional GAN</h4>
+      <ul>
+        <li><strong>Class-level</strong> control</li>
+        <li>"Generate a 7"</li>
+        <li>"Generate a 3"</li>
+      </ul>
+      <p class="mt-1" style="font-style:italic;">Pick WHAT digit</p>
+    </div>
+    <div class="vs">VS</div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>L11: Controllable Generation</h4>
+      <ul>
+        <li><strong>Feature-level</strong> control</li>
+        <li>"Generate a <strong>thick</strong> 7"</li>
+        <li>"Make it <strong>lean right</strong>"</li>
+        <li>"Give it a <strong>longer tail</strong>"</li>
+      </ul>
+      <p class="mt-1" style="font-style:italic;">Pick HOW it looks</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── THE BIG IDEA: LATENT SPACE HAS STRUCTURE ─── -->
+<div class="slide"
+     data-say="The latent space is the space of all noise vectors z. Each z maps to a different image. The key discovery: a well-trained GAN ORGANIZES this space. Similar images cluster together."
+     data-ask="If two z vectors are very close together, what would you expect about their images?"
+     data-time="3 min">
+  <h2>The Big Idea: Latent Space Has Structure</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>Every noise vector <strong>z</strong> maps to a different image:</p>
+      <div class="formula mt-1" style="text-align:left;font-size:0.95rem;">
+        z = [0.3, -1.2, 0.7, ...] &rarr; thin, straight 7<br>
+        z = [1.1, 0.5, -0.3, ...] &rarr; thick, tilted 3<br>
+        z = [-0.8, 2.1, 0.1, ...] &rarr; round, small 0
+      </div>
+      <div class="card mt-2" style="background:#ecfdf5;">
+        <h4>The Surprising Discovery</h4>
+        <p>A well-trained GAN doesn't scatter images randomly. It <strong>organizes</strong> them. Similar images end up <strong>near each other</strong>.</p>
+      </div>
+    </div>
+    <div>
+      <!-- SVG: Latent space 2D map -->
+      <svg viewBox="0 0 320 280" style="width:100%;max-width:320px;">
+        <!-- Axes -->
+        <line x1="40" y1="250" x2="40" y2="20" stroke="#4a5068" stroke-width="1.5"/>
+        <line x1="40" y1="250" x2="300" y2="250" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Axis labels -->
+        <text x="16" y="140" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" transform="rotate(-90,16,140)" text-anchor="middle" font-weight="600">thick</text>
+        <text x="170" y="272" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" text-anchor="middle" font-weight="600">tilted &rarr;</text>
+        <text x="45" y="268" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5">straight</text>
+        <!-- Points with labels -->
+        <circle cx="90" cy="190" r="10" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="90" y="194" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" text-anchor="middle" font-weight="700">3</text>
+        <text x="90" y="212" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">thin-3</text>
+        <circle cx="100" cy="70" r="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="100" y="74" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" text-anchor="middle" font-weight="700">3</text>
+        <text x="100" y="92" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">thick-3</text>
+        <circle cx="230" cy="180" r="10" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="230" y="184" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" text-anchor="middle" font-weight="700">7</text>
+        <text x="230" y="202" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">thin-7</text>
+        <circle cx="240" cy="60" r="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="240" y="64" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" text-anchor="middle" font-weight="700">7</text>
+        <text x="240" y="82" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">thick-7</text>
+        <!-- Direction arrows -->
+        <line x1="90" y1="185" x2="100" y2="80" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="65" y="130" font-family="Inter,sans-serif" font-size="9" fill="#10b981" font-weight="600">thickness</text>
+        <line x1="100" y1="190" x2="225" y2="180" stroke="#3b6df0" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="160" y="175" font-family="Inter,sans-serif" font-size="9" fill="#3b6df0" font-weight="600">tilt</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── CONTROLLABLE DIRECTIONS ─── -->
+<div class="slide"
+     data-say="These organized directions in latent space are what give us control. Moving in one direction changes one feature. This is the foundation for everything else in this lesson."
+     data-ask="What other features might have directions in latent space for MNIST?"
+     data-time="2 min">
+  <h2>Controllable Directions</h2>
+  <div style="max-width:700px;margin:0 auto;">
+    <p>Moving in the latent space changes specific features:</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1.5rem;">
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>&uarr; Direction A</h4>
+        <p>Makes digits <strong>thicker</strong></p>
+      </div>
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>&rarr; Direction B</h4>
+        <p>Makes digits <strong>more tilted</strong></p>
+      </div>
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>&nearr; Direction C</h4>
+        <p>Makes digits <strong>taller</strong></p>
+      </div>
+    </div>
+    <div class="card mt-2" style="background:#ecfdf5;">
+      <h4>Key Insight</h4>
+      <p>The GAN <strong>discovers</strong> these directions on its own during training. We just need to <strong>find</strong> them.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── INTERPOLATION ─── -->
+<div class="slide"
+     data-say="The simplest form of control: walk between two noise vectors. Linear interpolation (lerp) is a weighted average. One subtlety for Gaussian z: in 64 dimensions every sample has norm ≈ 8 (√64), but the lerp midpoint of two independent samples has norm ≈ 5.7 (√32) — a region G never saw in training. Spherical interpolation (slerp, White 2016) walks along the arc and keeps the norm typical. For small z_dim and a good G, lerp usually looks fine."
+     data-ask="What would it mean if the in-between images are blurry?"
+     data-time="3 min">
+  <h2>Latent Space Interpolation</h2>
+  <div class="two-col align-center">
+    <div>
+      <p><strong>Walk between two noise vectors:</strong></p>
+      <div class="formula mt-1" style="font-size:1rem;">
+        z_interp = (1 - &alpha;) &times; z1 + &alpha; &times; z2
+      </div>
+      <div class="formula mt-1" style="font-size:0.9rem;text-align:left;">
+        &alpha;: 0.0 &rarr; Image A &nbsp;&middot;&nbsp; 0.5 &rarr; blend &nbsp;&middot;&nbsp; 1.0 &rarr; Image B
+      </div>
+      <div class="card mt-1" style="background:#fefce8;">
+        <h4>Lerp vs Slerp (Gaussian z)</h4>
+        <ul>
+          <li>Typical &Vert;z&Vert; &asymp; &radic;64 = <strong>8</strong>; lerp midpoint &asymp; &radic;32 = <strong>5.7</strong></li>
+          <li><strong>Slerp</strong> follows the arc &rarr; norm stays typical (White, 2016)</li>
+        </ul>
+      </div>
+      <div class="step card mt-2" style="background:#ecfdf5;">
+        <h4>Quality Signal</h4>
+        <p><strong>Sharp</strong> in-between = smooth latent space<br>
+        <strong>Blurry</strong> in-between (even with slerp) = holes</p>
+      </div>
+    </div>
+    <div>
+      <!-- SVG: Interpolation path -->
+      <svg viewBox="0 0 300 220" style="width:100%;max-width:300px;">
+        <!-- Path line -->
+        <line x1="30" y1="110" x2="270" y2="110" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,3"/>
+        <!-- Start point -->
+        <circle cx="30" cy="110" r="14" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="30" y="114" font-family="Inter,sans-serif" font-size="11" fill="#1a1d2e" text-anchor="middle" font-weight="700">A</text>
+        <text x="30" y="138" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">&alpha;=0</text>
+        <!-- Mid points -->
+        <circle cx="90" cy="110" r="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+        <circle cx="150" cy="110" r="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+        <circle cx="210" cy="110" r="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+        <!-- End point -->
+        <circle cx="270" cy="110" r="14" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="270" y="114" font-family="Inter,sans-serif" font-size="11" fill="#1a1d2e" text-anchor="middle" font-weight="700">B</text>
+        <text x="270" y="138" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">&alpha;=1</text>
+        <!-- Labels -->
+        <text x="150" y="80" font-family="Inter,sans-serif" font-size="11" fill="#1a1d2e" text-anchor="middle" font-weight="600">Smooth transition</text>
+        <text x="150" y="170" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" text-anchor="middle">All in-between images look real</text>
+        <!-- Arrow heads at each step -->
+        <text x="60" y="100" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">.25</text>
+        <text x="120" y="100" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">.43</text>
+        <text x="180" y="100" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">.57</text>
+        <text x="240" y="100" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">.75</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Lerp is the formula from the previous slide; slerp replaces the straight line with an arc. The key fact is that random high-dimensional z vectors are almost perpendicular and almost the same length."
+     data-ask="Why would a shorter-than-usual z be a problem for the generator?"
+     data-time="3 min">
+  <h2>Lerp vs slerp <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">slerp(z₁, z₂; t) = [ sin((1 − t)Ω) · z₁ + sin(tΩ) · z₂ ] / sin Ω, &nbsp; Ω = arccos( z₁·z₂ / (‖z₁‖ ‖z₂‖) )</div>
+    <div class="fx-read">Read it: walk along the arc between z₁ and z₂ instead of the straight chord</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">z₁, z₂</span><div><strong>Endpoint noise vectors</strong><span class="fx-job">The two images to blend</span></div><span class="fx-chip">64 numbers each</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">t</span><div><strong>Position</strong><span class="fx-job">0 = z₁ · 1 = z₂</span></div><span class="fx-chip">0 … 1</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">(1 − t)z₁ + t·z₂</span><div><strong>Lerp</strong><span class="fx-job">Straight line — cuts through the middle</span></div><span class="fx-chip">length shrinks</span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">Ω</span><div><strong>Angle between them</strong><span class="fx-job">From the normalized dot product</span></div><span class="fx-chip">≈ 90° for random z</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">sin(·) / sin Ω</span><div><strong>Slerp weights</strong><span class="fx-job">Sum to more than 1 mid-way — keeps the length</span></div><span class="fx-chip">0.707 each at t = ½</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">‖z‖ ≈ √d</span><div><strong>Typical length</strong><span class="fx-job">Gaussian z lives near a shell of radius √64 = 8</span></div><span class="fx-chip">≈ 8</span></div>
+    </div>
+    <div class="fx-key">G was only trained on z near length 8 — lerp midpoints drift off that shell.</div>
+  </div>
+</div>
+
+<!-- 6 ─── INTERPOLATION CODE ─── -->
+<div class="slide"
+     data-say="Here's the code. Two random noise vectors, blend them in steps. Feed each blend to the generator. The result is a smooth morph from image A to image B."
+     data-ask="Why do we divide by (steps - 1) instead of steps?"
+     data-time="2 min">
+  <h2>Interpolation in Code</h2>
+  <div style="max-width:700px;margin:0 auto;">
+    <div class="formula" style="text-align:left;font-size:0.85rem;line-height:2;">
+      z1 = torch.randn(1, z_dim) &nbsp;&nbsp;&nbsp;# noise for image A<br>
+      z2 = torch.randn(1, z_dim) &nbsp;&nbsp;&nbsp;# noise for image B<br>
+      <br>
+      steps = 8<br>
+      for i in range(steps):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;alpha = i / (steps - 1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 0.0 to 1.0<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;z_interp = (1 - alpha) * z1 + alpha * z2<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;image = gen(z_interp, label)
+    </div>
+    <div class="card mt-2" style="background:#f8f9fb;">
+      <h4>What You'll See</h4>
+      <p>Image A &rarr; gradual blend &rarr; gradual blend &rarr; Image B<br>
+      <strong>Every frame looks like a real digit</strong> &mdash; no blurry garbage in between.</p>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Work the midpoint with Pythagoras: perpendicular vectors of length 8 add to length 11.3; halving gives 5.66. Slerp’s larger weights keep it at 8. Numbers are from 100,000 simulated pairs."
+     data-ask="At t = 0 and t = 1, do lerp and slerp differ?"
+     data-time="3 min">
+  <h2>Why lerp midpoints fall off the shell <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>d = 64</li><li>z₁, z₂ ∼ N(0, I), independent</li><li>t = 0.5</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">‖z₁‖ ≈ ‖z₂‖ ≈ √64 = 8</span><span class="fx-note">simulated mean 7.97</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">z₁·z₂ ≈ 0 → Ω ≈ 90°</span><span class="fx-note">simulated 90.0° ± 7.2°</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">lerp: ‖½z₁ + ½z₂‖ ≈ ½ √(8² + 8²) = 5.66</span><span class="fx-note">simulated 5.63</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">slerp weights: sin 45° / sin 90° = 0.707 each</span><span class="fx-note">larger than ½</span></li>
+        <li><span class="fx-n">5</span><span class="fx-m">slerp: 0.707 · √(8² + 8²) = 8.0</span><span class="fx-note">simulated 7.98</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">lerp midpoint ≈ 5.7 (rare in training) · slerp midpoint ≈ 8 (typical)</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Simulated over 100,000 random pairs · the lerp midpoint is ≈ 0.71 of the typical length for any z_dim.</div>
+  </div>
+</div>
+
+<!-- 7 ─── LATENT ARITHMETIC: THE WORD2VEC ANALOGY ─── -->
+<div class="slide"
+     data-say="Remember word embeddings? King minus Man plus Woman equals Queen. GANs can do the SAME thing with images. Thick 7 minus Thin 7 gives us a 'thickness direction'. Apply that direction to any digit."
+     data-ask="What happens if you subtract a smiling face from a neutral face in latent space?"
+     data-time="3 min">
+  <h2>Latent Space Arithmetic</h2>
+  <div class="two-col align-center">
+    <div>
+      <p><strong>The word2vec analogy:</strong></p>
+      <div class="formula mt-1" style="font-size:0.95rem;">
+        King - Man + Woman = Queen
+      </div>
+      <p class="mt-2"><strong>GANs can do the same with images:</strong></p>
+      <div class="formula mt-1" style="font-size:0.95rem;">
+        Thick 7 - Thin 7 + Thin 3 = Thick 3
+      </div>
+      <div class="step card mt-2" style="background:#ecfdf5;">
+        <h4>Why It Works</h4>
+        <p>Subtracting two z vectors that differ in one feature <strong>isolates that feature's direction</strong>. Add it to any z = apply the feature.</p>
+        <p class="mt-1" style="font-size:0.85rem;font-style:italic;">DCGAN (Radford et al. 2015): smiling woman &minus; neutral woman + neutral man = smiling man &mdash; using the <strong>average</strong> z of 3 samples per concept.</p>
+      </div>
+    </div>
+    <div>
+      <!-- SVG: Arithmetic diagram -->
+      <svg viewBox="0 0 300 240" style="width:100%;max-width:300px;">
+        <!-- Boxes -->
+        <rect x="10" y="10" width="120" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+        <text x="70" y="37" font-family="Inter,sans-serif" font-size="12" fill="#1a1d2e" text-anchor="middle" font-weight="700">z_thick_7</text>
+        <text x="145" y="37" font-family="Inter,sans-serif" font-size="16" fill="#4a5068" font-weight="700">&minus;</text>
+        <rect x="160" y="10" width="120" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="220" y="37" font-family="Inter,sans-serif" font-size="12" fill="#1a1d2e" text-anchor="middle" font-weight="700">z_thin_7</text>
+        <!-- Equals -->
+        <text x="150" y="85" font-family="Inter,sans-serif" font-size="16" fill="#4a5068" font-weight="700">=</text>
+        <!-- Direction -->
+        <rect x="50" y="95" width="200" height="40" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+        <text x="150" y="120" font-family="Inter,sans-serif" font-size="12" fill="#1a1d2e" text-anchor="middle" font-weight="700">thickness_direction</text>
+        <!-- Apply -->
+        <line x1="150" y1="135" x2="150" y2="155" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="150" y="170" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" text-anchor="middle">Apply to any digit:</text>
+        <rect x="30" y="180" width="110" height="40" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="85" y="205" font-family="Inter,sans-serif" font-size="11" fill="#1a1d2e" text-anchor="middle" font-weight="600">z_thin_3</text>
+        <text x="152" y="205" font-family="Inter,sans-serif" font-size="14" fill="#4a5068" font-weight="700">+</text>
+        <text x="188" y="205" font-family="Inter,sans-serif" font-size="11" fill="#3b6df0" font-weight="600">dir</text>
+        <text x="218" y="205" font-family="Inter,sans-serif" font-size="14" fill="#4a5068" font-weight="700">=</text>
+        <rect x="230" y="180" width="60" height="40" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="260" y="200" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" text-anchor="middle" font-weight="700">thick</text>
+        <text x="260" y="214" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" text-anchor="middle" font-weight="700">3!</text>
+        <!-- Arrow marker -->
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6" fill="#4a5068"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── ARITHMETIC CODE ─── -->
+<div class="slide"
+     data-say="Here's the code. Find two z vectors — one thick, one thin. Subtract to get the direction. Then add or subtract that direction from any new z. The 0.5 scales how strong the effect is."
+     data-ask="What happens if you use a scaling factor of 5.0 instead of 0.5?"
+     data-time="2 min">
+  <h2>Arithmetic in Code</h2>
+  <div style="max-width:700px;margin:0 auto;">
+    <div class="formula" style="text-align:left;font-size:0.85rem;line-height:2;">
+      # Find the "thickness" direction<br>
+      thickness_dir = z_thick - z_thin<br>
+      <br>
+      # Apply to a new digit<br>
+      z_new = torch.randn(1, z_dim)<br>
+      z_thicker = z_new + <strong>0.5</strong> * thickness_dir<br>
+      z_thinner = z_new - <strong>0.5</strong> * thickness_dir<br>
+      <br>
+      img_normal &nbsp;= gen(z_new, label)<br>
+      img_thicker = gen(z_thicker, label)<br>
+      img_thinner = gen(z_thinner, label)
+    </div>
+    <div class="card mt-1" style="background:#f8f9fb;">
+      <p>The <strong>0.5</strong> controls how much to apply. Bigger = more effect. Too big = unrealistic images.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── SO FAR (MID-LESSON RECAP) ─── -->
+<div class="slide"
+     data-say="Quick recap before we go deeper. Three techniques so far. Let's make sure everyone is solid on these before moving on."
+     data-ask="Which of these three techniques gives you the most creative control?"
+     data-time="1.5 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Technique</th><th>What It Does</th><th>Key Formula</th></tr>
+    <tr><td><strong>Latent Structure</strong></td><td>Similar images cluster together in z-space</td><td>Nearby z &rarr; similar images</td></tr>
+    <tr><td><strong>Interpolation</strong></td><td>Walk smoothly between two images</td><td>(1-&alpha;)&middot;z1 + &alpha;&middot;z2</td></tr>
+    <tr><td><strong>Arithmetic</strong></td><td>Add/subtract features like word2vec</td><td>z + direction = feature applied</td></tr>
+  </table>
+  <div class="card mt-2" style="background:#f8f9fb;">
+    <p><strong>Next:</strong> How do we actually <strong>find</strong> those feature directions? Three methods coming up.</p>
+  </div>
+</div>
+
+<!-- 10 ─── FINDING DIRECTIONS: AVERAGED METHOD ─── -->
+<div class="slide"
+     data-say="The problem: how do you find z_thick and z_thin? You don't know which noise vector gives you thick digits ahead of time. Solution: generate many images, sort by feature, average the z vectors in each group. The average cancels out noise from individual samples and leaves ONLY the feature direction."
+     data-ask="Why is averaging 100 z vectors better than using just one pair?"
+     data-time="3 min">
+  <h2>Finding Directions: Averaged Method</h2>
+  <div class="two-col">
+    <div>
+      <ul>
+        <li class="step"><strong>Step 1:</strong> Generate LOTS of images</li>
+        <li class="step"><strong>Step 2:</strong> Sort them by feature (thick vs thin)</li>
+        <li class="step"><strong>Step 3:</strong> Average z vectors in each group</li>
+        <li class="step"><strong>Step 4:</strong> Difference of averages = direction</li>
+      </ul>
+      <div class="formula mt-2" style="font-size:0.9rem;text-align:left;">
+        z_thick_avg = mean(all z that made thick digits)<br>
+        z_thin_avg &nbsp;= mean(all z that made thin digits)<br>
+        direction &nbsp;&nbsp;= z_thick_avg - z_thin_avg
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Single Pair (Noisy)</h4>
+        <p>z_thick_7 - z_thin_7 captures "thick" but <strong>also</strong> stroke style, specific quirks, random noise.</p>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Averaged (Clean)</h4>
+        <p>Individual quirks <strong>cancel out</strong>. What remains is <strong>only</strong> the thickness direction. Like opinion polls &mdash; one person is noisy, 1000 opinions reveal the trend.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Read it as base plus direction. Radford et al. (2015) averaged three z’s per concept before doing this — single samples are too noisy."
+     data-ask="Why does subtracting thin 7 from thick 7 remove “sevenness” but keep “thickness”?"
+     data-time="3 min">
+  <h2>Latent arithmetic <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">z<sub>new</sub> = z̄<sub>thick 7</sub> − z̄<sub>thin 7</sub> + z̄<sub>thin 3</sub></div>
+    <div class="fx-read">Read it: start from a thin 3, then add the step that turns thin into thick</div>
+    <div class="fx-terms" style="--fx-cols:1;">
+      <div class="fx-term fx-blue"><span class="fx-sym">z̄<sub>A</sub></span><div><strong>Averaged z</strong><span class="fx-job">Mean of several z’s that produced attribute A</span></div><span class="fx-chip">averaging cancels noise</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">z̄<sub>thick 7</sub> − z̄<sub>thin 7</sub></span><div><strong>Direction</strong><span class="fx-job">The “thickness” step — the 7 itself cancels out</span></div><span class="fx-chip">a vector</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">+ z̄<sub>thin 3</sub></span><div><strong>New base</strong><span class="fx-job">Apply the direction to a different digit</span></div><span class="fx-chip">a vector</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">z<sub>new</sub></span><div><strong>Result</strong><span class="fx-job">Feed to G → hopefully a thick 3</span></div><span class="fx-chip">64 numbers</span></div>
+    </div>
+    <div class="fx-key">Works only if the attribute is roughly a straight direction in z — often only approximately.</div>
+  </div>
+</div>
+
+<!-- 11 ─── CLASSIFIER METHOD ─── -->
+<div class="slide"
+     data-say="Instead of sorting by hand, you can train a simple classifier to detect the feature automatically. Generate images, classify them, then average z vectors per class. With a cGAN, you already have class labels, so you can find directions WITHIN a class."
+     data-ask="What kind of classifier would you train to detect 'tilt' in MNIST digits?"
+     data-time="2 min">
+  <h2>Using a Classifier to Find Directions</h2>
+  <div style="max-width:700px;margin:0 auto;">
+    <p><strong>Automate the sorting step</strong> with a simple CNN classifier:</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-top:1.5rem;">
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>1. Generate</h4>
+        <p>1000 images with their z vectors</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>2. Classify</h4>
+        <p>Label by feature (thick/thin, tilted/straight)</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>3. Average</h4>
+        <p>Mean z per group</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;text-align:center;">
+        <h4>4. Subtract</h4>
+        <p>Difference = direction</p>
+      </div>
+    </div>
+    <div class="card mt-2" style="background:#ecfdf5;">
+      <h4>cGAN Advantage</h4>
+      <p>With a Conditional GAN, you can find directions <strong>within a single class</strong>. Generate 500 different 7s, sort by thickness, find the thickness direction that works specifically for 7s.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── SINGLE-DIMENSION EXPLORATION ─── -->
+<div class="slide"
+     data-say="The simplest approach: take a base noise vector, change ONE dimension at a time, and see what changes. Some dimensions control obvious features, others control subtle things you can't even name."
+     data-ask="If z has 100 dimensions, how many of them do you think control human-interpretable features?"
+     data-time="2 min">
+  <h2>Single-Dimension Exploration</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>Vary <strong>one z dimension</strong> at a time:</p>
+      <div class="formula mt-1" style="text-align:left;font-size:0.85rem;line-height:2;">
+        z_base = torch.randn(1, z_dim)<br>
+        <br>
+        for dim in range(z_dim):<br>
+        &nbsp;&nbsp;for value in [-3, -2, -1, 0, 1, 2, 3]:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;z_mod = z_base.clone()<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;z_mod[0, dim] = value<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;img = gen(z_mod, label)
+      </div>
+    </div>
+    <div>
+      <table class="compare-table">
+        <tr><th>Dimension</th><th>What Changes</th></tr>
+        <tr><td><strong>Dim 0</strong></td><td>thin &rarr; medium &rarr; <strong>thick</strong></td></tr>
+        <tr><td><strong>Dim 1</strong></td><td>straight &rarr; &hellip; &rarr; <strong>tilted</strong></td></tr>
+        <tr><td><strong>Dim 2</strong></td><td>short &rarr; &hellip; &rarr; <strong>tall</strong></td></tr>
+        <tr><td><strong>Dim 3</strong></td><td>??? (something subtle)</td></tr>
+      </table>
+      <p class="mt-1" style="font-size:0.9rem;font-style:italic;">Illustrative &mdash; in a plain GAN most dims are <strong>entangled</strong> (one dim changes several features). Directions usually beat single dims.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── CONDITIONAL INTERPOLATION ─── -->
+<div class="slide"
+     data-say="With a cGAN, you can do something fun: keep the noise FIXED and interpolate the LABEL EMBEDDING instead. This morphs one digit into another while keeping the same style. You blend the embeddings, not the z vectors."
+     data-ask="If you interpolate from label 3 to label 7, what digit might appear at alpha=0.5?"
+     data-time="3 min">
+  <h2>Conditional Interpolation</h2>
+  <div class="two-col align-center">
+    <div>
+      <p><strong>Keep noise fixed, blend label embeddings:</strong></p>
+      <div class="formula mt-1" style="text-align:left;font-size:0.85rem;line-height:2;">
+        embed_3 = gen.label_embed(tensor([3]))<br>
+        embed_7 = gen.label_embed(tensor([7]))<br>
+        <br>
+        z_fixed = torch.randn(1, z_dim)<br>
+        <br>
+        for alpha in [0.0, 0.2, 0.4, ...]:<br>
+        &nbsp;&nbsp;embed_mix = (1-alpha)*embed_3<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ alpha*embed_7<br>
+        &nbsp;&nbsp;x = cat([z_fixed, embed_mix], dim=1)<br>
+        &nbsp;&nbsp;img = gen.model(x)
+      </div>
+    </div>
+    <div>
+      <!-- SVG: Morph from 3 to 7 -->
+      <svg viewBox="0 0 300 180" style="width:100%;max-width:300px;">
+        <!-- Start -->
+        <rect x="10" y="50" width="50" height="50" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="35" y="82" font-family="Inter,sans-serif" font-size="22" fill="#1a1d2e" text-anchor="middle" font-weight="900">3</text>
+        <text x="35" y="115" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">&alpha;=0</text>
+        <!-- Arrow -->
+        <line x1="65" y1="75" x2="90" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Mid 1 -->
+        <rect x="92" y="55" width="40" height="40" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+        <text x="112" y="80" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" text-anchor="middle">3ish</text>
+        <!-- Arrow -->
+        <line x1="135" y1="75" x2="150" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Mid 2 -->
+        <rect x="152" y="55" width="40" height="40" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+        <text x="172" y="80" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" text-anchor="middle">??</text>
+        <!-- Arrow -->
+        <line x1="195" y1="75" x2="210" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Mid 3 -->
+        <rect x="212" y="55" width="40" height="40" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+        <text x="232" y="80" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" text-anchor="middle">7ish</text>
+        <!-- Arrow -->
+        <line x1="255" y1="75" x2="265" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- End -->
+        <rect x="268" y="50" width="50" height="50" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="293" y="82" font-family="Inter,sans-serif" font-size="22" fill="#1a1d2e" text-anchor="middle" font-weight="900">7</text>
+        <text x="293" y="115" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="middle">&alpha;=1</text>
+        <!-- Label -->
+        <text x="165" y="145" font-family="Inter,sans-serif" font-size="11" fill="#1a1d2e" text-anchor="middle" font-weight="600">Same noise, same style — only the class changes</text>
+        <text x="165" y="30" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" text-anchor="middle">smooth morph from 3 to 7</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── NOISE TRUNCATION ─── -->
+<div class="slide"
+     data-say="The truncation trick (Brock et al. 2018, BigGAN): sample z from a TRUNCATED normal — any entry with |z_i| greater than a threshold t is re-sampled until it falls inside. Smaller t = more typical, higher-quality samples, less variety. Note: clamping is NOT the same thing — with t = 1 clamping sets about 32% of the entries to exactly ±1, piling probability mass on the edges — a common shortcut, not the real trick. StyleGAN does it differently: in its W space, w′ = w̄ + ψ(w − w̄), pulling every sample toward the average."
+     data-ask="When would you want MORE variety and when would you want MORE quality?"
+     data-time="3 min">
+  <h2>Noise Truncation</h2>
+  <div class="two-col align-center">
+    <div>
+      <p><strong>Limit z to a smaller range:</strong></p>
+      <div class="formula mt-1" style="text-align:left;font-size:0.85rem;line-height:2;">
+        # Truncated normal: resample |z_i| &gt; t<br>
+        z = torch.randn(n, z_dim)<br>
+        bad = z.abs() &gt; t<br>
+        while bad.any():<br>
+        &nbsp;&nbsp;z[bad] = torch.randn(int(bad.sum()))<br>
+        &nbsp;&nbsp;bad = z.abs() &gt; t
+      </div>
+      <div class="card mt-2" style="background:#f8f9fb;">
+        <h4>Used In</h4>
+        <ul>
+          <li><strong>BigGAN</strong> (2018): truncated normal z, threshold t</li>
+          <li><strong>StyleGAN</strong>: w&prime; = w&#772; + &psi;(w &minus; w&#772;) in W space</li>
+          <li>Clamp &ne; truncate: t = 1 clamps <strong>~32%</strong> of entries to &plusmn;1</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <!-- SVG: Truncation trade-off -->
+      <svg viewBox="0 0 280 220" style="width:100%;max-width:280px;">
+        <!-- Title -->
+        <text x="140" y="20" font-family="Inter,sans-serif" font-size="12" fill="#1a1d2e" text-anchor="middle" font-weight="700">Quality vs Diversity Slider</text>
+        <!-- Slider bar -->
+        <rect x="30" y="55" width="220" height="12" rx="6" fill="#e2e5ef"/>
+        <!-- Gradient fill -->
+        <rect x="30" y="55" width="220" height="12" rx="6" fill="url(#truncGrad)"/>
+        <defs>
+          <linearGradient id="truncGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.3"/>
+            <stop offset="50%" stop-color="#3b6df0" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <!-- Labels -->
+        <text x="30" y="48" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="start">No truncation</text>
+        <text x="250" y="48" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" text-anchor="end">Heavy truncation</text>
+        <!-- Rows -->
+        <rect x="20" y="85" width="240" height="35" rx="6" fill="#fef2f2" stroke="none"/>
+        <text x="35" y="105" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" font-weight="600">No truncation</text>
+        <text x="155" y="105" font-family="Inter,sans-serif" font-size="10" fill="#4a5068">Most variety, some odd</text>
+        <rect x="20" y="125" width="240" height="35" rx="6" fill="#eef2ff" stroke="none"/>
+        <text x="35" y="145" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" font-weight="600">Mild truncation</text>
+        <text x="155" y="145" font-family="Inter,sans-serif" font-size="10" fill="#4a5068">Good variety, fewer odd</text>
+        <rect x="20" y="165" width="240" height="35" rx="6" fill="#ecfdf5" stroke="none"/>
+        <text x="35" y="185" font-family="Inter,sans-serif" font-size="10" fill="#1a1d2e" font-weight="600">Heavy truncation</text>
+        <text x="155" y="185" font-family="Inter,sans-serif" font-size="10" fill="#4a5068">Least variety, cleanest</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="The percentages are P(|z| &gt; t) for a standard normal; the std is that of the truncated normal. Tie it to the image grid: lower t looks cleaner but the samples start to look alike."
+     data-ask="Which threshold would you choose for a demo, and which for a dataset generator?"
+     data-time="3 min">
+  <h2>Truncation trades variety for typical samples <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">z<sub>i</sub> ∼ N(0, 1), &nbsp; resample while |z<sub>i</sub>| > t</div>
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>z<sub>i</sub> ∼ N(0, 1)</li><li>resample while |z<sub>i</sub>| > t</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">t = 2 → 4.6% of entries resampled · std 0.88</span><span class="fx-note">almost no change</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">t = 1 → 31.7% resampled · std 0.54</span><span class="fx-note">samples hug the mean</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">t = 0.5 → 61.7% resampled · std 0.28</span><span class="fx-note">very typical, little variety</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">smaller std → G sees only typical z</span><span class="fx-note">quality ↑ · diversity ↓</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">lower t: cleaner images, less variety (BigGAN’s truncation trick)</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Clamping is different: at t = 1 it pins ~32% of entries exactly to ±1.</div>
+  </div>
+</div>
+
+<!-- 14b ─── LAB DEMO ─── -->
+<div class="slide"
+     data-say="Live demo of lab-11. Section 0 trains a fresh cGAN (30 epochs, same as lab-10) — start it first and talk while it runs, or load the lab-10 weights if you saved them. Then go section by section: interpolation, single-dimension sweeps, the thickness direction, the 3→7 morph and the truncation grid. If the truncation cell uses clamp, point out it is the shortcut, not the resampling version on the slide."
+     data-ask="Before the truncation grid: which row will look most alike — t = 0.3 or t = 3.0?"
+     data-time="30 min">
+  <h2>Lab Demo: <code>lab-11-controllable-generation.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> steer a trained cGAN through its latent space &mdash; morph, sweep, add directions, truncate.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>0. Train a cGAN</strong> (30 epochs) &mdash; start it first</li>
+        <li><strong>Interpolation</strong> (two 7s, two 3s) and <strong>Single-Dimension Exploration</strong> (dims 0&ndash;7, &minus;3 to +3)</li>
+        <li><strong>Latent Space Arithmetic</strong>: thickness direction from average z of thick vs thin</li>
+        <li><strong>Conditional Interpolation</strong> morph, then the <strong>Truncation Trick</strong> grid</li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>Printed thin vs thick group <strong>average intensity</strong> &mdash; the proxy behind the direction</li>
+          <li>Same dim, digit 7 vs 4: <strong>not always the same feature</strong> (entangled)</li>
+          <li>Truncation: t = 0.3 rows near-identical, t = 3.0 diverse with odd ones</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Swap lerp for <strong>slerp</strong> in the interpolation helper. Do the middle frames change?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Seven concepts in one lesson. Each gives you a different angle on controlling what the GAN generates. Together they turn a random noise machine into a creative tool."
+     data-ask="Which technique would you use first in your own project?"
+     data-time="2 min">
+  <h2>Lesson 11 Summary</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">1</p>
+      <h4>Latent Structure</h4>
+      <p>Well-trained GANs organize z-space &mdash; similar images are nearby</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">2</p>
+      <h4>Interpolation</h4>
+      <p>Walk between two z vectors &mdash; smooth = good GAN</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">3</p>
+      <h4>Arithmetic</h4>
+      <p>z_thick - z_thin = thickness direction</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">4</p>
+      <h4>Averaged Directions</h4>
+      <p>Average many z vectors for a cleaner signal</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">5</p>
+      <h4>Classifier Method</h4>
+      <p>Automate feature sorting with a CNN</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">6</p>
+      <h4>Conditional Interp</h4>
+      <p>Morph between classes by blending embeddings</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.5rem;font-weight:900;">7</p>
+      <h4>Truncation</h4>
+      <p>Resample |z<sub>i</sub>| &gt; t: trade variety for quality</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Take 2 minutes to think, then reveal. Q3 surprises almost everyone: blending embeddings and blending one-hots are the same operation."
+     data-ask="Try to answer all three before revealing any."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:780px;">
+    <div class="revealable card">
+      <h4>Endpoints look great, but the middle of your lerp walk looks washed out. Is the GAN broken?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Not necessarily. With z_dim = 64 every training z has norm &asymp; 8; the lerp midpoint has &asymp; 5.7 &mdash; an input G <strong>never saw</strong>. Try <strong>slerp</strong> first; only if that is blurry too does the latent space have holes.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>A common shortcut &ldquo;truncates&rdquo; with <code>z.clamp(-1, 1)</code>. How many entries change, and why is that not BigGAN&rsquo;s trick?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">P(|z<sub>i</sub>| &gt; 1) &asymp; <strong>32%</strong> &mdash; about 20 of 64 entries become exactly &plusmn;1, a spike of mass on the box edges. BigGAN <strong>resamples</strong> those entries, so z stays a smooth (truncated) Gaussian.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Blend label <strong>embeddings</strong> 3 &rarr; 7, or blend the <strong>one-hot</strong> vectors and then embed. Which gives smoother morphs?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1"><strong>Identical.</strong> nn.Embedding is a linear map: embed(y) = one_hot(y) &middot; W, so mixing one-hots then multiplying by W equals mixing embeddings. Either way G gets an input it never trained on &mdash; smoothness depends on G, not on the blend.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Unit 2 is complete! You can now build stable, controllable GANs with modern loss functions. Next up: Unit 3 — how do you MEASURE if your GAN is any good? We'll learn about FID, Inception Score, bias, and the legendary StyleGAN."
+     data-ask=""
+     data-time="1 min">
+  <div class="lesson-number">Unit 2 Complete!</div>
+  <h1>Next: Unit 3 &mdash; How Do You MEASURE If Your GAN Is Good?</h1>
+  <p class="subtitle">L12: Evaluating GANs &mdash; Inception Score, FID, precision &amp; recall</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

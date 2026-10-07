@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12 — Evaluating GANs</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L12">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><span></span><a href="../../../index.html#unit-3" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L12 &bull; Unit 3</a><a href="L13.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L13 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-3">Unit 3</a> &bull; L12</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Unit 2 ended with control: pick the digit, steer the latent space, truncate for quality. But which of our GANs is actually better — DCGAN, WGAN-GP, cGAN? Eyes can&#39;t settle it. This lesson gives us numbers."
+     data-ask="If someone shows you two GANs, how would you decide which is better?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 12</div>
+  <h1>Evaluating GANs</h1>
+  <p class="subtitle">Unit 2 made GANs stable and steerable. Now: which one is actually better?</p>
+</div>
+
+<!-- 2 ─── HOOK ─── -->
+<div class="slide"
+     data-say="Show these two grids. They both look okay. But which is BETTER? Your eyes can't tell you reliably. That's the problem this lesson solves."
+     data-ask="Which of these two sets of generated images do you think is better? Why?"
+     data-time="2 min">
+  <h2>The Problem</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="text-align:center;">
+        <h4>Model A</h4>
+        <p style="font-size:3rem;line-height:1.2;">7 7 7 7<br>7 7 7 7</p>
+        <p class="mt-1" style="font-size:0.9rem;">All sharp, all sevens</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="text-align:center;">
+        <h4>Model B</h4>
+        <p style="font-size:3rem;line-height:1.2;">3 7 1 9<br>5 0 4 2</p>
+        <p class="mt-1" style="font-size:0.9rem;">Slightly blurry, but diverse</p>
+      </div>
+    </div>
+  </div>
+  <div class="step" style="text-align:center;margin-top:1.5rem;">
+    <p style="font-size:1.2rem;font-weight:700;">"It looks good to me" is not a scientific answer.</p>
+    <p>We need <strong>numbers</strong>.</p>
+  </div>
+</div>
+
+<!-- 3 ─── WHY EVALUATION IS HARD ─── -->
+<div class="slide"
+     data-say="For classifiers, we have accuracy. For GANs, there is no correct answer. A generated face is not right or wrong."
+     data-ask="Why can't we use accuracy to evaluate a GAN?"
+     data-time="2 min">
+  <h2>Why Evaluation Is Hard</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Image Classifier</h4>
+      <ul>
+        <li>10,000 labeled test images</li>
+        <li>Compare prediction vs truth</li>
+        <li><strong>Accuracy = 94.2%</strong></li>
+        <li>Done.</li>
+      </ul>
+    </div>
+    <div class="vs">VS</div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>GAN</h4>
+      <ul>
+        <li>No "correct answer"</li>
+        <li>A generated face isn't right or wrong</li>
+        <li><strong>Quality is a spectrum</strong></li>
+        <li>???</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── WHAT DOES GOOD MEAN ─── -->
+<div class="slide"
+     data-say="A good GAN needs BOTH quality and variety. One without the other is a failure. Walk through the examples."
+     data-ask="Can you think of a GAN that scores high on one but low on the other?"
+     data-time="2.5 min">
+  <h2>What Does "Good" Mean?</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <h4>1. High Quality (Fidelity)</h4>
+      <p>Each image looks realistic. Sharp, coherent, no artifacts.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>2. High Variety (Diversity)</h4>
+      <p>Images cover the full range. Not one face over and over.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>3. Matches Real Data</h4>
+      <p>Distribution of fakes matches distribution of reals.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:1.5rem;">
+    <div class="card step" style="background:#fef2f2;text-align:center;max-width:250px;">
+      <h4>One perfect face</h4>
+      <p>High quality, <strong>zero diversity</strong></p>
+    </div>
+    <div class="card step" style="background:#fef2f2;text-align:center;max-width:250px;">
+      <h4>Blurry random noise</h4>
+      <p>High diversity, <strong>zero quality</strong></p>
+    </div>
+  </div>
+  <p class="step" style="text-align:center;font-weight:700;margin-top:1rem;">We need to measure BOTH.</p>
+</div>
+
+<!-- 5 ─── BAD APPROACHES ─── -->
+<div class="slide"
+     data-say="Before proper metrics, people used these three. Walk through why each fails."
+     data-ask="Have you ever used the eye test to judge your GAN?"
+     data-time="3 min">
+  <h2>Bad Approaches (That People Still Use)</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Eye Test</h4>
+      <ul>
+        <li>Subjective</li>
+        <li class="step">Not scalable (50 models?)</li>
+        <li class="step">Cherry-picking (best samples only)</li>
+        <li class="step">Can't detect mode collapse</li>
+      </ul>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Discriminator Loss</h4>
+      <ul>
+        <li>BCE D loss hovers near 2 ln 2 ≈ 1.386 at balance — good or bad images</li>
+        <li>WGAN loss is better but still not a quality metric</li>
+        <li>Low D loss =/= good images</li>
+      </ul>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Per-Pixel Comparison</h4>
+      <ul>
+        <li>Generated images shouldn't match reals (that's memorization!)</li>
+        <li>Pixel distance ignores perception</li>
+        <li>Shift 1px = big distance, same face</li>
+      </ul>
+    </div>
+  </div>
+  <p class="step" style="text-align:center;font-weight:700;font-size:1.2rem;margin-top:1.2rem;">We need something smarter.</p>
+</div>
+
+<!-- 6 ─── SECTION: INCEPTION SCORE ─── -->
+<div class="slide section-divider"
+     data-say="Let's look at the first proper metric for GANs."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">1</div>
+  <h2>Inception Score (IS)</h2>
+</div>
+
+<!-- 7 ─── IS HOW IT WORKS ─── -->
+<div class="slide"
+     data-say="The idea: use a pre-trained classifier to judge generated images. If Inception is confident, the image is good quality. If different images get different classes, there's diversity."
+     data-ask="Why use a pre-trained classifier instead of training a new one?"
+     data-time="3 min">
+  <h2>Inception Score &mdash; How It Works</h2>
+  <div class="two-col">
+    <div>
+      <p style="font-weight:600;">Use Inception v3 (trained on ImageNet) to judge generated images.</p>
+      <div class="card mt-2" style="background:#f8f9fb;">
+        <h4>Step-by-Step</h4>
+        <ol>
+          <li>Generate 50,000 images from G</li>
+          <li>Feed each through Inception v3</li>
+          <li>Get class probabilities for each</li>
+          <li>Compute score from confidence + diversity</li>
+        </ol>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Good Quality</h4>
+        <p>"92% dog, 3% cat, 2% car..."<br><strong>Confident</strong> = sharp image</p>
+      </div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>Bad Quality</h4>
+        <p>"11% dog, 10% cat, 9% car..."<br><strong>Uncertain</strong> = blurry/ambiguous</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Diversity Check</h4>
+        <p>All images = "dog"? Low diversity.<br>Spread across classes? High diversity.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── IS FORMULA + RANGE ─── -->
+<div class="slide"
+     data-say="The formula uses KL divergence. High KL = each image is confident but different images get different classes. Show the score ranges."
+     data-ask="What IS score would random noise get?"
+     data-time="2.5 min">
+  <h2>IS Formula &amp; Score Range</h2>
+  <div class="formula" style="font-size:clamp(0.9rem,1.6vw,1.2rem);">
+    IS = exp( E_x[ KL( p(y|x) || p(y) ) ] )
+  </div>
+  <div class="two-col mt-2">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>In Words</h4>
+      <p><strong>p(y|x)</strong> = what Inception thinks about ONE image (should be confident)</p>
+      <p><strong>p(y)</strong> = what Inception thinks about ALL images (should be spread)</p>
+      <p><strong>High KL</strong> = high quality AND high diversity</p>
+    </div>
+    <div>
+      <table class="compare-table">
+        <tr><th>IS Score</th><th>Quality</th></tr>
+        <tr><td><strong>1</strong></td><td>Minimum: every image gets the same class mix</td></tr>
+        <tr><td><strong>≈ 11</strong></td><td>Real CIFAR-10 images (10 classes)</td></tr>
+        <tr><td><strong>≈ 166</strong></td><td>BigGAN, ImageNet 128² (max 1000)</td></tr>
+        <tr class="highlight-row"><td colspan="2">Higher = better</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Read the formula slowly: one image’s guess vs the batch’s average guess. Big gap for every image means confident and varied."
+     data-ask="What is p(y) if every image is classified as “dog”?"
+     data-time="3 min">
+  <h2>Inception Score <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">IS = exp( E<sub>x</sub> [ KL( p(y|x) ‖ p(y) ) ] )</div>
+    <div class="fx-read">Read it: for each generated image, how far its class guess is from the average guess — averaged, then exponentiated</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">x</span><div><strong>A generated image</strong><span class="fx-job">Fed through Inception v3</span></div><span class="fx-chip">one sample</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">p(y|x)</span><div><strong>Its class guess</strong><span class="fx-job">Peaked = confident = sharp, recognisable</span></div><span class="fx-chip">sums to 1</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">p(y)</span><div><strong>Average guess</strong><span class="fx-job">Mean of p(y|x) over all images — spread = diverse</span></div><span class="fx-chip">sums to 1</span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">KL( · ‖ · )</span><div><strong>Distance between them</strong><span class="fx-job">Large when one image is confident AND the batch is varied</span></div><span class="fx-chip">≥ 0</span></div>
+      <div class="fx-term fx-ink"><span class="fx-sym">E<sub>x</sub>, exp</span><div><strong>Average, then exp</strong><span class="fx-job">Turns the mean KL into a score</span></div><span class="fx-chip">1 … #classes</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">IS</span><div><strong>Result</strong><span class="fx-job">Higher = better · Inception has 1000 classes, so max 1000</span></div><span class="fx-chip">1 … 1000</span></div>
+    </div>
+    <div class="fx-key">IS never looks at real images — only at the generator’s own outputs.</div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Compute together. Then show the two failure cases: everything the same class gives IS 1; every image uniformly unsure also gives IS 1."
+     data-ask="What IS do you get if every image is uniformly unsure (⅓, ⅓, ⅓)?"
+     data-time="3 min">
+  <h2>Confident + varied: IS ≈ 2.0 <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>3 classes, 3 images</li><li>image k: 0.9 on class k, 0.05 elsewhere</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">p(y) = (⅓, ⅓, ⅓)</span><span class="fx-note">average of the three guesses</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">KL = 0.9·ln(0.9/⅓) + 2·0.05·ln(0.05/⅓)</span><span class="fx-note">same for every image</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">= 0.9·0.993 − 0.1·1.897 = 0.704</span><span class="fx-note">ln 2.7 = 0.993, ln 0.15 = −1.897</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">IS = exp(0.704) = 2.02</span><span class="fx-note">exp of the mean KL</span></li>
+        <li><span class="fx-n">5</span><span class="fx-m">all three = class 1 → p(y) = p(y|x) → KL 0 → IS 1</span><span class="fx-note">collapse: no diversity</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">IS = 2.02 (max 3 with 3 classes)</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Collapsed or blurry batches score 1 · perfect one-hot guesses score 3 · “varied” is still not “matches the real data”.</div>
+  </div>
+</div>
+
+<!-- 9 ─── IS PROBLEMS ─── -->
+<div class="slide"
+     data-say="IS has four critical flaws. The biggest: it never looks at real data. A GAN could generate perfect dogs on a cat dataset and IS wouldn't notice."
+     data-ask="Why is not comparing to real data such a big problem?"
+     data-time="2 min">
+  <h2>Problems with Inception Score</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#fef2f2;">
+      <h4>1. Never sees real data</h4>
+      <p>GAN generates perfect dogs but trained on cats? IS says "great!"</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>2. Limited to ImageNet</h4>
+      <p>For MNIST or faces, Inception doesn't have relevant classes</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>3. Misses intra-class collapse</h4>
+      <p>10 classes with only 1 example each? IS doesn't notice</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>4. Sensitive to details</h4>
+      <p>Sample count, splits, resizing all affect the score</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── SO FAR (MID-LESSON RECAP) ─── -->
+<div class="slide"
+     data-say="Quick recap before we get to the good stuff. Make sure everyone is with you."
+     data-ask="Is everyone clear on why IS alone isn't enough?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Topic</th><th>Key Takeaway</th></tr>
+    <tr><td><strong>Why evaluation is hard</strong></td><td>No "correct answer" for generated images</td></tr>
+    <tr><td><strong>Eye test</strong></td><td>Subjective, not scalable, can't detect mode collapse</td></tr>
+    <tr><td><strong>D loss</strong></td><td>Not a quality metric (D could just be bad)</td></tr>
+    <tr><td><strong>Inception Score</strong></td><td>Uses classifier confidence + class diversity</td></tr>
+    <tr class="highlight-row"><td><strong>IS weakness</strong></td><td>Never compares to real data!</td></tr>
+  </table>
+  <p style="text-align:center;margin-top:1rem;font-weight:600;">Next: the metric that fixes this.</p>
+</div>
+
+<!-- 11 ─── SECTION: FID ─── -->
+<div class="slide section-divider"
+     data-say="FID is THE standard. This is the metric you'll use for every GAN you build."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">2</div>
+  <h2>FID &mdash; The Standard</h2>
+</div>
+
+<!-- 12 ─── FID IDEA ─── -->
+<div class="slide"
+     data-say="FID's key fix: compare fake images TO real images. Not just look at fakes alone. It uses Inception features, not pixels."
+     data-ask="Why compare features instead of raw pixels?"
+     data-time="3 min">
+  <h2>Frechet Inception Distance</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 700 200" style="width:100%;max-width:700px;">
+      <!-- Real path -->
+      <rect x="10" y="20" width="120" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="70" y="48" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#1a1d2e">Real Images</text>
+      <line x1="130" y1="42" x2="190" y2="42" stroke="#4a5068" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="190" y="20" width="130" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="255" y="48" text-anchor="middle" font-family="Inter" font-size="12" font-weight="600" fill="#1a1d2e">Inception v3</text>
+      <line x1="320" y1="42" x2="380" y2="42" stroke="#4a5068" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="380" y="20" width="120" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="440" y="40" text-anchor="middle" font-family="Inter" font-size="11" fill="#1a1d2e">Features</text>
+      <text x="440" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">2048-dim</text>
+      <line x1="500" y1="42" x2="550" y2="100" stroke="#4a5068" stroke-width="2" marker-end="url(#arrow)"/>
+      <!-- Fake path -->
+      <rect x="10" y="130" width="120" height="45" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="70" y="158" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#1a1d2e">Fake Images</text>
+      <line x1="130" y1="152" x2="190" y2="152" stroke="#4a5068" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="190" y="130" width="130" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="255" y="158" text-anchor="middle" font-family="Inter" font-size="12" font-weight="600" fill="#1a1d2e">Inception v3</text>
+      <line x1="320" y1="152" x2="380" y2="152" stroke="#4a5068" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="380" y="130" width="120" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="440" y="150" text-anchor="middle" font-family="Inter" font-size="11" fill="#1a1d2e">Features</text>
+      <text x="440" y="165" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">2048-dim</text>
+      <line x1="500" y1="152" x2="550" y2="100" stroke="#4a5068" stroke-width="2" marker-end="url(#arrow)"/>
+      <!-- Compare -->
+      <rect x="550" y="75" width="130" height="50" rx="10" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="615" y="95" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#1a1d2e">Compare</text>
+      <text x="615" y="113" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="600" fill="#3b6df0">FID Score</text>
+      <!-- Arrow marker -->
+      <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5068"/></marker></defs>
+    </svg>
+  </div>
+  <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:0.5rem;">
+    <div class="card" style="background:#f8f9fb;max-width:300px;">
+      <h4>Why features, not pixels?</h4>
+      <p><strong>Pixels:</strong> position-sensitive, low-level<br><strong>Features:</strong> capture WHAT is in the image, not WHERE</p>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── FID: HOW IT COMPARES ─── -->
+<div class="slide"
+     data-say="FID treats features as two Gaussian distributions and measures the distance between them. Two things: how far apart are the centers, and how different are the shapes."
+     data-ask="What does it mean if the centers are close but the shapes are different?"
+     data-time="2.5 min">
+  <h2>How FID Compares Features</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>FID treats features as two <strong>multivariate Gaussian distributions</strong>:</p>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <p><strong>Real:</strong> mean = mu_r, covariance = Sigma_r</p>
+        <p><strong>Fake:</strong> mean = mu_f, covariance = Sigma_f</p>
+      </div>
+      <div class="formula mt-2" style="font-size:clamp(0.8rem,1.4vw,1rem);text-align:left;">
+        FID = ||mu_r - mu_f||^2 + Tr(Sigma_r + Sigma_f - 2*sqrt(Sigma_r * Sigma_f))
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Term 1: Center Distance</h4>
+        <p>"Do fakes have similar average features to reals?"</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Term 2: Shape Distance</h4>
+        <p>"Do fakes have similar feature variety to reals?"</p>
+      </div>
+      <p class="mt-1" style="font-weight:600;text-align:center;">FID = center distance + shape distance</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Connect to Unit 2: FID is the squared 2-Wasserstein distance between two Gaussians fitted to the features. Two terms: centres and shapes."
+     data-ask="If the generator makes the right average image but too little variety, which term grows?"
+     data-time="3 min">
+  <h2>Fréchet Inception Distance <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">FID = ‖μ<sub>r</sub> − μ<sub>g</sub>‖² + Tr( Σ<sub>r</sub> + Σ<sub>g</sub> − 2 (Σ<sub>r</sub>Σ<sub>g</sub>)<sup>½</sup> )</div>
+    <div class="fx-read">Read it: distance between the centres of the two feature clouds, plus how different their shapes are</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">μ<sub>r</sub>, μ<sub>g</sub></span><div><strong>Mean feature vectors</strong><span class="fx-job">Average 2048-d Inception feature of real / generated images</span></div><span class="fx-chip">2048 numbers</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">Σ<sub>r</sub>, Σ<sub>g</sub></span><div><strong>Covariance matrices</strong><span class="fx-job">How features vary together — the cloud’s shape</span></div><span class="fx-chip">2048 × 2048</span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">‖μ<sub>r</sub> − μ<sub>g</sub>‖²</span><div><strong>Centre distance</strong><span class="fx-job">Squared gap between the two means</span></div><span class="fx-chip">≥ 0</span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">(Σ<sub>r</sub>Σ<sub>g</sub>)<sup>½</sup></span><div><strong>Matrix square root</strong><span class="fx-job">B with B·B = Σ<sub>r</sub>Σ<sub>g</sub> (scipy sqrtm)</span></div><span class="fx-chip">matrix</span></div>
+      <div class="fx-term fx-ink"><span class="fx-sym">Tr( … )</span><div><strong>Shape distance</strong><span class="fx-job">Sum of the diagonal — 0 when the covariances match</span></div><span class="fx-chip">≥ 0</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">FID</span><div><strong>Result</strong><span class="fx-job">0 = identical statistics · lower = better</span></div><span class="fx-chip">0 … ∞</span></div>
+    </div>
+    <div class="fx-key">FID is the squared Wasserstein-2 distance between two Gaussians — a cousin of Unit 2’s W.</div>
+  </div>
+</div>
+
+<!-- 14 ─── FID SCORE RANGE ─── -->
+<div class="slide"
+     data-say="Lower is better for FID. Opposite of IS. Walk through the ranges."
+     data-ask="What would FID = 0 mean?"
+     data-time="2 min">
+  <h2>FID Score Range</h2>
+  <div class="two-col">
+    <div>
+      <table class="compare-table">
+        <tr><th>FID</th><th>Quality</th></tr>
+        <tr><td><strong>0</strong></td><td>Perfect (generated = real)</td></tr>
+        <tr><td><strong>1-10</strong></td><td>Excellent (rough guide — dataset-dependent)</td></tr>
+        <tr><td><strong>10-50</strong></td><td>Good</td></tr>
+        <tr><td><strong>50-100</strong></td><td>Decent</td></tr>
+        <tr><td><strong>&gt;100</strong></td><td>Poor</td></tr>
+        <tr class="highlight-row"><td colspan="2">LOWER = BETTER (opposite of IS!)</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Why FID is the standard</h4>
+        <ul>
+          <li>Compares fake to real</li>
+          <li>Captures quality AND diversity</li>
+          <li>Works on most image domains (features come from ImageNet)</li>
+          <li>Reproducible — if sample count + preprocessing are fixed</li>
+          <li>Correlates with human judgment</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── FID STEP BY STEP ─── -->
+<div class="slide"
+     data-say="Walk through the full pipeline step by step. Emphasize: pool3 layer gives 2048-dim vectors. We need at least 10,000 images."
+     data-ask="Why do we use the pool3 layer instead of the final classifier output?"
+     data-time="2.5 min">
+  <h2>FID Step-by-Step</h2>
+  <div style="display:flex;flex-direction:column;gap:0.7rem;max-width:700px;margin:0 auto;">
+    <div class="card" style="background:#f8f9fb;display:flex;align-items:center;gap:1rem;">
+      <span style="font-size:1.5rem;font-weight:900;min-width:2rem;text-align:center;">1</span>
+      <p>Collect <strong>10,000-50,000 real images</strong> from training set</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;display:flex;align-items:center;gap:1rem;">
+      <span style="font-size:1.5rem;font-weight:900;min-width:2rem;text-align:center;">2</span>
+      <p>Generate the <strong>same number</strong> of fake images from G</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;display:flex;align-items:center;gap:1rem;">
+      <span style="font-size:1.5rem;font-weight:900;min-width:2rem;text-align:center;">3</span>
+      <p>Feed all through Inception v3, extract <strong>pool3 features</strong> (2048-dim vector per image)</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;display:flex;align-items:center;gap:1rem;">
+      <span style="font-size:1.5rem;font-weight:900;min-width:2rem;text-align:center;">4</span>
+      <p>Compute <strong>mean + covariance</strong> for real and fake feature sets</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;display:flex;align-items:center;gap:1rem;">
+      <span style="font-size:1.5rem;font-weight:900;min-width:2rem;text-align:center;">5</span>
+      <p><strong>FID = distance</strong> between the two Gaussians</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── FID vs IS ─── -->
+<div class="slide"
+     data-say="Head-to-head comparison. IS is mostly historical. FID is what you should use."
+     data-ask="Is there any situation where IS might still be useful?"
+     data-time="2 min">
+  <h2>FID vs IS</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th></th><th>Inception Score (IS)</th><th>FID</th></tr>
+    <tr><td><strong>Compares to real data?</strong></td><td>No</td><td><strong>Yes</strong></td></tr>
+    <tr><td><strong>Measures quality?</strong></td><td>Yes</td><td>Yes</td></tr>
+    <tr><td><strong>Measures diversity?</strong></td><td>Partially</td><td><strong>Yes</strong></td></tr>
+    <tr><td><strong>Works for any domain?</strong></td><td>Only ImageNet</td><td><strong>Any domain</strong></td></tr>
+    <tr><td><strong>Lower = better?</strong></td><td>No (higher = better)</td><td><strong>Yes</strong></td></tr>
+    <tr class="highlight-row"><td><strong>Recommended?</strong></td><td>Outdated</td><td><strong>Current standard</strong></td></tr>
+  </table>
+  <div class="formula mt-2">Use FID. IS is mostly historical.</div>
+</div>
+
+<!-- 17 ─── PRACTICAL CONCERNS ─── -->
+<div class="slide"
+     data-say="Three practical things to remember: sample count, preprocessing, and FID's limitations."
+     data-ask="What happens if you compute FID with only 100 images?"
+     data-time="2.5 min">
+  <h2>Practical Concerns</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Sample Count</h4>
+      <p>Few images: FID biased <strong>upward</strong></p>
+      <p>10,000: decent</p>
+      <p><strong>50,000: gold standard</strong></p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Preprocessing</h4>
+      <p>Resize to 299x299</p>
+      <p><strong>Same processing for real + fake</strong></p>
+      <p>Different resizing can shift FID by several points</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>FID Limitations</h4>
+      <p>Assumes Gaussian features</p>
+      <p>Biased with small samples</p>
+      <p>Can't tell you WHY images are bad</p>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── OTHER METRICS ─── -->
+<div class="slide"
+     data-say="Beyond FID: Precision measures quality only, Recall measures diversity only. Together they give you the full picture."
+     data-ask="What would high precision + low recall mean for a GAN?"
+     data-time="3 min">
+  <h2>Other Metrics: Precision &amp; Recall</h2>
+  <div class="two-col">
+    <div>
+      <table class="compare-table">
+        <tr><th>Metric</th><th>What It Measures</th><th>Used For</th></tr>
+        <tr><td><strong>IS</strong></td><td>Quality + class diversity</td><td>Historical</td></tr>
+        <tr class="highlight-row"><td><strong>FID</strong></td><td>Real vs fake distance</td><td>The standard</td></tr>
+        <tr><td><strong>KID</strong></td><td>Like FID, unbiased</td><td>Small datasets</td></tr>
+        <tr><td><strong>Precision</strong></td><td>% of fakes that look real</td><td>Quality only</td></tr>
+        <tr><td><strong>Recall</strong></td><td>% of real data covered</td><td>Diversity only</td></tr>
+        <tr><td><strong>LPIPS</strong></td><td>Perceptual similarity</td><td>Image-to-image</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>High Precision + High Recall</h4>
+        <p>Great GAN!</p>
+      </div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>High Precision + Low Recall</h4>
+        <p>Mode collapse: few but good outputs</p>
+      </div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Low Precision + High Recall</h4>
+        <p>Blurry but diverse</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Recap the key takeaways. FID is your go-to metric from now on."
+     data-ask="Which takeaway feels most important for your work?"
+     data-time="1.5 min">
+  <h2>Lesson 12 Summary</h2>
+  <div class="three-col">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>No Simple Accuracy</h4>
+      <p>GANs need quality AND diversity. Eye test fails.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>FID = The Standard</h4>
+      <p>Compare Inception features of real vs fake. Lower = better.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Precision + Recall</h4>
+      <p>Separate quality and diversity when you need more detail.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 20 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Give learners time to think, then reveal."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>Two GANs both score FID = 20. One is blurry but covers all 10 digits; the other is sharp but only draws 6 digits. Can FID tell them apart?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">No &mdash; one number mixes quality and diversity. Precision and recall separate them: blurry-but-diverse = low precision, high recall; sharp-but-collapsed = high precision, low recall.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>If FID uses Inception (trained on ImageNet), does it make sense to compute FID for MNIST digits? Why or why not?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">It still works! Inception's internal features (pool3 layer) capture general visual patterns &mdash; edges, shapes, textures &mdash; not just ImageNet classes. The 2048-dim features are semantic enough to distinguish "good digits" from "bad digits" even though Inception was never trained on digits. It's not perfect: many MNIST papers instead use features from an MNIST-trained classifier.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Your competitor reports FID = 20 using 1,000 images. You get FID = 30 using 50,000 images. Who actually has the better GAN?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">You can&#39;t tell from these numbers &mdash; and the competitor may be <strong>better</strong>. Small samples bias FID <strong>upward</strong>, so their 20 would likely drop further with 50,000 images. Always compare at the same sample count (and same preprocessing).</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 21 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Now you know WHAT FID is. Next lesson: we BUILD it from scratch. Extract Inception features, compute the math, run it on our GANs."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>FID Deep Dive</h1>
+  <p class="subtitle">L13: Build FID from scratch &mdash; Inception features, statistics, and code</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

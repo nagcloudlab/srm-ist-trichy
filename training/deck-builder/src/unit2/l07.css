@@ -1,0 +1,8 @@
+/* L07 · distance-lab strip, aligned to the plot area (x 58…630 of the 760-wide plot) */
+.l07-strip { padding: 0 calc(130 / 760 * 100%) 0 calc(58 / 760 * 100%); }
+.l07-track { position: relative; height: 44px; overflow: hidden; border-bottom: 1.5px solid var(--line-strong); }
+.l07-box { position: absolute; bottom: 0; height: 36px; display: grid; place-items: center; border-radius: 8px 8px 0 0; font: 800 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; transition: left .15s ease; }
+.l07-real { background: var(--blue-soft); color: var(--blue); border: 1.5px solid var(--blue); }
+.l07-fake { background: rgba(39, 122, 89, .14); color: var(--mint); border: 1.5px dashed var(--mint); }
+.l07-cmp li { line-height: 1.35; }
+.l07-sm { font-size: .62em; white-space: nowrap; }

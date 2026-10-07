@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L03 — 🧭 Which Direction Should the Weight Move?</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L03">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L02.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L02</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L03 / 14</a><a href="NN-L04.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L04 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L03</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Loss tells us whether one model is better; gradient tells us which local direction improves it."
+     data-ask="If loss is high, what decision must the neuron make next?"
+     data-time="1 min">
+  <div class="lesson-number">03 &bull; NEURAL NETWORKS &bull; THE GRADIENT</div>
+  <h1>Which Direction Should the Weight Move?</h1>
+  <p class="subtitle">The gradient points toward lower loss</p>
+  <div style="display:flex;gap:2.5rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <div style="font-size:3.5rem;font-weight:900;color:#3b6df0;line-height:1;">&#x2202;L</div>
+      <div style="width:3rem;height:3px;background:#3b6df0;margin:0.4rem auto;"></div>
+      <div style="font-size:3.5rem;font-weight:900;color:#8b5cf6;line-height:1;">&#x2202;w</div>
+    </div>
+    <div style="font-size:3rem;color:#4a5068;">&#x2193;</div>
+    <div style="text-align:center;">
+      <div style="font-size:1.1rem;font-weight:700;color:#10b981;letter-spacing:0.06em;">DIRECTION</div>
+      <div style="font-size:1rem;color:#8b90a5;margin-top:0.4rem;">of lower loss</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2 ─── LEARNING OUTCOMES ─── -->
+<div class="slide"
+     data-say="Rebuild the course chain: predict, measure, choose direction."
+     data-ask="Which lesson supplied each piece?"
+     data-time="1 min">
+  <h2>Prediction and loss now lead to direction</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:150px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 01</div>
+      <strong>Predict</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;font-size:0.9rem;color:#3b6df0;">&#375; = wx + b</p>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:150px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 02</div>
+      <strong>Measure</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;font-size:0.9rem;color:#3b6df0;">MSE</p>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:150px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">LESSON 03 &bull; NOW</div>
+      <strong>Choose direction</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;font-size:0.9rem;color:#ef4444;">gradient</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── THE SCALE PROBLEM (reveal) ─── -->
+<div class="slide"
+     data-say="Weights are continuous; exhaustive trial is impossible in a large network."
+     data-ask="What question could replace trying every value?"
+     data-time="2 min">
+  <h2>A real neuron cannot try every possible weight</h2>
+  <div style="background:#f8f9fb;border:1.5px solid #e2e5ef;border-radius:14px;padding:1.5rem 2rem;margin-top:1.5rem;max-width:680px;margin-left:auto;margin-right:auto;">
+    <div style="display:flex;flex-wrap:wrap;gap:0.6rem;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:1rem;color:#3b6df0;">
+      <span>1.000</span><span>1.001</span><span>1.002</span>
+      <span style="color:#8b90a5;">…</span>
+      <span>1.999</span><span>2.000</span>
+      <span style="color:#8b90a5;">…</span>
+    </div>
+    <div style="text-align:center;margin-top:1rem;font-size:0.85rem;color:#8b90a5;font-style:italic;">infinitely many possible weights</div>
+  </div>
+  <div class="card accent-green" style="margin-top:1.5rem;max-width:680px;margin-left:auto;margin-right:auto;text-align:center;">
+    <strong style="color:#10b981;">Better question:</strong>
+    <p style="margin-top:0.5rem;">"If w increases slightly, does loss rise or fall?"</p>
+  </div>
+</div>
+
+<!-- 5 ─── THE GRADIENT DEFINITION ─── -->
+<div class="slide"
+     data-say="Read the notation aloud: how loss changes when weight changes."
+     data-ask="What are the two changing quantities in this fraction?"
+     data-time="2 min">
+  <h2>The gradient is the slope of loss at the current weight</h2>
+  <div style="text-align:center;margin-top:2rem;">
+    <div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.25rem;background:#f8f9fb;border:1.5px solid #e2e5ef;border-radius:16px;padding:2rem 3.5rem;">
+      <span style="font-size:3.5rem;font-weight:900;color:#3b6df0;line-height:1.1;">&#x2202;L</span>
+      <div style="width:3.5rem;height:3px;background:#4a5068;margin:0.25rem 0;"></div>
+      <span style="font-size:3.5rem;font-weight:900;color:#8b5cf6;line-height:1.1;">&#x2202;w</span>
+    </div>
+    <p style="margin-top:1.5rem;font-size:1.15rem;color:#1a1d2e;font-style:italic;">"How does the loss change when I change the weight?"</p>
+  </div>
+  <div class="two-col" style="margin-top:1.5rem;gap:1.5rem;max-width:600px;margin-left:auto;margin-right:auto;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NUMERATOR</div>
+      <strong style="color:#3b6df0;">&#x2202;L</strong>
+      <p style="margin-top:0.4rem;">change in loss</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">DENOMINATOR</div>
+      <strong style="color:#8b5cf6;">&#x2202;w</strong>
+      <p style="margin-top:0.4rem;">change in weight</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── READ THE SIGN ─── -->
+<div class="slide"
+     data-say="Separate what the gradient reports from the action gradient descent takes."
+     data-ask="If increasing w raises loss, which way should w move?"
+     data-time="2 min">
+  <h2>The sign tells us which direction lowers loss</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-red" style="text-align:center;min-width:180px;flex:1;">
+      <div style="font-size:3rem;font-weight:900;color:#ef4444;line-height:1;">&#x2212;</div>
+      <h3 style="margin:0.5rem 0 0.25rem;">Increasing w lowers loss</h3>
+      <p style="color:#10b981;font-weight:600;margin-top:0.5rem;">&#x2191; Increase the weight</p>
+    </div>
+    <div class="card" style="text-align:center;min-width:180px;flex:1;border-color:#e2e5ef;">
+      <div style="font-size:3rem;font-weight:900;color:#4a5068;line-height:1;">0</div>
+      <h3 style="margin:0.5rem 0 0.25rem;">Loss is flat here</h3>
+      <p style="color:#8b90a5;font-weight:600;margin-top:0.5rem;">No directional update</p>
+    </div>
+    <div class="card accent-blue" style="text-align:center;min-width:180px;flex:1;">
+      <div style="font-size:3rem;font-weight:900;color:#3b6df0;line-height:1;">+</div>
+      <h3 style="margin:0.5rem 0 0.25rem;">Increasing w raises loss</h3>
+      <p style="color:#ef4444;font-weight:600;margin-top:0.5rem;">&#x2193; Decrease the weight</p>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── LOSS LANDSCAPE ─── -->
+<div class="slide"
+     data-say="Trace left slope, right slope, and bottom. The gradient is local slope, not the full curve."
+     data-ask="Where is the gradient zero?"
+     data-time="3 min">
+  <h2>Both slopes point toward the minimum</h2>
+  <div style="margin-top:1rem;display:flex;justify-content:center;">
+    <svg viewBox="0 0 730 420" style="width:100%;max-width:700px;" role="img" aria-label="U-shaped loss curve with minimum at w=2">
+      <defs>
+        <marker id="lc-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4a5068"/></marker>
+      </defs>
+      <!-- Background -->
+      <rect x="80" y="40" width="570" height="300" rx="8" fill="#fafbfd" stroke="#e2e5ef" stroke-width="1"/>
+      <!-- Y gridlines -->
+      <line x1="80" y1="340" x2="650" y2="340" stroke="#e2e5ef" stroke-width="1"/>
+      <line x1="80" y1="240" x2="650" y2="240" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="80" y1="140" x2="650" y2="140" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="80" y1="40" x2="650" y2="40" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <!-- Y axis labels -->
+      <text x="68" y="344" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">0</text>
+      <text x="68" y="244" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">5</text>
+      <text x="68" y="144" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">10</text>
+      <text x="68" y="44" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">15</text>
+      <!-- X axis labels -->
+      <text x="197" y="365" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#ef4444" font-weight="700">w = 1</text>
+      <text x="365" y="365" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#10b981" font-weight="700">w = 2</text>
+      <text x="533" y="365" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b5cf6" font-weight="700">w = 3</text>
+      <!-- Axis titles -->
+      <text x="365" y="400" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600">weight w</text>
+      <text x="30" y="190" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600" transform="rotate(-90 30 190)">loss</text>
+      <!-- X tick marks -->
+      <line x1="197" y1="340" x2="197" y2="348" stroke="#8b90a5" stroke-width="1"/>
+      <line x1="365" y1="340" x2="365" y2="348" stroke="#8b90a5" stroke-width="1"/>
+      <line x1="533" y1="340" x2="533" y2="348" stroke="#8b90a5" stroke-width="1"/>
+      <!-- U-shaped parabola: loss(w) = (14/3)*(w-2)^2 -->
+      <!-- Computed: xAt(w)=80+(w-0.3)/3.4*570, yAt(L)=340-(L/15)*300 -->
+      <path d="M80,68 L97,97 L114,125 L130,151 L147,175 L164,198 L181,219 L197,238 L214,256 L231,272 L248,286 L264,298 L281,308 L298,317 L315,324 L331,329 L348,332 L365,334 L382,332 L399,329 L415,324 L432,317 L449,308 L466,298 L482,286 L499,272 L516,256 L533,238 L549,219 L566,198 L583,175 L600,151 L616,125 L633,97 L650,68"
+            fill="none" stroke="#3b6df0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Tangent at w=1 (red dashed — negative slope, going downhill right) -->
+      <line x1="140" y1="125" x2="260" y2="330" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="8,5" opacity="0.8"/>
+      <!-- Tangent at w=3 (purple dashed — positive slope, going downhill left) -->
+      <line x1="475" y1="330" x2="590" y2="125" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="8,5" opacity="0.8"/>
+      <!-- Point at w=1 (loss=4.67, y=238) -->
+      <circle cx="197" cy="238" r="11" fill="#ef4444"/>
+      <text x="130" y="210" font-family="Inter,sans-serif" font-size="14" fill="#ef4444" font-weight="700">gradient &minus;9.3</text>
+      <text x="130" y="227" font-family="Inter,sans-serif" font-size="11" fill="#ef4444">slope points right &darr;</text>
+      <!-- Minimum at w=2 (loss=0, y=340) -->
+      <circle cx="365" cy="334" r="12" fill="#10b981"/>
+      <text x="365" y="318" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" fill="#10b981" font-weight="800">minimum</text>
+      <!-- Point at w=3 (loss=4.67, y=238) -->
+      <circle cx="533" cy="238" r="11" fill="#8b5cf6"/>
+      <text x="600" y="210" text-anchor="end" font-family="Inter,sans-serif" font-size="14" fill="#8b5cf6" font-weight="700">gradient +9.3</text>
+      <text x="600" y="227" text-anchor="end" font-family="Inter,sans-serif" font-size="11" fill="#8b5cf6">&darr; slope points left</text>
+      <!-- Direction arrows: both point toward minimum -->
+      <path d="M230,265 Q290,320 340,335" fill="none" stroke="#4a5068" stroke-width="2" marker-end="url(#lc-arr)"/>
+      <text x="270" y="300" font-family="Inter,sans-serif" font-size="12" fill="#4a5068" font-weight="600">increase w &rarr;</text>
+      <path d="M500,265 Q440,320 390,335" fill="none" stroke="#4a5068" stroke-width="2" marker-end="url(#lc-arr)"/>
+      <text x="460" y="300" text-anchor="end" font-family="Inter,sans-serif" font-size="12" fill="#4a5068" font-weight="600">&larr; decrease w</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 8 ─── TINY EXPERIMENT ─── -->
+<div class="slide"
+     data-say="A tiny nudge creates a rise-over-run estimate."
+     data-ask="Why should the weight change be small?"
+     data-time="2 min">
+  <h2>Estimate slope by nudging the weight</h2>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">BEFORE</div>
+      <strong style="font-size:1.4rem;">w = 1.00</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;color:#3b6df0;">loss = 4.6667</p>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;color:#4a5068;font-weight:700;">+ 0.01</div>
+      <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+      <div style="font-size:0.8rem;color:#8b90a5;font-style:italic;">tiny nudge</div>
+    </div>
+    <div class="card accent-blue" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">AFTER</div>
+      <strong style="font-size:1.4rem;">w = 1.01</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;color:#3b6df0;">loss = 4.5738</p>
+    </div>
+  </div>
+  <div class="card accent-green" style="margin-top:1.5rem;text-align:center;max-width:600px;margin-left:auto;margin-right:auto;">
+    <strong>Weight went up while loss went down: the slope must be negative.</strong>
+  </div>
+</div>
+
+<!-- 9 ─── CALCULATE THE SLOPE (reveal) ─── -->
+<div class="slide"
+     data-say="Calculate numerator, denominator, and quotient in that order."
+     data-ask="What does the negative result predict?"
+     data-time="3 min">
+  <h2>A negative change in loss gives a negative gradient</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-red" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">CHANGE IN LOSS</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#8b90a5;">4.5738 &minus; 4.6667</div>
+      <strong style="font-size:1.3rem;color:#ef4444;margin-top:0.5rem;display:block;">&minus;0.0929</strong>
+    </div>
+    <div style="font-size:1.8rem;color:#4a5068;font-weight:700;">&divide;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">CHANGE IN WEIGHT</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#8b90a5;">1.01 &minus; 1.00</div>
+      <strong style="font-size:1.3rem;color:#3b6df0;margin-top:0.5rem;display:block;">0.01</strong>
+    </div>
+    <div style="font-size:1.8rem;color:#4a5068;font-weight:700;">=</div>
+    <div class="card accent-green" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">ESTIMATED GRADIENT</div>
+      <strong style="font-size:1.5rem;color:#10b981;display:block;">&minus;9.29</strong>
+      <p style="color:#10b981;font-weight:600;margin-top:0.5rem;">increase w</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── REUSABLE LOSS RECIPE ─── -->
+<div class="slide"
+     data-say="This is the Lesson 2 MSE calculation expressed as a reusable input-output recipe."
+     data-ask="What does the recipe return?"
+     data-time="3 min">
+  <h2>First, define one consistent way to calculate loss</h2>
+  <p style="color:var(--text-muted);">Input a weight and bias. Output one MSE value.</p>
+  <div style="margin-top:1.5rem;max-width:760px;margin-left:auto;margin-right:auto;">
+    <div style="display:grid;grid-template-columns:3rem 1fr 1fr;gap:0;border:1.5px solid #e2e5ef;border-radius:12px;overflow:hidden;">
+      <div style="background:#f0f2fa;padding:0.6rem 1rem;font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">STEP</div>
+      <div style="background:#f0f2fa;padding:0.6rem 1rem;font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">OPERATION</div>
+      <div style="background:#f0f2fa;padding:0.6rem 1rem;font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">OUTPUT</div>
+
+      <div style="padding:0.7rem 1rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;border-top:1px solid #e2e5ef;">01</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-size:0.95rem;">Use x&thinsp;=&thinsp;1,&thinsp;2,&thinsp;3 and y&thinsp;=&thinsp;7,&thinsp;9,&thinsp;11</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;color:#8b90a5;font-size:0.9rem;">paired examples</div>
+
+      <div style="padding:0.7rem 1rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;border-top:1px solid #e2e5ef;">02</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-size:0.95rem;">Predict each &#375;&thinsp;=&thinsp;wx&thinsp;+&thinsp;b</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;color:#8b90a5;font-size:0.9rem;">three predictions</div>
+
+      <div style="padding:0.7rem 1rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;border-top:1px solid #e2e5ef;">03</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-size:0.95rem;">Calculate (&#375;&thinsp;&minus;&thinsp;y)&sup2;</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;color:#8b90a5;font-size:0.9rem;">three squared errors</div>
+
+      <div style="padding:0.7rem 1rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;border-top:1px solid #e2e5ef;">04</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-size:0.95rem;">Average the squared errors</div>
+      <div style="padding:0.7rem 1rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;color:#10b981;font-weight:700;font-size:0.9rem;">one loss</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── THE ESTIMATION ALGORITHM ─── -->
+<div class="slide"
+     data-say="Only one new idea appears: calculate loss again after adding 0.01."
+     data-ask="Which row represents the tiny nudge?"
+     data-time="3 min">
+  <h2>Measure loss before and after a tiny change</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem;max-width:680px;margin-left:auto;margin-right:auto;">
+    <div style="display:flex;gap:1rem;align-items:center;background:#f8f9fb;border:1.5px solid #e2e5ef;border-radius:10px;padding:0.8rem 1.2rem;">
+      <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;flex-shrink:0;width:2rem;">01</span>
+      <span style="font-size:0.8rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;width:7rem;flex-shrink:0;">START</span>
+      <strong style="font-family:'JetBrains Mono',monospace;">w = 1.00 &nbsp;&bull;&nbsp; b = 5</strong>
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;background:#f8f9fb;border:1.5px solid #e2e5ef;border-radius:10px;padding:0.8rem 1.2rem;">
+      <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;flex-shrink:0;width:2rem;">02</span>
+      <span style="font-size:0.8rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;width:7rem;flex-shrink:0;">MEASURE</span>
+      <strong style="font-family:'JetBrains Mono',monospace;">loss before = 4.6667</strong>
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;background:#eef2ff;border:1.5px solid #3b6df0;border-radius:10px;padding:0.8rem 1.2rem;">
+      <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;flex-shrink:0;width:2rem;">03</span>
+      <span style="font-size:0.8rem;font-weight:700;color:#3b6df0;letter-spacing:0.06em;width:7rem;flex-shrink:0;">NUDGE</span>
+      <strong style="font-family:'JetBrains Mono',monospace;">w + 0.01 = 1.01</strong>
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;background:#f8f9fb;border:1.5px solid #e2e5ef;border-radius:10px;padding:0.8rem 1.2rem;">
+      <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#3b6df0;flex-shrink:0;width:2rem;">04</span>
+      <span style="font-size:0.8rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;width:7rem;flex-shrink:0;">MEASURE AGAIN</span>
+      <strong style="font-family:'JetBrains Mono',monospace;">loss after = 4.5738</strong>
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;background:#f0fdf4;border:1.5px solid #10b981;border-radius:10px;padding:0.8rem 1.2rem;">
+      <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#10b981;flex-shrink:0;width:2rem;">05</span>
+      <span style="font-size:0.8rem;font-weight:700;color:#10b981;letter-spacing:0.06em;width:7rem;flex-shrink:0;">DIVIDE CHANGES</span>
+      <strong style="font-family:'JetBrains Mono',monospace;">&minus;0.0929 &divide; 0.01 = &minus;9.2867</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── OBSERVED OUTPUT ─── -->
+<div class="slide"
+     data-say="The loss fell from 4.6667 to 4.5738; that makes the estimated slope negative."
+     data-ask="Does increasing w look helpful at w = 1?"
+     data-time="2 min">
+  <h2>At w&thinsp;=&thinsp;1, increasing weight lowers loss</h2>
+  <div style="background:#0f1117;border-radius:14px;padding:1.5rem 2rem;margin-top:1.5rem;max-width:660px;margin-left:auto;margin-right:auto;font-family:'JetBrains Mono',monospace;font-size:1rem;line-height:2;">
+    <div style="color:#8b90a5;">Loss at weight <span style="color:#ffffff;">1.00</span>: <span style="color:#3b6df0;font-weight:700;">4.6667</span></div>
+    <div style="color:#8b90a5;">Loss at weight <span style="color:#ffffff;">1.01</span>: <span style="color:#3b6df0;font-weight:700;">4.5738</span></div>
+    <div style="color:#8b90a5;">Estimated gradient: <span style="color:#ef4444;font-weight:700;">&minus;9.2867</span></div>
+  </div>
+  <div class="card accent-green" style="margin-top:1.5rem;text-align:center;max-width:660px;margin-left:auto;margin-right:auto;">
+    <strong>The loss decreased, so moving toward a larger weight is helpful.</strong>
+  </div>
+</div>
+
+<!-- 13 ─── BOTH SIDES (reveal) ─── -->
+<div class="slide"
+     data-say="Reveal the movement arrows after learners interpret both signs."
+     data-ask="What direction should each starting weight move?"
+     data-time="3 min">
+  <h2>Negative on the left; positive on the right</h2>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-red" style="text-align:center;flex:1;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">LEFT OF MINIMUM</div>
+      <strong style="font-size:1.4rem;">w = 1.0</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;">gradient <strong style="color:#ef4444;">&minus;9.29</strong></p>
+      <div style="margin-top:0.75rem;font-weight:700;color:#10b981;font-size:1rem;">increase &rarr; toward 2</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:#10b981;min-width:60px;">
+      w&thinsp;=&thinsp;2
+    </div>
+    <div class="card accent-blue" style="text-align:center;flex:1;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">RIGHT OF MINIMUM</div>
+      <strong style="font-size:1.4rem;">w = 3.0</strong>
+      <p style="font-family:'JetBrains Mono',monospace;margin-top:0.5rem;">gradient <strong style="color:#3b6df0;">+9.38</strong></p>
+      <div style="margin-top:0.75rem;font-weight:700;color:#10b981;font-size:1rem;">decrease &rarr; toward 2</div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── REPEAT THE TEST ─── -->
+<div class="slide"
+     data-say="The same calculation works anywhere on the loss curve; only the starting weight changes."
+     data-ask="Why do the final actions differ?"
+     data-time="2 min">
+  <h2>The same procedure works on both sides</h2>
+  <div style="margin-top:1.5rem;max-width:800px;margin-left:auto;margin-right:auto;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:0;border:1.5px solid #e2e5ef;border-radius:12px;overflow:hidden;">
+      <div style="background:#f0f2fa;padding:0.6rem 0.8rem;font-size:0.68rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;">START</div>
+      <div style="background:#f0f2fa;padding:0.6rem 0.8rem;font-size:0.68rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;border-left:1px solid #e2e5ef;">LOSS BEFORE</div>
+      <div style="background:#f0f2fa;padding:0.6rem 0.8rem;font-size:0.68rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;border-left:1px solid #e2e5ef;">LOSS AFTER +0.01</div>
+      <div style="background:#f0f2fa;padding:0.6rem 0.8rem;font-size:0.68rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;border-left:1px solid #e2e5ef;">GRADIENT</div>
+      <div style="background:#f0f2fa;padding:0.6rem 0.8rem;font-size:0.68rem;font-weight:700;color:#8b90a5;letter-spacing:0.06em;border-left:1px solid #e2e5ef;">ACTION</div>
+
+      <div style="padding:0.75rem 0.8rem;font-family:'JetBrains Mono',monospace;font-weight:700;border-top:1px solid #e2e5ef;">w = 1.0</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-family:'JetBrains Mono',monospace;font-size:0.9rem;">4.6667</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-family:'JetBrains Mono',monospace;font-size:0.9rem;">4.5738</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-family:'JetBrains Mono',monospace;font-size:0.9rem;font-weight:700;color:#ef4444;">&minus;9.2867</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-weight:700;color:#10b981;">increase</div>
+
+      <div style="padding:0.75rem 0.8rem;font-family:'JetBrains Mono',monospace;font-weight:700;border-top:1px solid #e2e5ef;">w = 3.0</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-family:'JetBrains Mono',monospace;font-size:0.9rem;">4.6667</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-family:'JetBrains Mono',monospace;font-size:0.9rem;">4.7605</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-family:'JetBrains Mono',monospace;font-size:0.9rem;font-weight:700;color:#3b6df0;">+9.3800</div>
+      <div style="padding:0.75rem 0.8rem;border-top:1px solid #e2e5ef;border-left:1px solid #e2e5ef;font-weight:700;color:#ef4444;">decrease</div>
+    </div>
+    <p style="text-align:center;margin-top:1rem;font-weight:600;color:#1a1d2e;">Same recipe. Different sign. Both actions move toward w&thinsp;=&thinsp;2.</p>
+  </div>
+</div>
+
+<!-- 15 ─── THE SHARED DESTINATION ─── -->
+<div class="slide"
+     data-say="Emphasize that opposite signs can recommend movement toward the same destination."
+     data-ask="What weight are both updates approaching?"
+     data-time="2 min">
+  <h2>Both gradients lead back toward w&thinsp;=&thinsp;2</h2>
+  <div style="margin-top:1rem;display:flex;justify-content:center;">
+    <svg viewBox="0 0 730 420" style="width:100%;max-width:700px;" role="img" aria-label="U-shaped loss curve with colored arrows from both sides pointing toward minimum"><defs><marker id="lc-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4a5068"/></marker></defs>
+      <defs>
+        <marker id="lc2-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#4a5068"/></marker>
+      </defs>
+      <rect x="80" y="40" width="570" height="300" rx="8" fill="#fafbfd" stroke="#e2e5ef" stroke-width="1"/>
+      <!-- Gridlines -->
+      <line x1="80" y1="340" x2="650" y2="340" stroke="#e2e5ef" stroke-width="1"/>
+      <line x1="80" y1="240" x2="650" y2="240" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="80" y1="140" x2="650" y2="140" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="80" y1="40" x2="650" y2="40" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <!-- Y labels -->
+      <text x="68" y="344" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">0</text>
+      <text x="68" y="244" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">5</text>
+      <text x="68" y="144" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">10</text>
+      <text x="68" y="44" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5">15</text>
+      <!-- X labels -->
+      <text x="197" y="365" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#ef4444" font-weight="700">w = 1</text>
+      <text x="365" y="365" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#10b981" font-weight="700">w = 2</text>
+      <text x="533" y="365" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b5cf6" font-weight="700">w = 3</text>
+      <text x="365" y="400" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600">weight w</text>
+      <text x="30" y="190" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#8b90a5" font-weight="600" transform="rotate(-90 30 190)">loss</text>
+      <!-- Correct U-shaped parabola -->
+      <path d="M80,68 L97,97 L114,125 L130,151 L147,175 L164,198 L181,219 L197,238 L214,256 L231,272 L248,286 L264,298 L281,308 L298,317 L315,324 L331,329 L348,332 L365,334 L382,332 L399,329 L415,324 L432,317 L449,308 L466,298 L482,286 L499,272 L516,256 L533,238 L549,219 L566,198 L583,175 L600,151 L616,125 L633,97 L650,68"
+            fill="none" stroke="#3b6df0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Points (no tangent lines — cleaner version) -->
+      <circle cx="197" cy="238" r="11" fill="#ef4444"/>
+      <text x="140" y="218" font-family="Inter,sans-serif" font-size="13" fill="#ef4444" font-weight="700">w = 1</text>
+      <circle cx="365" cy="334" r="12" fill="#10b981"/>
+      <text x="365" y="318" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" fill="#10b981" font-weight="800">minimum</text>
+      <circle cx="533" cy="238" r="11" fill="#8b5cf6"/>
+      <text x="590" y="218" font-family="Inter,sans-serif" font-size="13" fill="#8b5cf6" font-weight="700">w = 3</text>
+      <!-- Curved arrows pointing toward minimum -->
+      <path d="M230,262 Q290,320 340,336" fill="none" stroke="#ef4444" stroke-width="2.5" marker-end="url(#lc2-arr)"/>
+      <text x="260" y="300" font-family="Inter,sans-serif" font-size="13" fill="#ef4444" font-weight="700">increase w &rarr;</text>
+      <path d="M500,262 Q440,320 390,336" fill="none" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#lc2-arr)"/>
+      <text x="470" y="300" text-anchor="end" font-family="Inter,sans-serif" font-size="13" fill="#8b5cf6" font-weight="700">&larr; decrease w</text>
+    </svg>
+  </div>
+  <p style="text-align:center;margin-top:1rem;font-weight:600;color:#1a1d2e;">Different signs. Same destination. Both updates move toward lower loss.</p>
+</div>
+
+<!-- 16 ─── GRADIENT DESCENT ─── -->
+<div class="slide"
+     data-say="The gradient tells you which way is UPHILL. But we want to go DOWNHILL. So we move in the OPPOSITE direction — we SUBTRACT the gradient. Walk through both examples: negative gradient means subtract a negative = add = weight goes UP. Positive gradient means subtract a positive = weight goes DOWN. Both move toward lower loss."
+     data-ask="If gradient is -9, what does subtracting it do to the weight?"
+     data-time="3 min">
+  <h2>Why we <em>subtract</em> the gradient</h2>
+  <div style="max-width:700px;">
+    <p style="font-size:1.05rem;margin-bottom:1rem;">The gradient points <strong>uphill</strong>. We want <strong>downhill</strong>. So we subtract:</p>
+    <div class="formula" style="font-size:1.4rem;margin-bottom:0.75rem;">w<sub>new</sub> = w<sub>old</sub> &minus; &eta; &times; gradient</div>
+    <p style="text-align:center;font-size:0.95rem;color:#4a5068;margin-bottom:1.25rem;">This process &mdash; always moving opposite to the gradient &mdash; is called <strong style="color:#3b6df0;">gradient descent</strong>.</p>
+    <div class="two-col" style="gap:1rem;">
+      <div class="card accent-red">
+        <h4>Left of minimum (w = 1)</h4>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;margin:0.5rem 0;">
+          gradient = <strong style="color:#ef4444;">&minus;9.3</strong>
+        </p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;">
+          w = 1.0 &minus; &eta; &times; (&minus;9.3) &rarr; <strong>increases</strong>
+        </p>
+        <p style="color:#10b981;font-weight:700;margin-top:0.5rem;">
+          &#10004; Moves RIGHT toward 2 (correct direction)
+        </p>
+      </div>
+      <div class="card accent-purple">
+        <h4>Right of minimum (w = 3)</h4>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;margin:0.5rem 0;">
+          gradient = <strong style="color:#8b5cf6;">+9.3</strong>
+        </p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;">
+          w = 3.0 &minus; &eta; &times; (+9.3) &rarr; <strong>decreases</strong>
+        </p>
+        <p style="color:#10b981;font-weight:700;margin-top:0.5rem;">
+          &#10004; Moves LEFT toward 2 (correct direction)
+        </p>
+      </div>
+    </div>
+    <div class="card mt-2" style="background:#ecfdf5;text-align:center;">
+      <p style="font-size:1.05rem;font-weight:700;">Both directions move toward lower loss &mdash; that&rsquo;s <strong>gradient descent</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── ONE LIMIT: DIRECTION IS NOT DISTANCE ─── -->
+<div class="slide"
+     data-say="The gradient tells you WHICH WAY to go but NOT how far. Show the number line: tiny step is safe but slow — you need many steps. Big step is fast but dangerous — you fly past the answer and land farther away than you started. The learning rate controls step size. That is Lesson 4."
+     data-ask="What can happen if the step is too large?"
+     data-time="2 min">
+  <h2>The gradient knows direction &mdash; but not distance</h2>
+  <div style="max-width:650px;">
+    <p style="margin-bottom:1.5rem;font-size:1.05rem;">We know the weight should <strong>increase</strong>. But by how much?</p>
+    <!-- Number line visualization -->
+    <svg viewBox="0 0 650 210" style="width:100%;max-width:650px;margin-bottom:1rem;">
+      <!-- Label above everything -->
+      <text x="340" y="20" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#ef4444" font-weight="700">huge step &mdash; flew past the minimum!</text>
+      <!-- Big step arc (below label) -->
+      <path d="M120,65 Q340,35 550,65" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#lc-arr)"/>
+      <!-- Tiny step arrow -->
+      <line x1="122" y1="85" x2="175" y2="85" stroke="#3b6df0" stroke-width="2.5" marker-end="url(#lc-arr)"/>
+      <text x="148" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#3b6df0" font-weight="600">tiny step</text>
+      <!-- Number line -->
+      <line x1="50" y1="110" x2="600" y2="110" stroke="#1a1d2e" stroke-width="2"/>
+      <!-- Ticks -->
+      <line x1="120" y1="102" x2="120" y2="118" stroke="#1a1d2e" stroke-width="2"/>
+      <text x="120" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#ef4444" font-weight="700">w = 1</text>
+      <text x="120" y="155" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5">start</text>
+      <line x1="350" y1="102" x2="350" y2="118" stroke="#1a1d2e" stroke-width="2"/>
+      <text x="350" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#10b981" font-weight="700">w = 2</text>
+      <text x="350" y="155" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#10b981">ideal</text>
+      <line x1="550" y1="102" x2="550" y2="118" stroke="#1a1d2e" stroke-width="2"/>
+      <text x="550" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#ef4444" font-weight="700">w = 3.8</text>
+      <text x="550" y="155" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#ef4444">overshot!</text>
+    </svg>
+    <table class="compare-table">
+      <tr><th>Learning rate</th><th>New weight</th><th>Observation</th></tr>
+      <tr>
+        <td><strong>Too small</strong> (0.01)</td>
+        <td>w: 1.0 &rarr; 1.09</td>
+        <td style="color:#8b90a5;">Barely moved. Needs ~50 steps.</td>
+      </tr>
+      <tr class="highlight-row">
+        <td><strong>Just right</strong> (0.10)</td>
+        <td>w: 1.0 &rarr; 1.93</td>
+        <td style="color:#10b981;font-weight:700;">Almost at 2 in one step!</td>
+      </tr>
+      <tr>
+        <td><strong>Too big</strong> (0.30)</td>
+        <td>w: 1.0 &rarr; 3.79</td>
+        <td style="color:#ef4444;font-weight:700;">Overshot! Farther than before.</td>
+      </tr>
+    </table>
+    <div class="card accent-blue mt-2" style="text-align:center;">
+      <strong>The gradient gives direction. The <em>learning rate</em> controls distance. &rarr; Next lesson</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Four questions. Give 30 seconds of silent thinking, then click each card to reveal the answer."
+     data-ask="Try all four before revealing."
+     data-time="4 min">
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; What does a negative gradient mean?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1"><strong>Increasing w lowers loss</strong> &mdash; move w upward.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; Positive gradient: increase or decrease w?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1"><strong>Decrease the weight</strong> &mdash; move opposite the gradient.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; What does a zero gradient mean?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1"><strong>Loss is locally flat</strong> &mdash; no directional update needed.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; Does the gradient tell us how far to move?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1"><strong>No</strong> &mdash; direction only. Step size comes from the learning rate.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── THE NEXT DECISION (bridge) ─── -->
+<div class="slide cover"
+     data-say="End with the overshoot risk. Lesson 4 supplies step size."
+     data-ask="How could one number control the size of every update?"
+     data-time="1 min">
+  <div class="lesson-number">NEXT &bull; LESSON 04 &bull; LEARNING RATE</div>
+  <h1>We know which way&mdash;but how far should we move?</h1>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div style="text-align:center;padding:1rem 1.5rem;background:#f0fdf4;border:1.5px solid #10b981;border-radius:12px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.4rem;">TINY STEP</div>
+      <div style="font-size:1.2rem;color:#4a5068;">&rarr;</div>
+      <div style="font-size:0.85rem;color:#8b90a5;margin-top:0.4rem;">slow learning</div>
+    </div>
+    <div style="text-align:center;padding:1rem 1.5rem;background:#f0f7ff;border:2px solid #3b6df0;border-radius:12px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:0.4rem;">USEFUL STEP</div>
+      <div style="font-size:1.2rem;color:#3b6df0;font-weight:700;">&#x2713;</div>
+      <div style="font-size:0.85rem;color:#8b90a5;margin-top:0.4rem;">steady progress</div>
+    </div>
+    <div style="text-align:center;padding:1rem 1.5rem;background:#fef2f2;border:1.5px solid #ef4444;border-radius:12px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.4rem;">HUGE STEP</div>
+      <div style="font-size:1.2rem;color:#ef4444;">&#x27F6;</div>
+      <div style="font-size:0.85rem;color:#8b90a5;margin-top:0.4rem;">overshoot &amp; diverge</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;font-style:italic;color:#1a1d2e;font-size:1.05rem;max-width:600px;margin-left:auto;margin-right:auto;">The learning rate controls the step size&mdash;and the wrong value can make training crawl or explode.</p>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L04.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L04 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

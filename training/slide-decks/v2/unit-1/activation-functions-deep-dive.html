@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Network Activation Functions — Deep Dive</title>
+<link rel="stylesheet" href="../../v1/unit-1/deck.css">
+</head>
+<body data-lesson="Activations">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="../../../index.html#unit-1" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; Unit 1</a><a href="#" style="color:#1a1d2e;text-decoration:none;font-weight:700;">Activation Functions</a><a href="../../../index.html#unit-2" style="color:#3b6df0;text-decoration:none;font-weight:600;">Unit 2 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }
+.fn-chart { max-width: 480px; margin: 0 auto; }
+.fn-chart svg { width: 100%; max-height: 50vh; }
+.fn-formula { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; text-align: center; padding: 0.6rem 1rem; background: #f8f9fb; border-radius: 10px; border: 1px solid #e2e5ef; margin: 0.5rem auto; max-width: 500px; color: #1a1d2e; }
+.fn-props { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
+.fn-props .pill { font-size: 0.78rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; }
+.fn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+</style>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Activation functions are the secret ingredient that lets neural networks learn complex patterns. Without them, a 100-layer network is no better than a single line."
+     data-ask="Why can't a stack of linear operations learn a curve?"
+     data-time="1 min">
+  <div class="lesson-number">Deep Dive</div>
+  <h1>Activation Functions</h1>
+  <p class="subtitle">The nonlinear gates that make neural networks powerful</p>
+</div>
+
+<!-- 2 ─── WHY ACTIVATION FUNCTIONS MATTER ─── -->
+<div class="slide"
+     data-say="Without activation functions, stacking layers does nothing. Two linear layers collapse into one. No matter how deep, the network can only draw a straight line."
+     data-ask="What happens if you multiply two matrices together — is the result still linear?"
+     data-time="3 min">
+  <h2>Why Activation Functions Matter</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Without Activation</h4>
+        <p>Layer 1: h = 2x + 1</p>
+        <p>Layer 2: y = 3h + 4</p>
+        <p class="mt-1">Substitute: y = 3(2x+1) + 4 = <strong>6x + 7</strong></p>
+        <p style="color:#ef4444;font-weight:700;margin-top:0.5rem;">Still a straight line. Layers collapse.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>With Activation</h4>
+        <p>Layer 1: h = <strong>ReLU</strong>(2x + 1)</p>
+        <p>Layer 2: y = 3h + 4</p>
+        <p class="mt-1">Cannot simplify &mdash; ReLU creates a <strong>bend</strong></p>
+        <p style="color:#10b981;font-weight:700;margin-top:0.5rem;">Nonlinear. Each layer adds capacity.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="text-align:center;background:#f0f4ff;max-width:700px;margin:0.75rem auto 0;">
+    <strong>Activation functions are the reason deep learning works.</strong> They break linearity so networks can learn curves, edges, faces, and language.
+  </div>
+</div>
+
+<!-- 3 ─── WHAT AN ACTIVATION FUNCTION DOES ─── -->
+<div class="slide"
+     data-say="An activation function sits between layers. It takes the raw output (weighted sum + bias) and transforms it. The transformation is element-wise — each neuron independently."
+     data-ask="Where exactly does the activation function go in the forward pass?"
+     data-time="2 min">
+  <h2>What an Activation Function Does</h2>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;">
+    <div class="card" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">INPUT</div>
+      <strong>x</strong>
+    </div>
+    <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">LINEAR</div>
+      <strong>z = Wx + b</strong>
+    </div>
+    <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+    <div class="card accent-purple" style="text-align:center;min-width:140px;border-width:3px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;letter-spacing:0.08em;">ACTIVATION</div>
+      <strong>a = f(z)</strong>
+    </div>
+    <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+    <div class="card" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">OUTPUT</div>
+      <strong>a</strong>
+    </div>
+  </div>
+  <div class="fn-grid" style="max-width:700px;margin:0 auto;">
+    <div class="card" style="text-align:center;">
+      <h4>Element-wise</h4>
+      <p>Applied to each neuron independently</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>Nonlinear</h4>
+      <p>Breaks the chain of linear operations</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>Differentiable</h4>
+      <p>Must have a gradient for backprop</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── HISTORICAL: STEP FUNCTION ─── -->
+<div class="slide"
+     data-say="The original activation: the step function. Output 0 or 1, nothing in between. Used in Rosenblatt's Perceptron (1958). Problem: the gradient is zero everywhere except at the step, where it's undefined. Backpropagation cannot work."
+     data-ask="Why can't gradient descent work with a step function?"
+     data-time="2 min">
+  <h2>The Step Function (1958)</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">f(z) = 1 if z &ge; 0, else 0</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <!-- axes -->
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <!-- labels -->
+          <text x="255" y="170" font-family="JetBrains Mono" font-size="11" fill="#8b90a5">0</text>
+          <text x="440" y="145" font-family="Inter" font-size="11" fill="#8b90a5">z</text>
+          <!-- step function -->
+          <polyline points="50,240 250,240" fill="none" stroke="#ef4444" stroke-width="3"/>
+          <polyline points="250,60 450,60" fill="none" stroke="#ef4444" stroke-width="3"/>
+          <circle cx="250" cy="240" r="5" fill="white" stroke="#ef4444" stroke-width="2"/>
+          <circle cx="250" cy="60" r="5" fill="#ef4444"/>
+          <!-- value labels -->
+          <text x="60" y="235" font-family="JetBrains Mono" font-size="12" fill="#ef4444" font-weight="600">0</text>
+          <text x="430" y="55" font-family="JetBrains Mono" font-size="12" fill="#ef4444" font-weight="600">1</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Fatal Flaw</h4>
+        <p>Gradient = <strong>0 everywhere</strong></p>
+        <p class="mt-1">At the step: gradient is <strong>undefined</strong></p>
+        <p class="mt-1" style="color:#ef4444;font-weight:700;">Backpropagation impossible.</p>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Historical Note</h4>
+        <p>Rosenblatt's Perceptron (1958) used this.</p>
+        <p class="mt-1">Only works for linearly separable problems. Led to the first "AI Winter."</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── SIGMOID ─── -->
+<div class="slide"
+     data-say="Sigmoid squashes any number into the range 0 to 1. It was the go-to activation for decades. It's smooth, differentiable everywhere, and outputs probabilities. But it has two major problems we'll discuss."
+     data-ask="What happens to the sigmoid gradient when z is very large or very small?"
+     data-time="3 min">
+  <h2>Sigmoid</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">&sigma;(z) = 1 / (1 + e<sup>&minus;z</sup>)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <line x1="50" y1="280" x2="450" y2="280" stroke="#4a5068" stroke-width="1.5"/>
+          <!-- y=0 line at y=270, y=0.5 at y=150, y=1 at y=30 -->
+          <text x="35" y="274" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">0</text>
+          <text x="35" y="154" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">0.5</text>
+          <text x="35" y="34" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">1</text>
+          <line x1="50" y1="30" x2="450" y2="30" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- ticks -->
+          <text x="130" y="295" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">&minus;3</text>
+          <text x="250" y="295" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="middle">0</text>
+          <text x="370" y="295" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">3</text>
+          <!-- sigmoid curve: 15 computed points -->
+          <polyline points="50,268 90,266 130,259 170,241 190,226 210,206 230,179 250,150 270,121 290,95 310,74 330,59 370,41 410,34 450,32" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- key point -->
+          <circle cx="250" cy="150" r="5" fill="#8b5cf6"/>
+          <text x="265" y="145" font-family="Inter" font-size="10" fill="#8b5cf6" font-weight="600">(0, 0.5)</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="fn-props">
+        <span class="pill green">Output: [0, 1]</span>
+        <span class="pill blue">Smooth</span>
+        <span class="pill purple">Probabilistic</span>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Strengths</h4>
+        <ul style="font-size:0.88rem;">
+          <li>Output is a probability (0 to 1)</li>
+          <li>Smooth, differentiable everywhere</li>
+          <li>Used in GAN discriminators and binary classifiers</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Weaknesses</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Vanishing gradient</strong>: gradient &rarr; 0 at extremes</li>
+          <li><strong>Not zero-centered</strong>: outputs always positive</li>
+          <li><strong>Expensive</strong>: e<sup>x</sup> computation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── SIGMOID VANISHING GRADIENT ─── -->
+<div class="slide"
+     data-say="The sigmoid derivative peaks at 0.25 and drops toward zero for large or small inputs. In a 10-layer network, gradients multiply: 0.25^10 = 0.0000001. The gradient vanishes and early layers stop learning."
+     data-ask="If the max gradient of sigmoid is 0.25, what happens after 10 layers of multiplication?"
+     data-time="3 min">
+  <h2>The Vanishing Gradient Problem</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">&sigma;'(z) = &sigma;(z) &middot; (1 &minus; &sigma;(z))</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <line x1="50" y1="270" x2="450" y2="270" stroke="#4a5068" stroke-width="1.5"/>
+          <!-- y scale: 0 at y=270, 0.25 at y=30 -->
+          <text x="35" y="274" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">0</text>
+          <text x="35" y="34" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">0.25</text>
+          <line x1="50" y1="30" x2="450" y2="30" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- derivative curve: bell-shaped, computed -->
+          <polyline points="50,269 90,267 130,248 170,169 190,120 210,72 230,43 250,30 270,43 290,72 310,120 330,169 370,248 410,267 450,269" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- peak label -->
+          <circle cx="250" cy="30" r="5" fill="#ef4444"/>
+          <text x="265" y="25" font-family="Inter" font-size="10" fill="#ef4444" font-weight="600">max = 0.25</text>
+          <!-- flat zone labels -->
+          <text x="80" y="260" font-family="Inter" font-size="10" fill="#8b90a5" font-weight="600">gradient &asymp; 0</text>
+          <text x="380" y="260" font-family="Inter" font-size="10" fill="#8b90a5" font-weight="600">gradient &asymp; 0</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The Multiplication Problem</h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><th>Layers</th><th>Max Gradient</th></tr>
+          <tr><td>1</td><td>0.25</td></tr>
+          <tr><td>3</td><td>0.25<sup>3</sup> = 0.0156</td></tr>
+          <tr><td>5</td><td>0.25<sup>5</sup> = 0.00098</td></tr>
+          <tr><td>10</td><td>0.25<sup>10</sup> = <strong style="color:#ef4444;">9.5 &times; 10<sup>&minus;7</sup></strong></td></tr>
+        </table>
+        <p class="mt-1" style="font-size:0.85rem;">Each layer shrinks the gradient by at most <strong>4&times;</strong>. Early layers receive essentially <strong>zero signal</strong>.</p>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;text-align:center;">
+        <p><strong>This is why deep networks with sigmoid don't learn.</strong></p>
+        <p style="font-size:0.85rem;">ReLU solved this in 2010.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── TANH ─── -->
+<div class="slide"
+     data-say="Tanh is a scaled and shifted sigmoid. The output range is -1 to +1, making it zero-centered. This helps optimization because gradients don't always push in the same direction. Still suffers from vanishing gradients at the tails."
+     data-ask="Why is zero-centered output better for optimization?"
+     data-time="3 min">
+  <h2>Tanh</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">tanh(z) = (e<sup>z</sup> &minus; e<sup>&minus;z</sup>) / (e<sup>z</sup> + e<sup>&minus;z</sup>)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <text x="35" y="34" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">+1</text>
+          <text x="35" y="274" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">&minus;1</text>
+          <text x="35" y="154" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="end">0</text>
+          <line x1="50" y1="30" x2="450" y2="30" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="50" y1="270" x2="450" y2="270" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- tanh curve: 15 computed points -->
+          <polyline points="50,270 90,270 130,269 170,266 190,259 210,241 230,206 250,150 270,95 290,59 310,41 330,34 370,31 410,30 450,30" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="250" cy="150" r="5" fill="#0ea5e9"/>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="fn-props">
+        <span class="pill blue">Output: [&minus;1, +1]</span>
+        <span class="pill green">Zero-centered</span>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Improvement over Sigmoid</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Zero-centered</strong>: gradients push both + and &minus;</li>
+          <li>Steeper gradient near 0 (max = 1.0 vs 0.25)</li>
+          <li>Used in GAN generators (pixel output [-1,1])</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Still Has</h4>
+        <ul style="font-size:0.88rem;">
+          <li>Vanishing gradient at extremes (same problem)</li>
+          <li>Expensive e<sup>x</sup> computation</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>In GANs</h4>
+        <p style="font-size:0.88rem;">Generator output layer uses Tanh because pixel values are normalized to [&minus;1, +1].</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── RELU ─── -->
+<div class="slide"
+     data-say="ReLU changed everything. Published in 2010, it's dead simple: if positive, pass through; if negative, output zero. The gradient is either 0 or 1 — never shrinks. This allows deep networks to train for the first time."
+     data-ask="Why is a gradient of exactly 1 better than sigmoid's max of 0.25?"
+     data-time="3 min">
+  <h2>ReLU &mdash; The Game Changer (2010)</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">ReLU(z) = max(0, z)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <text x="250" y="295" font-family="JetBrains Mono" font-size="10" fill="#8b90a5" text-anchor="middle">0</text>
+          <!-- ReLU: flat then rising -->
+          <polyline points="50,150 90,150 130,150 170,150 210,150 250,150 290,122 330,94 370,66 410,38 450,10" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- bend marker -->
+          <circle cx="250" cy="150" r="6" fill="#10b981"/>
+          <text x="260" y="170" font-family="Inter" font-size="10" fill="#10b981" font-weight="600">the bend</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="fn-props">
+        <span class="pill green">Output: [0, &infin;)</span>
+        <span class="pill blue">Fast</span>
+        <span class="pill purple">Sparse</span>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Why ReLU Won</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>No vanishing gradient</strong>: gradient is <strong>1</strong> for z &gt; 0</li>
+          <li><strong>6&times; faster</strong> than sigmoid (just a comparison)</li>
+          <li><strong>Sparsity</strong>: ~50% of neurons output 0 &rarr; efficient</li>
+          <li>Enabled <strong>AlexNet</strong> (2012) and the deep learning revolution</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>The Dying ReLU Problem</h4>
+        <p style="font-size:0.88rem;">If z &lt; 0, gradient = <strong>0</strong>. If a neuron gets stuck negative, it <strong>never recovers</strong>.</p>
+        <p style="font-size:0.85rem;color:#ef4444;font-weight:600;margin-top:0.3rem;">A "dead neuron" — permanently outputs 0.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── LEAKY RELU ─── -->
+<div class="slide"
+     data-say="Leaky ReLU fixes the dying neuron problem by allowing a small gradient when z is negative. Instead of 0, we let a fraction through — typically 0.01 or 0.2. The neuron can always recover."
+     data-ask="What alpha value does DCGAN use for LeakyReLU in the discriminator?"
+     data-time="2 min">
+  <h2>Leaky ReLU &amp; Parametric ReLU</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">LeakyReLU(z) = max(&alpha;z, z)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <!-- Leaky ReLU: slight negative slope then rising -->
+          <polyline points="50,178 90,172 130,167 170,161 210,156 250,150 290,122 330,94 370,66 410,38 450,10" fill="none" stroke="#3b6df0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- ReLU comparison: dashed -->
+          <polyline points="50,150 250,150 450,10" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4" opacity="0.5"/>
+          <circle cx="250" cy="150" r="5" fill="#3b6df0"/>
+          <!-- labels -->
+          <text x="100" y="195" font-family="Inter" font-size="10" fill="#3b6df0" font-weight="600">&alpha; = 0.2</text>
+          <text x="350" y="50" font-family="Inter" font-size="10" fill="#8b90a5">slope = 1</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <table class="compare-table" style="font-size:0.85rem;">
+        <tr><th>Variant</th><th>&alpha;</th><th>Notes</th></tr>
+        <tr><td><strong>Leaky ReLU</strong></td><td>0.01</td><td>Fixed small leak</td></tr>
+        <tr><td><strong>DCGAN standard</strong></td><td>0.2</td><td>Larger leak for D</td></tr>
+        <tr><td><strong>PReLU</strong></td><td>learned</td><td>&alpha; is a trainable parameter</td></tr>
+      </table>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Why It Works</h4>
+        <ul style="font-size:0.88rem;">
+          <li>Negative side has gradient &alpha; (not 0)</li>
+          <li>Dead neurons can <strong>recover</strong></li>
+          <li>PReLU lets the network choose the best &alpha;</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>In GANs</h4>
+        <p style="font-size:0.88rem;">DCGAN uses <strong>LeakyReLU(0.2)</strong> in the Discriminator. The Generator uses plain ReLU.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── ELU ─── -->
+<div class="slide"
+     data-say="ELU smooths the transition at zero using an exponential curve on the negative side. This makes the function differentiable everywhere and pushes mean activations closer to zero, which helps batch normalization."
+     data-ask="How does ELU's negative side differ from Leaky ReLU's?"
+     data-time="2 min">
+  <h2>ELU &mdash; Exponential Linear Unit</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">ELU(z) = z if z &ge; 0, else &alpha;(e<sup>z</sup> &minus; 1)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <!-- ELU curve -->
+          <polyline points="50,178 90,178 130,177 170,174 210,168 230,161 250,150 290,122 330,94 370,66 410,38 450,10" fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- asymptote -->
+          <line x1="50" y1="178" x2="130" y2="178" stroke="#ec4899" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <text x="60" y="195" font-family="Inter" font-size="10" fill="#ec4899" font-weight="600">saturates at &minus;&alpha;</text>
+          <circle cx="250" cy="150" r="5" fill="#ec4899"/>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="fn-props">
+        <span class="pill pink" style="background:#fce7f3;color:#9d174d;">Output: [&minus;&alpha;, &infin;)</span>
+        <span class="pill green">Smooth</span>
+        <span class="pill blue">Zero-mean</span>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Advantages</h4>
+        <ul style="font-size:0.88rem;">
+          <li>Smooth everywhere (no sharp corner at 0)</li>
+          <li>Negative values push mean toward zero</li>
+          <li>More robust than ReLU in some architectures</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Disadvantages</h4>
+        <ul style="font-size:0.88rem;">
+          <li>Slower than ReLU (e<sup>x</sup> on negative side)</li>
+          <li>Saturates on negative side (gradient &rarr; 0)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── GELU ─── -->
+<div class="slide"
+     data-say="GELU is the activation behind GPT, BERT, and most modern Transformers. Instead of a hard cutoff at zero, GELU weights inputs by their probability of being positive under a Gaussian distribution. Small negatives can pass through partially."
+     data-ask="Why would a probabilistic gate be better than a hard threshold?"
+     data-time="3 min">
+  <h2>GELU &mdash; Gaussian Error Linear Unit</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">GELU(z) = z &middot; &Phi;(z) &asymp; z &middot; &sigma;(1.702z)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <!-- GELU curve -->
+          <polyline points="50,150 90,150 130,151 170,152 210,154 230,154 250,150 270,140 290,126 330,96 370,67 410,38 450,10" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- ReLU comparison -->
+          <polyline points="50,150 250,150 450,10" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4" opacity="0.4"/>
+          <circle cx="250" cy="150" r="5" fill="#f59e0b"/>
+          <!-- dip label -->
+          <text x="190" y="170" font-family="Inter" font-size="9" fill="#f59e0b" font-weight="600">small dip</text>
+          <text x="350" y="45" font-family="Inter" font-size="9" fill="#8b90a5">ReLU (dashed)</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="fn-props">
+        <span class="pill" style="background:#fef3c7;color:#92400e;">Used in GPT, BERT</span>
+        <span class="pill green">Smooth</span>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Key Insight</h4>
+        <p style="font-size:0.88rem;">GELU is a <strong>soft gate</strong>. Near-zero inputs get partially passed through based on their Gaussian probability.</p>
+        <p class="mt-1" style="font-size:0.85rem;">This is more natural than ReLU's hard cutoff.</p>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>Where It's Used</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>GPT-2/3/4</strong>: All transformer blocks</li>
+          <li><strong>BERT</strong>: Default activation</li>
+          <li><strong>Vision Transformers (ViT)</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── SWISH / SILU ─── -->
+<div class="slide"
+     data-say="Swish was discovered by Google Brain using automated search. It multiplies the input by its own sigmoid. The result is smooth, non-monotonic (dips below zero briefly), and often outperforms ReLU on deep networks."
+     data-ask="How is Swish related to Sigmoid?"
+     data-time="2 min">
+  <h2>Swish / SiLU</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">Swish(z) = z &middot; &sigma;(z)</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="150" x2="450" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <!-- Swish curve -->
+          <polyline points="50,151 90,152 130,154 170,157 210,158 230,155 250,150 270,141 290,130 330,101 370,70 410,40 450,11" fill="none" stroke="#14b8a6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- ReLU comparison -->
+          <polyline points="50,150 250,150 450,10" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4" opacity="0.4"/>
+          <circle cx="250" cy="150" r="5" fill="#14b8a6"/>
+          <!-- dip annotation -->
+          <text x="175" y="175" font-family="Inter" font-size="9" fill="#14b8a6" font-weight="600">non-monotonic dip</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="fn-props">
+        <span class="pill" style="background:#ccfbf1;color:#134e4a;">Google Brain 2017</span>
+        <span class="pill green">Smooth</span>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Why Swish Works</h4>
+        <ul style="font-size:0.88rem;">
+          <li>Smooth: no sharp corner at 0</li>
+          <li>Non-monotonic: small negatives produce small negatives (regularization effect)</li>
+          <li>Self-gated: input controls its own gate via sigmoid</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>PyTorch</h4>
+        <div class="formula" style="font-size:0.85rem;">nn.SiLU()  # Swish = SiLU in PyTorch</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── SOFTMAX ─── -->
+<div class="slide"
+     data-say="Softmax isn't applied to individual neurons — it's applied across a whole layer. It converts a vector of raw scores into probabilities that sum to 1. Used for multi-class classification."
+     data-ask="Why must the outputs sum to 1?"
+     data-time="2 min">
+  <h2>Softmax &mdash; Multi-Class Output</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="fn-formula">softmax(z<sub>i</sub>) = e<sup>z<sub>i</sub></sup> / &Sigma; e<sup>z<sub>j</sub></sup></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:1.25rem 0;flex-wrap:wrap;">
+      <div class="card" style="text-align:center;min-width:100px;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;">RAW SCORES</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;">[2.0, 1.0, 0.1]</div>
+      </div>
+      <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+      <div class="card accent-purple" style="text-align:center;min-width:120px;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;">SOFTMAX</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;">e<sup>z</sup> / sum</div>
+      </div>
+      <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+      <div class="card" style="text-align:center;min-width:100px;border:2px solid #10b981;">
+        <div style="font-size:0.7rem;font-weight:700;color:#10b981;">PROBABILITIES</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;">[0.66, 0.24, 0.10]</div>
+      </div>
+    </div>
+    <div class="fn-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="card" style="text-align:center;">
+        <h4>Sum = 1.0</h4>
+        <p style="font-size:0.85rem;">Outputs are a valid probability distribution</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h4>Amplifies differences</h4>
+        <p style="font-size:0.85rem;">Largest score gets most probability</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h4>Not for GANs</h4>
+        <p style="font-size:0.85rem;">GANs use Sigmoid (binary) not Softmax (multi-class)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── SIDE BY SIDE COMPARISON ─── -->
+<div class="slide"
+     data-say="Here's every activation function side by side. Notice how they all start with the same basic idea — transform the linear output — but differ in range, smoothness, and gradient behavior."
+     data-ask="Which function would you choose for a hidden layer in a deep CNN?"
+     data-time="3 min">
+  <h2>All Functions Compared</h2>
+  <div style="overflow-x:auto;">
+    <table class="compare-table" style="font-size:0.8rem;max-width:1000px;margin:0 auto;">
+      <tr>
+        <th>Function</th>
+        <th>Formula</th>
+        <th>Range</th>
+        <th>Gradient</th>
+        <th>Zero-centered</th>
+        <th>Speed</th>
+      </tr>
+      <tr><td><strong>Step</strong></td><td>0 or 1</td><td>[0, 1]</td><td style="color:#ef4444;">0 everywhere</td><td>No</td><td>Fast</td></tr>
+      <tr><td><strong>Sigmoid</strong></td><td>1/(1+e<sup>-z</sup>)</td><td>(0, 1)</td><td style="color:#ef4444;">max 0.25</td><td>No</td><td>Slow</td></tr>
+      <tr><td><strong>Tanh</strong></td><td>(e<sup>z</sup>-e<sup>-z</sup>)/(e<sup>z</sup>+e<sup>-z</sup>)</td><td>(&minus;1, 1)</td><td style="color:#ef4444;">max 1.0</td><td style="color:#10b981;font-weight:700;">Yes</td><td>Slow</td></tr>
+      <tr style="background:#ecfdf5;"><td><strong>ReLU</strong></td><td>max(0, z)</td><td>[0, &infin;)</td><td style="color:#10b981;font-weight:700;">0 or 1</td><td>No</td><td style="color:#10b981;font-weight:700;">Very fast</td></tr>
+      <tr style="background:#f0f4ff;"><td><strong>Leaky ReLU</strong></td><td>max(&alpha;z, z)</td><td>(&minus;&infin;, &infin;)</td><td style="color:#10b981;font-weight:700;">&alpha; or 1</td><td style="color:#10b981;font-weight:700;">Yes</td><td style="color:#10b981;font-weight:700;">Very fast</td></tr>
+      <tr><td><strong>ELU</strong></td><td>&alpha;(e<sup>z</sup>&minus;1) / z</td><td>[&minus;&alpha;, &infin;)</td><td>Good</td><td style="color:#10b981;font-weight:700;">Yes</td><td>Medium</td></tr>
+      <tr><td><strong>GELU</strong></td><td>z&middot;&Phi;(z)</td><td>&asymp;(&minus;0.17, &infin;)</td><td>Smooth</td><td>Nearly</td><td>Medium</td></tr>
+      <tr><td><strong>Swish</strong></td><td>z&middot;&sigma;(z)</td><td>&asymp;(&minus;0.28, &infin;)</td><td>Smooth</td><td>Nearly</td><td>Medium</td></tr>
+      <tr><td><strong>Softmax</strong></td><td>e<sup>z_i</sup>/&Sigma;e<sup>z_j</sup></td><td>(0, 1)</td><td>Special</td><td>N/A</td><td>Medium</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 15 ─── WHEN TO USE WHAT ─── -->
+<div class="slide"
+     data-say="This is your cheat sheet. For hidden layers: start with ReLU. If dying neurons are a problem, try Leaky ReLU. For transformers, use GELU. For output layers: sigmoid for binary, tanh for bounded, softmax for multi-class."
+     data-ask="What activation would you use in a GAN discriminator's output?"
+     data-time="3 min">
+  <h2>When to Use What</h2>
+  <div class="fn-grid" style="grid-template-columns:1fr 1fr;max-width:800px;margin:0 auto;">
+    <div class="card accent-blue">
+      <h4>Hidden Layers</h4>
+      <table class="compare-table" style="font-size:0.82rem;">
+        <tr><td><strong>Default</strong></td><td>ReLU</td></tr>
+        <tr><td><strong>Dying neurons?</strong></td><td>Leaky ReLU / PReLU</td></tr>
+        <tr><td><strong>Transformer</strong></td><td>GELU</td></tr>
+        <tr><td><strong>Deep CNN</strong></td><td>ReLU or Swish</td></tr>
+        <tr><td><strong>Smooth needed?</strong></td><td>ELU or Swish</td></tr>
+      </table>
+    </div>
+    <div class="card accent-green">
+      <h4>Output Layers</h4>
+      <table class="compare-table" style="font-size:0.82rem;">
+        <tr><td><strong>Binary class</strong></td><td>Sigmoid</td></tr>
+        <tr><td><strong>Multi-class</strong></td><td>Softmax</td></tr>
+        <tr><td><strong>Regression</strong></td><td>None (linear)</td></tr>
+        <tr><td><strong>Pixels [&minus;1,1]</strong></td><td>Tanh</td></tr>
+        <tr><td><strong>Pixels [0,1]</strong></td><td>Sigmoid</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card mt-1" style="text-align:center;background:#f0f4ff;max-width:800px;margin:0.75rem auto 0;">
+    <h4>In GANs Specifically</h4>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;font-size:0.88rem;">
+      <div><strong>Generator hidden:</strong> ReLU</div>
+      <div><strong>Generator output:</strong> Tanh</div>
+      <div><strong>Discriminator hidden:</strong> LeakyReLU(0.2)</div>
+      <div><strong>Discriminator output:</strong> Sigmoid</div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── ACTIVATION FUNCTIONS IN GANS ─── -->
+<div class="slide"
+     data-say="In GANs, the choice of activation function is critical and asymmetric. The Generator and Discriminator use DIFFERENT activations for specific reasons."
+     data-ask="Why does the Generator use ReLU but the Discriminator uses LeakyReLU?"
+     data-time="3 min">
+  <h2>Activation Functions in GANs</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#ecfdf5;border:2px solid #10b981;">
+        <h4 style="color:#10b981;">Generator</h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><td><strong>Hidden</strong></td><td><strong>ReLU</strong></td></tr>
+          <tr><td><strong>Output</strong></td><td><strong>Tanh</strong></td></tr>
+        </table>
+        <p class="mt-1" style="font-size:0.85rem;"><strong>Why ReLU?</strong> G needs strong gradients to learn complex mappings from noise to images. Dying neurons are less problematic because G's inputs (noise) are always varied.</p>
+        <p class="mt-1" style="font-size:0.85rem;"><strong>Why Tanh?</strong> Output pixels must be in [&minus;1, +1] to match normalized training data.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;border:2px solid #ef4444;">
+        <h4 style="color:#ef4444;">Discriminator</h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><td><strong>Hidden</strong></td><td><strong>LeakyReLU(0.2)</strong></td></tr>
+          <tr><td><strong>Output</strong></td><td><strong>Sigmoid</strong></td></tr>
+        </table>
+        <p class="mt-1" style="font-size:0.85rem;"><strong>Why LeakyReLU?</strong> D receives real and fake images. Some features of fakes might be slightly negative &mdash; D must still detect them. Dead neurons = missed features.</p>
+        <p class="mt-1" style="font-size:0.85rem;"><strong>Why Sigmoid?</strong> Output is a probability: how likely is this image real? (0 to 1)</p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="text-align:center;background:#f8f9fb;max-width:700px;margin:0.5rem auto 0;">
+    <p style="font-size:0.88rem;"><strong>WGAN Critic:</strong> No output activation (unbounded score). Hidden layers still use LeakyReLU.</p>
+  </div>
+</div>
+
+<!-- 17 ─── GRADIENT FLOW COMPARISON ─── -->
+<div class="slide"
+     data-say="This is the key insight. Sigmoid squashes gradients below 0.25, making deep networks untrainable. ReLU passes gradients unchanged (1.0) for positive inputs. That's why ReLU enabled deep learning."
+     data-ask="In a 20-layer network, how much gradient reaches layer 1 with sigmoid vs ReLU?"
+     data-time="3 min">
+  <h2>Gradient Flow: Why Depth Matters</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <table class="compare-table" style="font-size:0.85rem;">
+      <tr><th>Layers</th><th>Sigmoid (max 0.25)</th><th>ReLU (1.0)</th><th>Leaky ReLU (1.0/&alpha;)</th></tr>
+      <tr><td>1</td><td>0.25</td><td style="color:#10b981;font-weight:700;">1.0</td><td style="color:#3b6df0;font-weight:700;">1.0</td></tr>
+      <tr><td>5</td><td style="color:#ef4444;">9.8 &times; 10<sup>&minus;4</sup></td><td style="color:#10b981;font-weight:700;">1.0</td><td style="color:#3b6df0;font-weight:700;">1.0</td></tr>
+      <tr><td>10</td><td style="color:#ef4444;">9.5 &times; 10<sup>&minus;7</sup></td><td style="color:#10b981;font-weight:700;">1.0</td><td style="color:#3b6df0;font-weight:700;">1.0</td></tr>
+      <tr><td>20</td><td style="color:#ef4444;">9.1 &times; 10<sup>&minus;13</sup></td><td style="color:#10b981;font-weight:700;">1.0</td><td style="color:#3b6df0;font-weight:700;">1.0</td></tr>
+      <tr><td>50</td><td style="color:#ef4444;">7.9 &times; 10<sup>&minus;31</sup></td><td style="color:#10b981;font-weight:700;">1.0</td><td style="color:#3b6df0;font-weight:700;">1.0</td></tr>
+    </table>
+    <div class="card mt-1" style="text-align:center;background:#ecfdf5;">
+      <p><strong>ReLU preserves gradient magnitude through any depth.</strong> That's why we can train 100+ layer networks (ResNet-152, GPT-3 with 96 layers).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── MODERN LANDSCAPE ─── -->
+<div class="slide"
+     data-say="The activation function landscape keeps evolving. Mish, Hard Swish for mobile, GLU for language models. But the fundamentals remain: break linearity, preserve gradients, match your output range."
+     data-ask="Will there be one activation function to rule them all?"
+     data-time="2 min">
+  <h2>The Modern Landscape</h2>
+  <div class="fn-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));max-width:900px;margin:0 auto;">
+    <div class="card" style="text-align:center;">
+      <h4>Mish (2019)</h4>
+      <div class="formula" style="font-size:0.8rem;">z &middot; tanh(ln(1 + e<sup>z</sup>))</div>
+      <p style="font-size:0.82rem;margin-top:0.3rem;">Used in YOLOv4. Smooth, no dying neurons.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>Hard Swish (2019)</h4>
+      <div class="formula" style="font-size:0.8rem;">z &middot; ReLU6(z+3) / 6</div>
+      <p style="font-size:0.82rem;margin-top:0.3rem;">MobileNetV3. Fast approximation of Swish for mobile.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>GLU (2016)</h4>
+      <div class="formula" style="font-size:0.8rem;">a &odot; &sigma;(b)</div>
+      <p style="font-size:0.82rem;margin-top:0.3rem;">Gated Linear Unit. Used in PaLM, LLaMA. Split input, gate one half.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>SwiGLU (2022)</h4>
+      <div class="formula" style="font-size:0.8rem;">Swish(Wa) &odot; Vb</div>
+      <p style="font-size:0.82rem;margin-top:0.3rem;">Combines Swish + GLU. Used in LLaMA, PaLM 2.</p>
+    </div>
+  </div>
+  <div class="card mt-1" style="text-align:center;background:#f0f4ff;max-width:700px;margin:0.75rem auto 0;">
+    <p><strong>Rule of thumb:</strong> Start with ReLU. Switch to GELU for Transformers, LeakyReLU for Discriminators, Tanh for bounded outputs.</p>
+  </div>
+</div>
+
+<!-- 19 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Let's recap the key takeaways."
+     data-ask="What's the one thing you'll remember about activation functions?"
+     data-time="2 min">
+  <h2>Summary</h2>
+  <div class="fn-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));max-width:900px;margin:0 auto;">
+    <div class="card accent-blue" style="text-align:center;">
+      <h4>They Break Linearity</h4>
+      <p style="font-size:0.85rem;">Without activation, 100 layers = 1 layer. Activation functions are why deep learning is <em>deep</em>.</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <h4>ReLU Changed Everything</h4>
+      <p style="font-size:0.85rem;">Gradient = 1 for positive inputs. Enabled networks deeper than 5 layers for the first time.</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <h4>Match Output to Task</h4>
+      <p style="font-size:0.85rem;">Sigmoid for probability, Tanh for [&minus;1,1], Softmax for classes, linear for regression.</p>
+    </div>
+    <div class="card accent-red" style="text-align:center;">
+      <h4>Gradient Health = Everything</h4>
+      <p style="font-size:0.85rem;">Vanishing gradients killed Sigmoid in hidden layers. Always check: can gradients flow?</p>
+    </div>
+  </div>
+</div>
+
+<!-- 20 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Test your understanding with these questions."
+     data-ask=""
+     data-time="5 min">
+  <h2>Knowledge Check</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:800px;margin:0 auto;">
+    <div class="revealable card">
+      <h4>Q1: Why can't you build a deep network with only linear layers?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>Stacking linear layers collapses into a single linear transformation. y = W2(W1x + b1) + b2 = (W2W1)x + (W2b1 + b2) = <strong>Ax + c</strong>. No matter how many layers, the result is always a straight line. Activation functions break this linearity.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q2: Why does DCGAN use LeakyReLU in D but ReLU in G?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>D needs to detect subtle features in both real and fake images. Dead neurons (from ReLU) mean missed features. LeakyReLU(0.2) keeps all neurons alive. G's input is random noise (always varied), so dying neurons are less likely.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q3: A 10-layer network with Sigmoid can't learn. Adding one change fixes it. What?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>Replace Sigmoid with <strong>ReLU</strong> in hidden layers. Sigmoid's max gradient is 0.25, so after 10 layers: 0.25<sup>10</sup> = 9.5&times;10<sup>-7</sup>. ReLU passes gradient = 1.0 unchanged, enabling learning through any depth.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q4: Why does the Generator output use Tanh instead of Sigmoid?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>Training images are normalized to [&minus;1, +1]. The Generator's output must match this range. Tanh outputs [&minus;1, +1]. Sigmoid outputs [0, 1] &mdash; wrong range, training won't converge properly.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q5: GELU and Swish both have a small dip below zero. Why is this useful?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>The dip acts as <strong>implicit regularization</strong>. Small negative inputs get slightly negative outputs instead of exactly zero (ReLU) or a scaled negative (LeakyReLU). This provides a smoother, more nuanced gate that helps networks generalize better.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .deck -->
+
+<script src="../../v1/unit-1/deck.js"></script>
+</body>
+</html>

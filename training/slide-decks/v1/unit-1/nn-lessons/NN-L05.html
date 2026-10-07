@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L05 — 🔁 Make the Neuron Learn Repeatedly</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L05">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L04.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L04</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L05 / 14</a><a href="NN-L06.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L06 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L05</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Lesson 4 made one controlled update. This lesson turns that update into learning."
+     data-ask="Why is one good step usually not enough?"
+     data-time="1 min">
+  <div class="lesson-number">05 &bull; NEURAL NETWORKS</div>
+  <h1>Make the Neuron Learn Repeatedly</h1>
+  <p class="subtitle">One update becomes a training loop</p>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;">
+    <div style="text-align:center;font-family:'JetBrains Mono',monospace;">
+      <div style="font-size:1.6rem;font-weight:900;color:#8b90a5;">1</div>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;font-weight:700;">&rarr;</div>
+    <div style="text-align:center;font-family:'JetBrains Mono',monospace;">
+      <div style="font-size:1.6rem;font-weight:900;color:#3b6df0;">2</div>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;font-weight:700;">&rarr;</div>
+    <div style="text-align:center;font-family:'JetBrains Mono',monospace;">
+      <div style="font-size:1.6rem;font-weight:900;color:#3b6df0;">3</div>
+    </div>
+    <div style="font-size:1.8rem;color:#3b6df0;font-weight:900;">&#8635;</div>
+  </div>
+</div>
+
+<!-- 2 ─── LEARNING OUTCOMES ─── -->
+<div class="slide"
+     data-say="Rebuild the course sequence from prediction to repetition."
+     data-ask="Which earlier four ingredients must repeat?"
+     data-time="1 min">
+  <h2>The fifth ingredient is repetition</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L01</div>
+      <strong>Predict</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L02</div>
+      <strong>Measure</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L03</div>
+      <strong>Direction</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">L04</div>
+      <strong>Step size</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:120px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">L05 &bull; NOW</div>
+      <strong>Repeat</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── ONE GOOD UPDATE IS ONLY THE BEGINNING ─── -->
+<div class="slide"
+     data-say="The first update improves the model but does not finish the job."
+     data-ask="What should happen after checking the new loss?"
+     data-time="2 min">
+  <h2>One good update is only the beginning</h2>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">START</div>
+      <strong style="font-size:1.3rem;">w = 1.0000</strong>
+      <div style="color:#ef4444;font-weight:700;margin-top:0.5rem;">loss = 4.6667</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;color:#4a5068;">one update &rarr;</div>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">BETTER</div>
+      <strong style="font-size:1.3rem;">w = 1.9329</strong>
+      <div style="color:#10b981;font-weight:700;margin-top:0.5rem;">loss = 0.0210</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:2rem;">
+    <span style="font-size:1rem;font-weight:700;color:#ef4444;background:#fef2f2;padding:0.5rem 1.25rem;border-radius:8px;">not finished</span>
+  </div>
+  <p style="text-align:center;margin-top:1.25rem;color:#1a1d2e;">The next improvement needs a fresh gradient at the new weight.</p>
+</div>
+
+<!-- 5 ─── TRAINING LOOP RULE ─── -->
+<div class="slide"
+     data-say="Read the loop clockwise. Every arrow means use the newly updated weight."
+     data-ask="Where does the loop begin again?"
+     data-time="2 min">
+  <h2>Calculate, update, and begin again</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:160px;padding:1.25rem;">
+      <div style="font-size:1.4rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <strong>Calculate loss</strong>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">&rarr;</div>
+    <div class="card accent-purple" style="text-align:center;min-width:160px;padding:1.25rem;">
+      <div style="font-size:1.4rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">02</div>
+      <strong>Calculate gradient</strong>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;min-width:160px;padding:1.25rem;">
+      <div style="font-size:1.4rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">03</div>
+      <strong>Update weight</strong>
+    </div>
+    <div style="font-size:2.5rem;color:#3b6df0;font-weight:900;margin-left:0.5rem;">&#8635;</div>
+  </div>
+  <p style="text-align:center;margin-top:2rem;font-weight:700;color:#3b6df0;">Repeat with the new weight.</p>
+</div>
+
+<!-- 6 ─── ONE ITERATION ─── -->
+<div class="slide"
+     data-say="Step and iteration mean one complete pass through the update cycle."
+     data-ask="Name two sensible reasons to stop training."
+     data-time="2 min">
+  <h2>Each trip around the loop is one training step</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">ONE STEP &bull; ONE ITERATION</div>
+      <div class="formula" style="font-size:1.2rem;">loss &rarr; gradient &rarr; update</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="card accent-green" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STOP WHEN</div>
+        <strong>loss is small enough</strong>
+      </div>
+      <div class="card accent-purple" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">OR WHEN</div>
+        <strong>the planned steps are complete</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── RECALCULATE ─── -->
+<div class="slide"
+     data-say="A gradient belongs to one location on the loss curve. Moving invalidates it."
+     data-ask="Why is the old gradient no longer trustworthy?"
+     data-time="3 min">
+  <h2>A new weight lives on a new slope</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">OLD POSITION</div>
+      <strong style="font-size:1.3rem;">w = 1.0000</strong>
+      <div style="font-family:'JetBrains Mono',monospace;color:#3b6df0;margin-top:0.5rem;">gradient &asymp; &minus;9.33</div>
+      <div style="color:#8b90a5;margin-top:0.25rem;font-style:italic;">steep slope</div>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEW POSITION</div>
+      <strong style="font-size:1.3rem;">w = 1.9329</strong>
+      <div style="font-family:'JetBrains Mono',monospace;color:#10b981;margin-top:0.5rem;">gradient &asymp; &minus;0.62</div>
+      <div style="color:#8b90a5;margin-top:0.25rem;font-style:italic;">gentle slope</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem;padding:1rem;background:#fef2f2;border-radius:12px;max-width:520px;margin-left:auto;margin-right:auto;">
+    <strong>Old gradient + new weight = wrong update.</strong><br>
+    <span style="color:#8b90a5;">Recalculate every time.</span>
+  </div>
+</div>
+
+<!-- 8 ─── TEN-STEP ALGORITHM ─── -->
+<div class="slide"
+     data-say="Translate the program into four arithmetic responsibilities inside a repeat frame."
+     data-ask="Which value must be recalculated first on the next step?"
+     data-time="3 min">
+  <h2>The same four responsibilities repeat</h2>
+  <div style="border:2px solid #3b6df0;border-radius:16px;padding:1.5rem;max-width:640px;margin:2rem auto;">
+    <div style="font-size:0.75rem;font-weight:700;color:#3b6df0;letter-spacing:0.1em;margin-bottom:1.25rem;text-align:center;">REPEAT &times; 10</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div class="card accent-blue" style="display:flex;gap:1rem;align-items:center;">
+        <span style="font-size:1.2rem;font-weight:900;color:#3b6df0;flex-shrink:0;">01</span>
+        <strong>Measure current loss</strong>
+      </div>
+      <div class="card accent-purple" style="display:flex;gap:1rem;align-items:center;">
+        <span style="font-size:1.2rem;font-weight:900;color:#8b5cf6;flex-shrink:0;">02</span>
+        <strong>Find current gradient</strong>
+      </div>
+      <div class="card accent-green" style="display:flex;gap:1rem;align-items:center;">
+        <span style="font-size:1.2rem;font-weight:900;color:#10b981;flex-shrink:0;">03</span>
+        <strong>Update the weight</strong>
+      </div>
+      <div class="card" style="display:flex;gap:1rem;align-items:center;background:#f8f9fb;border:1.5px solid #e2e5ef;">
+        <span style="font-size:1.2rem;font-weight:900;color:#8b90a5;flex-shrink:0;">04</span>
+        <strong>Measure new loss</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── TRAINING TABLE ─── -->
+<div class="slide"
+     data-say="Trace the rapid early progress and the tiny later refinements."
+     data-ask="Between which steps does the largest improvement happen?"
+     data-time="3 min">
+  <h2>The weight settles as the loss disappears</h2>
+  <p style="text-align:center;color:#8b90a5;font-size:0.85rem;margin-bottom:0.5rem;">This pattern &mdash; loss decreasing, weights settling &mdash; is called <strong style="color:#3b6df0;">convergence</strong>.</p>
+  <table class="compare-table" style="margin-top:1.5rem;max-width:700px;margin-left:auto;margin-right:auto;">
+    <tr><th>Step</th><th>Weight</th><th>Loss</th><th>What changed?</th></tr>
+    <tr><td>0</td><td style="font-family:'JetBrains Mono',monospace;">1.0000</td><td style="color:#ef4444;font-weight:700;">4.666667</td><td style="color:#8b90a5;">starting point</td></tr>
+    <tr><td>1</td><td style="font-family:'JetBrains Mono',monospace;">1.9329</td><td style="color:#ef4444;font-weight:700;">0.021032</td><td style="color:#10b981;font-weight:600;">largest jump</td></tr>
+    <tr><td>2</td><td style="font-family:'JetBrains Mono',monospace;">1.9951</td><td style="color:#ef4444;font-weight:700;">0.000114</td><td style="color:#8b90a5;">close to minimum</td></tr>
+    <tr><td>3</td><td style="font-family:'JetBrains Mono',monospace;">1.9992</td><td style="color:#ef4444;font-weight:700;">0.000003</td><td style="color:#8b90a5;">tiny refinement</td></tr>
+    <tr class="highlight-row"><td><strong>10</strong></td><td style="font-family:'JetBrains Mono',monospace;"><strong>1.9995</strong></td><td style="color:#10b981;font-weight:700;"><strong>0.000001</strong></td><td style="color:#10b981;font-weight:600;">settled</td></tr>
+  </table>
+</div>
+
+<!-- 10 ─── TRAINING PATTERN ─── -->
+<div class="slide"
+     data-say="Connect each observed pattern to the changing gradient."
+     data-ask="Why do updates shrink near the minimum?"
+     data-time="3 min">
+  <h2>Large corrections naturally become small refinements</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem;max-width:680px;margin-left:auto;margin-right:auto;">
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">01</span>
+      <div><strong>Biggest jump at 1</strong><p style="color:#8b90a5;margin-top:0.2rem;">The gradient is largest far from the minimum.</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">02</span>
+      <div><strong>Steps get smaller</strong><p style="color:#8b90a5;margin-top:0.2rem;">The gradient shrinks as the weight nears the minimum.</p></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#10b981;flex-shrink:0;">03</span>
+      <div><strong>Weight settles near 1.9995</strong><p style="color:#8b90a5;margin-top:0.2rem;">The ideal weight is 2.0. Loss falls near zero.</p></div>
+    </div>
+    <div class="card accent-green" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1rem;font-weight:900;color:#10b981;flex-shrink:0;">04</span>
+      <div><strong>4 km predicts &asymp; 13 min</strong><p style="color:#8b90a5;margin-top:0.2rem;">Predictions match the data. The neuron learned the rule.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── APPROXIMATION ─── -->
+<div class="slide"
+     data-say="The small-change estimate reports a near-zero slope at 1.9995."
+     data-ask="Is 1.9995 a training failure?"
+     data-time="2 min">
+  <h2>The estimated gradient stops slightly early</h2>
+  <div class="two-col" style="margin-top:2.5rem;gap:3rem;align-items:center;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">TRUE MINIMUM</div>
+      <div style="font-size:2.5rem;font-weight:900;color:#3b6df0;">2.0000</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:#8b90a5;font-family:'JetBrains Mono',monospace;">difference = 0.0005</div>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">ESTIMATED STOP</div>
+      <div style="font-size:2.5rem;font-weight:900;color:#8b5cf6;">1.9995</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#1a1d2e;">The small-change estimate is close, but not exact. Lesson 6 replaces it with a derivative.</p>
+</div>
+
+<!-- 12 ─── COMPARE RATES TABLE ─── -->
+<div class="slide"
+     data-say="All three runs use the same data and ten steps; only the rate changes."
+     data-ask="Which rate best balances speed and stability here?"
+     data-time="3 min">
+  <h2>Ten steps expose speed and stability</h2>
+  <table class="compare-table" style="margin-top:1.5rem;max-width:740px;margin-left:auto;margin-right:auto;">
+    <tr><th>Learning rate</th><th>Weight after 10</th><th>Final loss</th><th>Behavior</th></tr>
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;">0.01</td>
+      <td style="font-family:'JetBrains Mono',monospace;">1.624303</td>
+      <td style="color:#3b6df0;font-weight:700;">0.658692</td>
+      <td style="color:#8b90a5;">slow</td>
+    </tr>
+    <tr class="highlight-row">
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#10b981;">0.10</td>
+      <td style="font-family:'JetBrains Mono',monospace;">1.999500</td>
+      <td style="color:#10b981;font-weight:700;">0.000001</td>
+      <td style="color:#10b981;font-weight:700;">fast + stable</td>
+    </tr>
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#ef4444;">0.30</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#ef4444;">&minus;354.868699</td>
+      <td style="color:#ef4444;font-weight:700;">594,324.59</td>
+      <td style="color:#ef4444;font-weight:700;">exploded</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 13 ─── CONVERGENCE CHART ─── -->
+<div class="slide"
+     data-say="The vertical axis is logarithmic so tiny and enormous losses fit together."
+     data-ask="Which line shows divergence most clearly?"
+     data-time="3 min">
+  <h2>Stable learning falls while divergence explodes</h2>
+  <div style="display:flex;gap:2rem;align-items:flex-start;margin-top:0.5rem;flex-wrap:wrap;">
+    <svg viewBox="0 0 520 300" style="flex:1;min-width:320px;max-width:500px;" role="img" aria-label="Loss over 10 training steps for three learning rates">
+      <!-- Background -->
+      <rect x="55" y="20" width="440" height="240" rx="6" fill="#fafbfd" stroke="#e2e5ef" stroke-width="1"/>
+      <!-- Grid lines -->
+      <line x1="55" y1="260" x2="495" y2="260" stroke="#e2e5ef" stroke-width="0.5"/>
+      <line x1="55" y1="200" x2="495" y2="200" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <line x1="55" y1="140" x2="495" y2="140" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <line x1="55" y1="80" x2="495" y2="80" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <line x1="55" y1="20" x2="495" y2="20" stroke="#e2e5ef" stroke-width="0.5" stroke-dasharray="3,3"/>
+      <!-- Y labels -->
+      <text x="48" y="264" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">~0</text>
+      <text x="48" y="204" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
+      <text x="48" y="144" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">10</text>
+      <text x="48" y="84" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">100</text>
+      <text x="48" y="24" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1K+</text>
+      <!-- X labels (steps 0-10) -->
+      <text x="55" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">0</text>
+      <text x="99" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">1</text>
+      <text x="143" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">2</text>
+      <text x="187" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">3</text>
+      <text x="231" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">4</text>
+      <text x="275" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">5</text>
+      <text x="363" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">7</text>
+      <text x="495" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b90a5">10</text>
+      <!-- Axis titles -->
+      <text x="275" y="296" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="600">training step</text>
+      <text x="15" y="140" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="600" transform="rotate(-90 15 140)">loss (log)</text>
+      <!-- η=0.10 — GOOD: drops fast to near zero -->
+      <polyline points="55,160 99,256 143,258 187,258 231,258 275,258 319,258 363,258 407,258 451,258 495,258"
+        fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="55" cy="160" r="4" fill="#10b981"/>
+      <circle cx="143" cy="258" r="4" fill="#10b981"/>
+      <!-- η=0.01 — SLOW: barely moves -->
+      <polyline points="55,160 99,165 143,170 187,175 231,180 275,185 319,190 363,196 407,201 451,206 495,211"
+        fill="none" stroke="#8b90a5" stroke-width="2.5" stroke-dasharray="6,3"/>
+      <circle cx="55" cy="160" r="4" fill="#8b90a5"/>
+      <!-- η=0.30 — EXPLODES: shoots off chart -->
+      <polyline points="55,160 99,129 143,99 187,68 231,37 255,20"
+        fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="55" cy="160" r="4" fill="none" stroke="#ef4444" stroke-width="2"/>
+      <!-- Explosion arrow -->
+      <line x1="255" y1="20" x2="275" y2="10" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="280" y="14" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">&uarr; ~594K at step 10</text>
+    </svg>
+    <!-- Legend -->
+    <div style="display:flex;flex-direction:column;gap:0.8rem;min-width:160px;">
+      <div class="card" style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.8rem;">
+        <div style="width:24px;height:3px;background:#10b981;border-radius:2px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:#10b981;">&eta; = 0.10</div>
+          <div style="font-size:0.75rem;color:#8b90a5;">Drops to ~0 in 2 steps</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.8rem;">
+        <div style="width:24px;height:3px;background:#8b90a5;border-radius:2px;border-top:1px dashed #8b90a5;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:#8b90a5;">&eta; = 0.01</div>
+          <div style="font-size:0.75rem;color:#8b90a5;">Still at 0.66 after 10 steps</div>
+        </div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.8rem;background:#fef2f2;">
+        <div style="width:24px;height:3px;background:#ef4444;border-radius:2px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:#ef4444;">&eta; = 0.30</div>
+          <div style="font-size:0.75rem;color:#ef4444;">Passes 1,600 by step 5; ~594K by step 10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13b ─── INTERACTIVE: DESCENT LAB ─── -->
+<div class="slide"
+     data-say="Now try it yourself. Drag the learning rate slider and press Run. Watch what happens with 0.01 (slow crawl), 0.10 (smooth convergence), and 0.30 (explosion). This is the training flight simulator."
+     data-ask="What learning rate produces the fastest convergence without overshooting?"
+     data-time="4 min">
+  <h2>Try It &mdash; 🎛️ Training Flight Simulator</h2>
+  <div data-lab="descent" style="margin:0.5rem 0;"></div>
+</div>
+
+<!-- 14 ─── DIVERGENCE STORY ─── -->
+<div class="slide"
+     data-say="Follow the sign flip and growing magnitude by step."
+     data-ask="What is growing: only the weight, only the loss, or both?"
+     data-time="3 min">
+  <h2>With &eta; = 0.30, every overshoot grows</h2>
+  <div style="display:flex;gap:0.75rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.65rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STEP 0</div>
+      <strong style="font-size:1.15rem;">1.00</strong>
+      <div style="font-size:0.8rem;color:#ef4444;margin-top:0.25rem;">loss 4.67</div>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;align-self:center;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.65rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STEP 1</div>
+      <strong style="font-size:1.15rem;color:#ef4444;">3.80</strong>
+      <div style="font-size:0.8rem;color:#ef4444;margin-top:0.25rem;">loss 15.10</div>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;align-self:center;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.65rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STEP 2</div>
+      <strong style="font-size:1.15rem;color:#ef4444;">&minus;1.24</strong>
+      <div style="font-size:0.8rem;color:#ef4444;margin-top:0.25rem;">loss 48.95</div>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;align-self:center;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.65rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STEP 3</div>
+      <strong style="font-size:1.15rem;color:#ef4444;">7.83</strong>
+      <div style="font-size:0.8rem;color:#ef4444;margin-top:0.25rem;">loss 158.54</div>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;align-self:center;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.65rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">STEP 4</div>
+      <strong style="font-size:1.15rem;color:#ef4444;">&minus;8.49</strong>
+      <div style="font-size:0.8rem;color:#ef4444;margin-top:0.25rem;">loss 513.80</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.25rem;padding:0.75rem 1.25rem;background:#fef2f2;border-radius:10px;display:inline-block;margin-left:auto;margin-right:auto;width:fit-content;display:flex;justify-content:center;">
+    <span style="color:#ef4444;font-weight:700;">The weight flips sides while both distance and loss grow.</span>
+  </div>
+</div>
+
+<!-- 15 ─── WHY DIVERGENCE FAILS ─── -->
+<div class="slide"
+     data-say="Each oversized landing creates a steeper gradient, which creates an even larger next jump."
+     data-ask="How could we break this feedback loop?"
+     data-time="2 min">
+  <h2>A large rate creates a feedback loop in the wrong direction</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-red" style="text-align:center;min-width:130px;">
+      <strong>overshoot</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;font-weight:700;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:130px;">
+      <strong>steeper slope</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;font-weight:700;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:130px;">
+      <strong>larger update</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#ef4444;font-weight:700;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:130px;">
+      <strong>worse overshoot</strong>
+    </div>
+    <div style="font-size:2rem;color:#ef4444;font-weight:900;">&#8635;</div>
+  </div>
+  <p style="text-align:center;margin-top:2rem;color:#1a1d2e;">This runaway pattern is called <strong>divergence</strong>.</p>
+</div>
+
+<!-- 16 ─── COMPLETE PROCESS ─── -->
+<div class="slide"
+     data-say="This five-part loop remains the core of larger neural networks and GANs."
+     data-ask="Which part tells us whether the update helped?"
+     data-time="3 min">
+  <h2>Every neural network trains with the same five-part pattern</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:stretch;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:120px;flex:1;">
+      <div style="font-size:1.3rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <strong>Predict</strong>
+      <p style="color:#8b90a5;">Use the current weight</p>
+    </div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;flex:1;">
+      <div style="font-size:1.3rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">02</div>
+      <strong>Measure</strong>
+      <p style="color:#8b90a5;">Calculate the loss</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;min-width:120px;flex:1;">
+      <div style="font-size:1.3rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">03</div>
+      <strong>Direction</strong>
+      <p style="color:#8b90a5;">Calculate the gradient</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:120px;flex:1;">
+      <div style="font-size:1.3rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">04</div>
+      <strong>Move</strong>
+      <p style="color:#8b90a5;">Update the weight</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:120px;flex:1;border-width:2px;">
+      <div style="font-size:1.3rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">05</div>
+      <strong>Repeat</strong>
+      <p style="color:#8b90a5;">Continue until settled</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#3b6df0;font-weight:700;">This same core loop trains deep networks — including GANs.</p>
+</div>
+
+<!-- 17 ─── KNOWLEDGE CHECK (revealable) ─── -->
+<div class="slide"
+     data-say="Pause before revealing. Require an explanation for every answer."
+     data-ask="Which answer connects slope, size, and stability?"
+     data-time="4 min">
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; Why recalculate the gradient each step?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The weight moved — the slope at the new position is different.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; Why do updates shrink near the minimum?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">The gradient gets smaller as the curve flattens near the bottom.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; What does η = 0.01 do in 10 steps?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Barely moves — loss still at 0.66. Too slow.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; Why does η = 0.30 diverge?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Each overshoot lands on a steeper slope, making the next step even bigger.</p></div>
+    </div>
+  </div>
+</div>
+<div class="slide"
+     data-say="Summarize training as repeated correction guided by fresh gradients."
+     data-ask="Explain why the first step is usually the largest."
+     data-time="2 min">
+  <h2>Learning is repeated correction</h2>
+  <div style="max-width:640px;margin:2rem auto;">
+    <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:0.9rem;">
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:900;flex-shrink:0;">&#10003;</span>
+        <span>Training repeats loss, gradient, and update calculations.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:900;flex-shrink:0;">&#10003;</span>
+        <span>The gradient must be refreshed at every new weight.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:900;flex-shrink:0;">&#10003;</span>
+        <span>Updates shrink as the model approaches the minimum.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:900;flex-shrink:0;">&#10003;</span>
+        <span>A useful learning rate converges; an oversized one diverges.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#10b981;font-weight:900;flex-shrink:0;">&#10003;</span>
+        <strong>After ten stable steps, the neuron predicts 4 km in about 13 minutes.</strong>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- 19 ─── BRIDGE TO L06 ─── -->
+<div class="slide cover"
+     data-say="Lesson 6 replaces the small-change estimate with the exact chain-rule derivative."
+     data-ask="What would improve if the gradient were exact?"
+     data-time="1 min">
+  <h2>Approximation worked &mdash; now make the gradient exact</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;max-width:600px;margin-left:auto;margin-right:auto;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NOW</div>
+      <strong style="font-size:1.1rem;">Estimated gradient</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">small-change measurement</p>
+    </div>
+    <div style="text-align:center;font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEXT</div>
+      <strong style="font-size:1.1rem;">Exact gradient</strong>
+      <p style="color:#8b90a5;margin-top:0.5rem;">chain rule derivative</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;font-style:italic;color:#1a1d2e;font-size:1.05rem;">Can calculus give us the slope directly?</p>
+  <div style="text-align:center;margin-top:1rem;">
+    <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;color:#3b6df0;">NEXT &bull; LESSON 06</span>
+  </div>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L06.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L06 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="labs.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

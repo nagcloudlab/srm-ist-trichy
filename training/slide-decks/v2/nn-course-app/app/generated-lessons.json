@@ -1,0 +1,6607 @@
+[
+  {
+    "number": "05",
+    "title": "Make the Neuron Learn Repeatedly",
+    "slides": [
+      {
+        "title": "Make the Neuron Learn Repeatedly",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Lesson 1",
+              "Lesson 2",
+              "Lesson 3",
+              "Lesson 4",
+              "Lesson 5"
+            ],
+            "rows": [
+              [
+                "Predict",
+                "Measure",
+                "Direction",
+                "Step size",
+                "Repeat"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "One update improved the weight. But one step isn't enough. We need to do it over and over."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "The training loop",
+        "section": "The training loop",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\\text{calculate loss} \\rightarrow \\text{calculate gradient} \\rightarrow \\text{update weight} \\rightarrow \\text{repeat}"
+          },
+          {
+            "type": "text",
+            "text": "Each time through this loop is one step (or iteration). We keep going until the loss is small enough or we've done enough steps."
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "Why must we recalculate the gradient?",
+        "section": "Why must we recalculate the gradient?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The gradient describes the slope at the current weight. After we move the weight, we're at a new position on the loss curve. The slope there is different."
+          },
+          {
+            "type": "text",
+            "text": "Old gradient at old weight \u2192 useless after the weight changes."
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "Train for 10 steps",
+        "section": "Train for 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "distances \u2190 [1, 2, 3]",
+              "actual times \u2190 [7, 9, 11]",
+              "Define operation: def calculate_loss(weight, bias)",
+              "Output: sum(",
+              "(weight * x + bias - y) ** 2",
+              "Repeat: for x, y in zip(distances, actual_times)"
+            ]
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "Train for 10 steps",
+        "section": "Train for 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              ") / len(distances)",
+              "weight \u2190 1.0",
+              "bias \u2190 5.0",
+              "learning rate \u2190 0.1",
+              "small change \u2190 0.001",
+              "Repeat: for step in range(1, 11)"
+            ]
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Train for 10 steps",
+        "section": "Train for 10 steps",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "current loss \u2190 calculate_loss(weight, bias)",
+              "gradient \u2190 (calculate_loss(weight + small_change, bias) - current_loss) / small_change",
+              "weight \u2190 weight - learning_rate * gradient",
+              "new loss \u2190 calculate_loss(weight, bias)"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Output:"
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Train for 10 steps",
+        "section": "Train for 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Step | Weight  | Loss",
+              "0 | 1.0000 | 4.666667",
+              "1 | 1.9329 | 0.021032",
+              "2 | 1.9951 | 0.000114",
+              "3 | 1.9992 | 0.000003",
+              "4 | 1.9995 | 0.000001"
+            ]
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Train for 10 steps",
+        "section": "Train for 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "5 | 1.9995 | 0.000001",
+              "6 | 1.9995 | 0.000001",
+              "7 | 1.9995 | 0.000001",
+              "8 | 1.9995 | 0.000001",
+              "9 | 1.9995 | 0.000001",
+              "10 | 1.9995 | 0.000001"
+            ]
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Train for 10 steps",
+        "section": "Train for 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Final prediction for 4 km: 12.998 minutes"
+            ]
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Read the pattern",
+        "section": "Read the pattern",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Observation",
+              "Why?"
+            ],
+            "rows": [
+              [
+                "Biggest jump at step 1",
+                "Gradient is largest far from the minimum"
+              ],
+              [
+                "Steps get smaller",
+                "Gradient shrinks as weight approaches the minimum"
+              ],
+              [
+                "Weight settles near 1.9995",
+                "Very close to the ideal 2.0"
+              ],
+              [
+                "Loss drops to nearly 0",
+                "Predictions match the data"
+              ],
+              [
+                "Prediction for 4 km \u2248 13",
+                "The neuron learned the correct rule"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The neuron started knowing nothing (w = 1). After 10 steps, it discovered w \u2248 2 on its own."
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Why 1.9995 and not exactly 2.0?",
+        "section": "Why 1.9995 and not exactly 2.0?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We estimated the gradient using a small_change = 0.001. That estimate is close but not exact. It reports zero slope near 1.9995 instead of exactly at 2.0."
+          },
+          {
+            "type": "text",
+            "text": "In Lesson 6, we'll replace this estimate with an exact derivative."
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Compare learning rates over 10 steps",
+        "section": "Compare learning rates over 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Repeat: for learning_rate in [0.01, 0.10, 0.30]",
+              "weight \u2190 1.0",
+              "Repeat: for step in range(1, 11)",
+              "current loss \u2190 calculate_loss(weight, bias)",
+              "gradient \u2190 (calculate_loss(weight + small_change, bias) - current_loss) / small_change",
+              "weight \u2190 weight - learning_rate * gradient"
+            ]
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Compare learning rates over 10 steps",
+        "section": "Compare learning rates over 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "final loss \u2190 calculate_loss(weight, bias)"
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Compare learning rates over 10 steps",
+        "section": "Compare learning rates over 10 steps",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Rate: 0.01, Final weight: 1.624303, Final loss: 0.658692",
+              "Rate: 0.10, Final weight: 1.999500, Final loss: 0.000001",
+              "Rate: 0.30, Final weight: -354.868699, Final loss: 594324.586530"
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Compare learning rates over 10 steps",
+        "section": "Compare learning rates over 10 steps",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Learning rate",
+              "After 10 steps",
+              "Behaviour"
+            ],
+            "rows": [
+              [
+                "0.01",
+                "weight = 1.62, loss = 0.66",
+                "Slow \u2014 hasn't reached 2.0 yet"
+              ],
+              [
+                "0.10",
+                "weight = 2.00, loss \u2248 0",
+                "Good \u2014 fast and stable"
+              ],
+              [
+                "0.30",
+                "weight = -355, loss = 594,325",
+                "Exploded \u2014 completely diverged"
+              ]
+            ]
+          },
+          {
+            "type": "callout",
+            "text": "What happened with 0.30?"
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Compare learning rates over 10 steps",
+        "section": "Compare learning rates over 10 steps",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Each overshoot is bigger than the last. The weight bounces wildly and the loss grows exponentially. This is called divergence."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Step 0:  weight =   1.00    loss =     4.67",
+              "Step 1:  weight =   3.80    loss =    15.10",
+              "Step 2:  weight =  -1.24    loss =    48.95",
+              "Step 3:  weight =   7.83    loss =   158.54",
+              "Step 4:  weight =  -8.49    loss =   513.80",
+              "...keeps getting worse"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "The complete training process",
+        "section": "The complete training process",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We now have a working learning system with 5 parts:"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Part",
+              "What it does"
+            ],
+            "rows": [
+              [
+                "1",
+                "Make predictions using current weight"
+              ],
+              [
+                "2",
+                "Measure the loss"
+              ],
+              [
+                "3",
+                "Calculate the gradient"
+              ],
+              [
+                "4",
+                "Update the weight"
+              ],
+              [
+                "5",
+                "Repeat until loss is small enough"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "The complete training process",
+        "section": "The complete training process",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This is the same core pattern used in every neural network \u2014 including GANs."
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "Why must the gradient be recalculated after every weight update?",
+              "Why do the weight updates get smaller near the minimum?",
+              "What happens with learning rate 0.01 after 10 steps?",
+              "Why does learning rate 0.30 diverge?"
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Our gradient estimate uses a small_change trick, which is approximate. Can we calculate the exact gradient using calculus? Yes \u2014 using the chain rule. That gives us the exact slope without any estimation."
+          }
+        ],
+        "id": "generated-21"
+      }
+    ]
+  },
+  {
+    "number": "06",
+    "title": "Calculate the Gradient Directly",
+    "slides": [
+      {
+        "title": "Calculate the Gradient Directly",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L1",
+              "L2",
+              "L3",
+              "L4",
+              "L5",
+              "L6"
+            ],
+            "rows": [
+              [
+                "Predict",
+                "Loss",
+                "Direction",
+                "Step size",
+                "Repeat",
+                "Exact gradient"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Until now we estimated the gradient by nudging the weight and watching the loss change. That's approximate. A derivative gives the exact slope."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "The problem with estimation",
+        "section": "The problem with estimation",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Our old method:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "gradient \u2248 (loss_at(w + 0.001) - loss_at(w)) / 0.001"
+            ]
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "The problem with estimation",
+        "section": "The problem with estimation",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "Requires choosing a small_change value",
+              "Result depends on how small we make it",
+              "Settled at w = 1.9995 instead of exactly 2.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Can we get the exact slope without any small_change? Yes \u2014 using derivatives and the chain rule."
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "The chain: weight \u2192 prediction \u2192 error \u2192 loss",
+        "section": "The chain: weight \u2192 prediction \u2192 error \u2192 loss",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The weight doesn't affect the loss directly. It goes through a chain:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "weight w",
+              "\u2192 affects prediction: \u0177 = wx + b",
+              "\u2192 affects error: e = \u0177 - y",
+              "\u2192 affects squared error: e\u00b2",
+              "\u2192 affects loss: average of all e\u00b2"
+            ]
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "The chain: weight \u2192 prediction \u2192 error \u2192 loss",
+        "section": "The chain: weight \u2192 prediction \u2192 error \u2192 loss",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The chain rule says: multiply the derivatives along this path."
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Derive it step by step (one example)",
+        "section": "Derive it step by step (one example)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Take one example: x = 2, y = 9, w = 1, b = 5"
+          },
+          {
+            "type": "text",
+            "text": "Step 1: Prediction"
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Derive it step by step (one example)",
+        "section": "Derive it step by step (one example)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\\hat{y} = 1(2) + 5 = 7"
+          },
+          {
+            "type": "text",
+            "text": "Step 2: Error"
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Derive it step by step (one example)",
+        "section": "Derive it step by step (one example)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "e = 7 - 9 = -2"
+          },
+          {
+            "type": "text",
+            "text": "Step 3: Two connected effects"
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Derive it step by step (one example)",
+        "section": "Derive it step by step (one example)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Connection",
+              "Derivative",
+              "Value"
+            ],
+            "rows": [
+              [
+                "Weight \u2192 prediction",
+                "d\u0177/dw = x",
+                "2"
+              ],
+              [
+                "Prediction \u2192 squared error",
+                "d(e\u00b2)/d\u0177 = 2e",
+                "-4"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Step 4: Chain rule \u2014 multiply them"
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Derive it step by step (one example)",
+        "section": "Derive it step by step (one example)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\\frac{d(e^2)}{dw} = 2e \\times x = 2(-2)(2) = -8"
+          },
+          {
+            "type": "text",
+            "text": "This is one example's gradient contribution."
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Intuition",
+        "section": "Intuition",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The gradient contribution 2ex combines two things:"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Part",
+              "Question it answers"
+            ],
+            "rows": [
+              [
+                "e (error)",
+                "How wrong is the prediction? In which direction?"
+              ],
+              [
+                "x (input)",
+                "How strongly does the weight influence this prediction?"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Intuition",
+        "section": "Intuition",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Multiplying them = how much this example wants the weight to change."
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Average across all examples",
+        "section": "Average across all examples",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "MSE averages squared errors, so the gradient averages the contributions:"
+          },
+          {
+            "type": "text",
+            "text": "\\frac{\\partial L}{\\partial w} = \\frac{1}{n} \\sum_{i=1}^{n} 2(\\hat{y}_i - y_i) \\cdot x_i"
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Average across all examples",
+        "section": "Average across all examples",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "At w = 1, b = 5:"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Input x",
+              "Actual y",
+              "Prediction \u0177",
+              "Error e",
+              "Contribution 2ex"
+            ],
+            "rows": [
+              [
+                "1",
+                "7",
+                "6",
+                "-1",
+                "-2"
+              ],
+              [
+                "2",
+                "9",
+                "7",
+                "-2",
+                "-8"
+              ],
+              [
+                "3",
+                "11",
+                "8",
+                "-3",
+                "-18"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Average across all examples",
+        "section": "Average across all examples",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "gradient = \\frac{-2 + (-8) + (-18)}{3} = \\frac{-28}{3} = -9.3333..."
+          },
+          {
+            "type": "text",
+            "text": "Our earlier estimate was -9.2867. Close, but the exact value is -9.3333."
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Train with exact gradients",
+        "section": "Train with exact gradients",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "distances \u2190 [1, 2, 3]",
+              "actual times \u2190 [7, 9, 11]",
+              "weight \u2190 1.0",
+              "bias \u2190 5.0",
+              "learning rate \u2190 0.1",
+              "Repeat: for step in range(1, 11)"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Train with exact gradients",
+        "section": "Train with exact gradients",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "contributions \u2190 []",
+              "Repeat: for x, y in zip(distances, actual_times)",
+              "prediction \u2190 weight * x + bias",
+              "error \u2190 prediction - y",
+              "contributions.append(2 * error * x)",
+              "gradient \u2190 sum(contributions) / len(distances)"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Train with exact gradients",
+        "section": "Train with exact gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "weight \u2190 weight - learning_rate * gradient",
+              "loss \u2190 sum(",
+              "(weight * x + bias - y) ** 2",
+              "Repeat: for x, y in zip(distances, actual_times)",
+              ") / len(distances)"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Output:"
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Train with exact gradients",
+        "section": "Train with exact gradients",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Step  1: gradient= -9.333333, weight=1.933333, loss=0.02074074",
+              "Step  2: gradient= -0.622222, weight=1.995556, loss=0.00009218",
+              "Step  3: gradient= -0.041481, weight=1.999704, loss=0.00000041",
+              "Step  4: gradient= -0.002765, weight=1.999980, loss=0.00000000",
+              "Step  5: gradient= -0.000184, weight=1.999999, loss=0.00000000",
+              "Step  6: gradient= -0.000012, weight=2.000000, loss=0.00000000"
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Train with exact gradients",
+        "section": "Train with exact gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Step  7: gradient= -0.000001, weight=2.000000, loss=0.00000000",
+              "Step  8: gradient=  0.000000, weight=2.000000, loss=0.00000000",
+              "Step  9: gradient=  0.000000, weight=2.000000, loss=0.00000000",
+              "Step 10: gradient=  0.000000, weight=2.000000, loss=0.00000000"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The weight reaches exactly 2.0 \u2014 not 1.9995. No small_change needed."
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Estimated vs Exact",
+        "section": "Estimated vs Exact",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "",
+              "Estimated gradient",
+              "Exact gradient"
+            ],
+            "rows": [
+              [
+                "Method",
+                "Nudge w, measure loss change",
+                "Chain rule formula"
+              ],
+              [
+                "Needs small_change?",
+                "Yes",
+                "No"
+              ],
+              [
+                "Result at w=1",
+                "-9.2867",
+                "-9.3333"
+              ],
+              [
+                "Final weight",
+                "1.9995",
+                "2.0000"
+              ],
+              [
+                "Speed",
+                "Slower (2 loss calculations)",
+                "Faster (1 formula)"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "The formula to remember",
+        "section": "The formula to remember",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "For one example: \\text{gradient contribution} = 2 \\cdot error \\cdot input = 2(\\hat{y} - y) \\cdot x"
+          },
+          {
+            "type": "text",
+            "text": "For the full dataset: \\frac{\\partial L}{\\partial w} = \\frac{1}{n} \\sum 2(\\hat{y}_i - y_i) \\cdot x_i"
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "What does d\u0177/dw = x mean in plain language?",
+              "Why do we multiply error by input?",
+              "Why do we average the contributions?",
+              "What advantage does the exact derivative have over the estimate?"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We learned the weight, but the bias was fixed at 5. What if we don't know the bias either? We need a separate gradient for the bias and must update both parameters together."
+          }
+        ],
+        "id": "generated-25"
+      }
+    ]
+  },
+  {
+    "number": "07",
+    "title": "Learn Both Weight and Bias Together",
+    "slides": [
+      {
+        "title": "Learn Both Weight and Bias Together",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Phase 1 finale",
+        "section": "Phase 1 finale",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L1",
+              "L2",
+              "L3",
+              "L4",
+              "L5",
+              "L6",
+              "L7"
+            ],
+            "rows": [
+              [
+                "Predict",
+                "Loss",
+                "Direction",
+                "Step size",
+                "Repeat",
+                "Exact gradient",
+                "Both params"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Until now, we fixed the bias at 5 and only trained the weight. In a real problem, we don't know either value. The neuron must learn both."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "Weight and bias affect predictions differently",
+        "section": "Weight and bias affect predictions differently",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\\hat{y} = wx + b"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Change",
+              "Effect on prediction"
+            ],
+            "rows": [
+              [
+                "Increase w by 1",
+                "Prediction changes by x (depends on input)"
+              ],
+              [
+                "Increase b by 1",
+                "Prediction changes by 1 (same for every input)"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "Weight and bias affect predictions differently",
+        "section": "Weight and bias affect predictions differently",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This means they need different gradients."
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "Two gradients",
+        "section": "Two gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Parameter",
+              "Gradient formula",
+              "Why?"
+            ],
+            "rows": [
+              [
+                "Weight",
+                "dL/dw = (1/n) Sigma 2e*x",
+                "Weight is multiplied by x, so x appears"
+              ],
+              [
+                "Bias",
+                "dL/db = (1/n) Sigma 2e",
+                "Bias is added directly, so no x"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The only difference: the weight gradient has x, the bias gradient doesn't."
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "Two gradients",
+        "section": "Two gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "callout",
+            "text": "Why no x in the bias gradient?"
+          },
+          {
+            "type": "text",
+            "text": "\\frac{\\partial \\hat{y}}{\\partial w} = x \\quad \\text{(weight's effect depends on input)}"
+          },
+          {
+            "type": "text",
+            "text": "\\frac{\\partial \\hat{y}}{\\partial b} = 1 \\quad \\text{(bias shifts every prediction equally)}"
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Work through it",
+        "section": "Work through it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Start with both wrong: w = 1, b = 0"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "x",
+              "y",
+              "prediction = 1*x + 0",
+              "error e",
+              "Weight: 2ex",
+              "Bias: 2e"
+            ],
+            "rows": [
+              [
+                "1",
+                "7",
+                "1",
+                "-6",
+                "-12",
+                "-12"
+              ],
+              [
+                "2",
+                "9",
+                "2",
+                "-7",
+                "-28",
+                "-14"
+              ],
+              [
+                "3",
+                "11",
+                "3",
+                "-8",
+                "-48",
+                "-16"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Work through it",
+        "section": "Work through it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Weight gradient:"
+          },
+          {
+            "type": "text",
+            "text": "\\frac{-12 + (-28) + (-48)}{3} = \\frac{-88}{3} = -29.33"
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Work through it",
+        "section": "Work through it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Bias gradient:"
+          },
+          {
+            "type": "text",
+            "text": "\\frac{-12 + (-14) + (-16)}{3} = \\frac{-42}{3} = -14"
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Work through it",
+        "section": "Work through it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Update with learning rate 0.1:"
+          },
+          {
+            "type": "text",
+            "text": "w_{new} = 1 - 0.1(-29.33) = 1 + 2.933 = 3.933"
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Work through it",
+        "section": "Work through it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "b_{new} = 0 - 0.1(-14) = 0 + 1.4 = 1.4"
+          },
+          {
+            "type": "text",
+            "text": "The weight overshoots past 2 \u2014 that's okay. Both parameters adjust together over many steps."
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "The critical rule: calculate both, THEN update both",
+        "section": "The critical rule: calculate both, THEN update both",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "1. Calculate ALL predictions using current w and b",
+              "2. Calculate weight gradient",
+              "3. Calculate bias gradient",
+              "4. THEN update w",
+              "5. THEN update b"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Why? Both gradients must describe the same point. If you update w first, the bias gradient would be calculated at a different weight \u2014 mixing old and new parameters."
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "The critical rule: calculate both, THEN update both",
+        "section": "The critical rule: calculate both, THEN update both",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This is called a simultaneous update."
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Train both parameters",
+        "section": "Train both parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "distances \u2190 [1, 2, 3]",
+              "actual times \u2190 [7, 9, 11]",
+              "weight \u2190 1.0",
+              "bias \u2190 0.0",
+              "learning rate \u2190 0.1",
+              "n \u2190 len(distances)"
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Train both parameters",
+        "section": "Train both parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Repeat: for epoch in range(1, 1001)",
+              "weight gradient \u2190 0.0",
+              "bias gradient \u2190 0.0",
+              "Repeat: for x, y in zip(distances, actual_times)",
+              "prediction \u2190 weight * x + bias",
+              "error \u2190 prediction - y"
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Train both parameters",
+        "section": "Train both parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "weight_gradient += 2 * error * x",
+              "bias_gradient += 2 * error",
+              "weight_gradient /= n",
+              "bias_gradient /= n",
+              "weight -= learning_rate * weight_gradient",
+              "bias -= learning_rate * bias_gradient"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Train both parameters",
+        "section": "Train both parameters",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Check: if epoch in [1, 10, 100, 1000]",
+              "loss \u2190 sum(",
+              "(weight * x + bias - y) ** 2",
+              "Repeat: for x, y in zip(distances, actual_times)",
+              ") / n"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Output:"
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Train both parameters",
+        "section": "Train both parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch    1: w=3.9333, b=1.4000, loss=2.562963",
+              "Epoch   10: w=3.3177, b=2.0045, loss=1.287240",
+              "Epoch  100: w=2.1475, b=4.6647, loss=0.016124",
+              "Epoch 1000: w=2.0000, b=5.0000, loss=0.000000"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Read the training story",
+        "section": "Read the training story",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Epoch",
+              "Weight",
+              "Bias",
+              "Loss",
+              "What's happening?"
+            ],
+            "rows": [
+              [
+                "0",
+                "1.00",
+                "0.00",
+                "--",
+                "Both wrong"
+              ],
+              [
+                "1",
+                "3.93",
+                "1.40",
+                "2.56",
+                "Weight overshoots, bias starts climbing"
+              ],
+              [
+                "10",
+                "3.32",
+                "2.00",
+                "1.29",
+                "Weight coming back, bias still climbing"
+              ],
+              [
+                "100",
+                "2.15",
+                "4.66",
+                "0.02",
+                "Getting close"
+              ],
+              [
+                "1000",
+                "2.00",
+                "5.00",
+                "0.00",
+                "Learned the exact rule"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The neuron discovered y = 2x + 5 from data alone. We never told it the answer."
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Why the weight temporarily overshoots",
+        "section": "Why the weight temporarily overshoots",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Early in training, both parameters are wrong. They compensate for each other:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Weight too high? Bias adjusts down to offset",
+              "Bias too low? Weight adjusts to compensate"
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Why the weight temporarily overshoots",
+        "section": "Why the weight temporarily overshoots",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Individual parameters don't need to move directly to their final values. What matters is that the combined loss decreases."
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Phase 1 Complete!",
+        "section": "Phase 1 Complete!",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "You now understand the full learning system:"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Step",
+              "What you learned",
+              "Formula"
+            ],
+            "rows": [
+              [
+                "1",
+                "Prediction",
+                "y = wx + b"
+              ],
+              [
+                "2",
+                "Error measurement",
+                "MSE = (1/n) Sigma(y_hat - y)^2"
+              ],
+              [
+                "3",
+                "Direction",
+                "Gradient sign"
+              ],
+              [
+                "4",
+                "Step size",
+                "w = w - eta * gradient"
+              ],
+              [
+                "5",
+                "Repetition",
+                "Training loop"
+              ],
+              [
+                "6",
+                "Exact gradient",
+                "Chain rule: 2ex"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Phase 1 Complete!",
+        "section": "Phase 1 Complete!",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Step",
+              "What you learned",
+              "Formula"
+            ],
+            "rows": [
+              [
+                "7",
+                "Multiple parameters",
+                "Separate gradients, simultaneous update"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "This is the same process used in every neural network, from simple neurons to deep GANs."
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "Why does the weight gradient contain x but the bias gradient doesn't?",
+              "Why must both gradients be calculated before either parameter is updated?",
+              "Can individual parameters temporarily move away from their final values?",
+              "What rule did the neuron learn after 1000 epochs?"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "What's next: Phase 2",
+        "section": "What's next: Phase 2",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "One neuron with one input can only learn a straight line. Real data has many inputs, curves, and complex patterns."
+          },
+          {
+            "type": "text",
+            "text": "Phase 2 starts with: A Neuron with Multiple Inputs -- what changes when we have more than one feature?"
+          }
+        ],
+        "id": "generated-25"
+      }
+    ]
+  },
+  {
+    "number": "08",
+    "title": "A Neuron with Multiple Inputs",
+    "slides": [
+      {
+        "title": "A Neuron with Multiple Inputs",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Phase 2 begins",
+        "section": "Phase 2 begins",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We're entering Deep Neural Networks. Phase 1 gave us the learning loop. Phase 2 gives us the power to handle real problems."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Phase 1 done  One input, one neuron, learning loop",
+              "Phase 2 >>>   Multiple inputs -> layers -> activations -> backprop",
+              "Phase 3       PyTorch, CNNs",
+              "Phase 4       GANs"
+            ]
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "Why multiple inputs?",
+        "section": "Why multiple inputs?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Real predictions depend on more than one thing."
+          },
+          {
+            "type": "text",
+            "text": "Delivery time depends on distance AND number of packages."
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "Why multiple inputs?",
+        "section": "Why multiple inputs?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Distance",
+              "Packages",
+              "Delivery time"
+            ],
+            "rows": [
+              [
+                "1 km",
+                "1",
+                "10 min"
+              ],
+              [
+                "2 km",
+                "1",
+                "12 min"
+              ],
+              [
+                "1 km",
+                "2",
+                "13 min"
+              ],
+              [
+                "3 km",
+                "2",
+                "17 min"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The rule: time = 2*distance + 3*packages + 5"
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "The new equation",
+        "section": "The new equation",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\\hat{y} = w_1 x_1 + w_2 x_2 + b"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Symbol",
+              "Meaning",
+              "Value"
+            ],
+            "rows": [
+              [
+                "x1",
+                "Distance",
+                "varies"
+              ],
+              [
+                "x2",
+                "Number of packages",
+                "varies"
+              ],
+              [
+                "w1",
+                "Minutes per km",
+                "2"
+              ],
+              [
+                "w2",
+                "Minutes per package",
+                "3"
+              ],
+              [
+                "b",
+                "Preparation time",
+                "5"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "The new equation",
+        "section": "The new equation",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This is still one neuron. Adding inputs gives it more incoming connections, not more neurons."
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Calculate a prediction",
+        "section": "Calculate a prediction",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "For 4 km, 2 packages:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "y hat \u2190 2(4) + 3(2) + 5"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Calculate a prediction",
+        "section": "Calculate a prediction",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Component",
+              "Calculation",
+              "Contribution"
+            ],
+            "rows": [
+              [
+                "Distance",
+                "2 x 4",
+                "8 min"
+              ],
+              [
+                "Packages",
+                "3 x 2",
+                "6 min"
+              ],
+              [
+                "Bias",
+                "--",
+                "5 min"
+              ],
+              [
+                "Total",
+                "",
+                "19 min"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Each input makes its own weighted contribution. The neuron adds them up."
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Each weight has a separate job",
+        "section": "Each weight has a separate job",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Weight",
+              "Controls"
+            ],
+            "rows": [
+              [
+                "w1 = 2",
+                "How much distance affects time"
+              ],
+              [
+                "w2 = 3",
+                "How much packages affects time"
+              ],
+              [
+                "b = 5",
+                "Fixed base time for all deliveries"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Changing w1 only affects how distance is used. Changing w2 only affects how packages are used. They're independent influences."
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "inputs \u2190 [",
+              "[1, 1],",
+              "[2, 1],",
+              "[1, 2],",
+              "[3, 2],",
+              "]"
+            ]
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w1 \u2190 2.0",
+              "w2 \u2190 3.0",
+              "bias \u2190 5.0",
+              "Repeat: for distance, packages in inputs",
+              "prediction \u2190 w1 * distance + w2 * packages + bias",
+              "f\"{w1*distance} + {w2*packages} + {bias} = {prediction} min\")"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Output:"
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Distance \u2190 1, Packages=1: 2.0 + 3.0 + 5.0 = 10.0 min",
+              "Distance \u2190 2, Packages=1: 4.0 + 3.0 + 5.0 = 12.0 min",
+              "Distance \u2190 1, Packages=2: 2.0 + 6.0 + 5.0 = 13.0 min",
+              "Distance \u2190 3, Packages=2: 6.0 + 6.0 + 5.0 = 17.0 min"
+            ]
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Each weight gets its own gradient",
+        "section": "Each weight gets its own gradient",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "From Lesson 6, we know the gradient contribution is 2 * error * input."
+          },
+          {
+            "type": "text",
+            "text": "The input is different for each weight:"
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Each weight gets its own gradient",
+        "section": "Each weight gets its own gradient",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Parameter",
+              "Gradient",
+              "Why?"
+            ],
+            "rows": [
+              [
+                "w1 (distance)",
+                "(1/n) Sigma 2e*x1",
+                "w1 is multiplied by x1"
+              ],
+              [
+                "w2 (packages)",
+                "(1/n) Sigma 2e*x2",
+                "w2 is multiplied by x2"
+              ],
+              [
+                "b (bias)",
+                "(1/n) Sigma 2e",
+                "b is added directly"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The same principle from Lesson 7: multiply error by the thing the parameter touches."
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "training data \u2190 [",
+              "(1, 1, 10),",
+              "(2, 1, 12),",
+              "(1, 2, 13),",
+              "(3, 2, 17),",
+              "]"
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w1 \u2190 0.0",
+              "w2 \u2190 0.0",
+              "bias \u2190 0.0",
+              "learning rate \u2190 0.05",
+              "n \u2190 len(training_data)",
+              "Repeat: for epoch in range(1, 5001)"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "grad w1 \u2190 0.0",
+              "grad w2 \u2190 0.0",
+              "grad b \u2190 0.0",
+              "Repeat: for distance, packages, actual in training_data",
+              "prediction \u2190 w1 * distance + w2 * packages + bias",
+              "error \u2190 prediction - actual"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "grad_w1 += 2 * error * distance",
+              "grad_w2 += 2 * error * packages",
+              "grad_b += 2 * error",
+              "grad_w1 /= n",
+              "grad_w2 /= n",
+              "grad_b /= n"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w1 -= learning_rate * grad_w1",
+              "w2 -= learning_rate * grad_w2",
+              "bias -= learning_rate * grad_b",
+              "Check: if epoch in [1, 10, 100, 1000, 5000]",
+              "loss \u2190 sum(",
+              "(w1 * d + w2 * p + bias - a) ** 2"
+            ]
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Repeat: for d, p, a in training_data",
+              ") / n"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Output:"
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Train all three parameters",
+        "section": "Train all three parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch    1: w1=2.4500, w2=2.0500, b=1.3000, loss=19.071875",
+              "Epoch   10: w1=3.2300, w2=3.2426, b=2.1808, loss=1.221104",
+              "Epoch  100: w1=2.1692, w2=3.6094, b=3.6939, loss=0.147507",
+              "Epoch 1000: w1=2.0002, w2=3.0012, b=4.9976, loss=0.000001",
+              "Epoch 5000: w1=2.0000, w2=3.0000, b=5.0000, loss=0.000000",
+              "Prediction for 4 km, 3 packages: 22.0000 min"
+            ]
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "The neuron discovered all three values",
+        "section": "The neuron discovered all three values",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Parameter",
+              "Started at",
+              "Learned",
+              "Actual"
+            ],
+            "rows": [
+              [
+                "w1 (distance)",
+                "0",
+                "2.0000",
+                "2"
+              ],
+              [
+                "w2 (packages)",
+                "0",
+                "3.0000",
+                "3"
+              ],
+              [
+                "b (bias)",
+                "0",
+                "5.0000",
+                "5"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Starting from zero knowledge, the neuron recovered the exact rule: y = 2*x1 + 3*x2 + 5"
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Compact notation: the dot product",
+        "section": "Compact notation: the dot product",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We can write inputs and weights as vectors:"
+          },
+          {
+            "type": "text",
+            "text": "\\mathbf{x} = [x_1, x_2] \\quad \\mathbf{w} = [w_1, w_2]"
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Compact notation: the dot product",
+        "section": "Compact notation: the dot product",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The neuron becomes:"
+          },
+          {
+            "type": "text",
+            "text": "\\hat{y} = \\mathbf{w} \\cdot \\mathbf{x} + b"
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Compact notation: the dot product",
+        "section": "Compact notation: the dot product",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The dot product multiplies matching pairs and adds the results:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "[2, 3] . [4, 2] = 2(4) + 3(2) = 8 + 9 = 17"
+            ]
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "Compact notation: the dot product",
+        "section": "Compact notation: the dot product",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Add bias: 17 + 5 = 22"
+          },
+          {
+            "type": "text",
+            "text": "This notation scales to any number of inputs -- 2, 100, or 10,000."
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "What has changed and what hasn't",
+        "section": "What has changed and what hasn't",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Changed",
+              "Hasn't changed"
+            ],
+            "rows": [
+              [
+                "Multiple inputs",
+                "Still one neuron"
+              ],
+              [
+                "One weight per input",
+                "Same learning loop"
+              ],
+              [
+                "Dot product notation",
+                "Same gradient descent"
+              ],
+              [
+                "More parameters to learn",
+                "Same \"calculate all, then update all\" rule"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "Does adding a second input create a second neuron?",
+              "How many weights does a neuron with 5 inputs need?",
+              "Why does w1's gradient contain x1 but not x2?",
+              "What is [1, 2] . [3, 4]?"
+            ]
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We can handle multiple inputs, but this is still a straight-line model. What happens when the pattern is curved? The neuron will fail -- and we'll need something new: activation functions."
+          }
+        ],
+        "id": "generated-29"
+      }
+    ]
+  },
+  {
+    "number": "09",
+    "title": "Why One Neuron Is Not Enough",
+    "slides": [
+      {
+        "title": "Why One Neuron Is Not Enough",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L1-L7",
+              "L8",
+              "L9"
+            ],
+            "rows": [
+              [
+                "One neuron learns",
+                "Multiple inputs",
+                "Linear limits + ReLU"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Our neuron can learn y = wx + b \u2014 a straight line. But what if the data is curved?"
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "A new dataset: y = x\u00b2",
+        "section": "A new dataset: y = x\u00b2",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Input x",
+              "Target y"
+            ],
+            "rows": [
+              [
+                "-2",
+                "4"
+              ],
+              [
+                "-1",
+                "1"
+              ],
+              [
+                "0",
+                "0"
+              ],
+              [
+                "1",
+                "1"
+              ],
+              [
+                "2",
+                "4"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "A new dataset: y = x\u00b2",
+        "section": "A new dataset: y = x\u00b2",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "y",
+              "4 |  *                 *",
+              "|",
+              "3 |",
+              "|",
+              "2 |"
+            ]
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "A new dataset: y = x\u00b2",
+        "section": "A new dataset: y = x\u00b2",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "|",
+              "1 |     *         *",
+              "|",
+              "0 |          *",
+              "+----+----+----+----+---> x",
+              "-2   -1    1    2"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "A U-shape. Can our straight-line neuron learn this?"
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 np.array([-2.0, -1.0, 0.0, 1.0, 2.0])",
+              "y \u2190 x ** 2",
+              "weight \u2190 1.0",
+              "bias \u2190 0.0",
+              "learning rate \u2190 0.1",
+              "Repeat: for epoch in range(1, 201)"
+            ]
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "predictions \u2190 weight * x + bias",
+              "errors \u2190 predictions - y",
+              "weight gradient \u2190 2 * np.mean(errors * x)",
+              "bias gradient \u2190 2 * np.mean(errors)",
+              "weight -= learning_rate * weight_gradient",
+              "bias -= learning_rate * bias_gradient"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Check: if epoch in [1, 10, 50, 200]",
+              "loss \u2190 np.mean((weight * x + bias - y) ** 2)"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Output:"
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch   1: weight=0.6000, bias=0.4000, loss=6.0800",
+              "Epoch  10: weight=0.0060, bias=1.7853, loss=2.8462",
+              "Epoch  50: weight=0.0000, bias=2.0000, loss=2.8000",
+              "Epoch 200: weight=0.0000, bias=2.0000, loss=2.8000",
+              "Actual:      [4. 1. 0. 1. 4.]",
+              "Predictions: [2. 2. 2. 2. 2.]"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The neuron settles on w = 0, b = 2. Its prediction: always 2."
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "x",
+              "Target",
+              "Prediction",
+              "Error"
+            ],
+            "rows": [
+              [
+                "-2",
+                "4",
+                "2",
+                "-2"
+              ],
+              [
+                "-1",
+                "1",
+                "2",
+                "+1"
+              ],
+              [
+                "0",
+                "0",
+                "2",
+                "+2"
+              ],
+              [
+                "1",
+                "1",
+                "2",
+                "+1"
+              ],
+              [
+                "2",
+                "4",
+                "2",
+                "-2"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "y",
+              "4 |  *                 *       <-- misses these (error = -2)",
+              "|",
+              "3 |",
+              "|",
+              "2 |--*--------*--------*----   <-- flat prediction: always 2"
+            ]
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Let the neuron try",
+        "section": "Let the neuron try",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "|",
+              "1 |     *         *            <-- close but wrong",
+              "|",
+              "0 |          *                  <-- misses this (error = +2)",
+              "+----+----+----+----+---> x",
+              "-2   -1    1    2"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Loss = 2.8. It stops here and never improves. More training doesn't help."
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Why w = 0?",
+        "section": "Why w = 0?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The data is symmetric. Tilting the line up helps the right side but hurts the left side equally. Best tilt = no tilt."
+          },
+          {
+            "type": "text",
+            "text": "And b = 2 because 2 is the average of all y values: (4+1+0+1+4)/5 = 2."
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "This is NOT a training failure",
+        "section": "This is NOT a training failure",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The optimizer did its job \u2014 it found the best possible line. But a line can't bend into a curve. This is a model capacity problem."
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Problem",
+              "Fix"
+            ],
+            "rows": [
+              [
+                "Learning rate too small",
+                "Tune the rate"
+              ],
+              [
+                "Not enough epochs",
+                "Train longer"
+              ],
+              [
+                "Model can't represent the shape",
+                "Change the model"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Stacking linear layers doesn't help",
+        "section": "Stacking linear layers doesn't help",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+----------+         +----------+",
+              "| Layer 1  |         | Layer 2  |",
+              "| h = 2x+1 |-------->| y = 3h+4 |------->  y = 6x + 7",
+              "+----------+         +----------+           STILL A LINE!"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "No matter how many linear layers you stack, they collapse into one straight line. Depth alone is useless."
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Stacking linear layers doesn't help",
+        "section": "Stacking linear layers doesn't help",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Prove it: two linear layers = one linear layer",
+              "x \u2190 4",
+              "Two separate layers",
+              "h \u2190 2 * x + 1       # layer 1",
+              "y two \u2190 3 * h + 4   # layer 2",
+              "One combined layer"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Stacking linear layers doesn't help",
+        "section": "Stacking linear layers doesn't help",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "y one \u2190 6 * x + 7   # collapsed: 3(2x+1)+4 = 6x+7"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Stacking linear layers doesn't help",
+        "section": "Stacking linear layers doesn't help",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Two layers: h=9, y=31",
+              "One layer:  y=31",
+              "Same result: True"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "ReLU(z) = max(0, z)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Input z",
+              "ReLU(z)",
+              "Rule"
+            ],
+            "rows": [
+              [
+                "-3",
+                "0",
+                "Negative \u2192 zero"
+              ],
+              [
+                "-1",
+                "0",
+                "Negative \u2192 zero"
+              ],
+              [
+                "0",
+                "0",
+                "Zero \u2192 zero"
+              ],
+              [
+                "2",
+                "2",
+                "Positive \u2192 passes through"
+              ],
+              [
+                "5",
+                "5",
+                "Positive \u2192 passes through"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "output",
+              "|",
+              "4 |                    /",
+              "|                  /",
+              "3 |                /",
+              "|              /"
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "2 |            /",
+              "|          /",
+              "1 |        /",
+              "|      /",
+              "0 |_____*",
+              "|"
+            ]
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+--+--+--+--+--+--+---> input",
+              "-3 -2 -1  0  1  2  3",
+              "<--BLOCKED--><--PASSES-->"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The bend at zero is the nonlinearity. When placed between layers, it prevents them from collapsing."
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Try it:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "inputs \u2190 [-3, -1, 0, 2, 5]",
+              "Repeat: for z in inputs",
+              "result \u2190 max(0, z)"
+            ]
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "ReLU(-3) = 0",
+              "ReLU(-1) = 0",
+              "ReLU( 0) = 0",
+              "ReLU( 2) = 2",
+              "ReLU( 5) = 5"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Meet ReLU",
+        "section": "Meet ReLU",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "WITHOUT ReLU (collapses):           WITH ReLU (bends):",
+              "+--------+      +--------+         +--------+  +------+  +--------+",
+              "|Linear 1|----->|Linear 2|         |Linear 1|->|ReLU  |->|Linear 2|",
+              "+--------+      +--------+         +--------+  +------+  +--------+",
+              "= one straight line                 = can bend!"
+            ]
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 np.array([-2.0, -1.0, 0.0, 1.0, 2.0])",
+              "h1 \u2190 np.maximum(0, x)      # ReLU(x)  \u2014 active for positive x",
+              "h2 \u2190 np.maximum(0, -x)     # ReLU(-x) \u2014 active for negative x",
+              "output \u2190 h1 + h2"
+            ]
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Input:  [-2. -1.  0.  1.  2.]",
+              "h1:     [0. 0. 0. 1. 2.]",
+              "h2:     [2. 1. 0. 0. 0.]",
+              "Output: [2. 1. 0. 1. 2.]"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The output is |x| \u2014 a V-shape. Impossible with one linear neuron."
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "x",
+              "h1 = ReLU(x)",
+              "h2 = ReLU(-x)",
+              "h1 + h2"
+            ],
+            "rows": [
+              [
+                "-2",
+                "0 (off)",
+                "2 (on)",
+                "2"
+              ],
+              [
+                "-1",
+                "0 (off)",
+                "1 (on)",
+                "1"
+              ],
+              [
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "1",
+                "1 (on)",
+                "0 (off)",
+                "1"
+              ],
+              [
+                "2",
+                "2 (on)",
+                "0 (off)",
+                "2"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Neuron 1: ReLU(x)          Neuron 2: ReLU(-x)         Combined: h1 + h2",
+              "h1                          h2                          y",
+              "2 |          /              2 |\\                        2 |\\          /",
+              "|        /                   |  \\                        |  \\      /",
+              "1 |      /                  1 |    \\                    1 |    \\  /",
+              "|    /                       |      \\                      |    \\/"
+            ]
+          }
+        ],
+        "id": "generated-29"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "0 |___*                     0 |        *___             0 |    *",
+              "+--+--+--+--> x              +--+--+--+--> x              +--+--+--+--> x",
+              "-2  0  2                     -2  0  2                     -2  0  2",
+              "handles RIGHT side          handles LEFT side           V-SHAPE!"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Each neuron handles one side. Without ReLU: x + (-x) = 0 \u2014 the shape disappears."
+          }
+        ],
+        "id": "generated-30"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Prove it: remove ReLU and the V-shape dies",
+              "x \u2190 np.array([-2.0, -1.0, 0.0, 1.0, 2.0])",
+              "WITH ReLU",
+              "h1 \u2190 np.maximum(0, x)",
+              "h2 \u2190 np.maximum(0, -x)",
+              "WITHOUT ReLU"
+            ]
+          }
+        ],
+        "id": "generated-31"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "h1 no \u2190 x",
+              "h2 no \u2190 -x"
+            ]
+          }
+        ],
+        "id": "generated-32"
+      },
+      {
+        "title": "Two ReLU neurons can make a V-shape",
+        "section": "Two ReLU neurons can make a V-shape",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "With ReLU:    [2. 1. 0. 1. 2.]",
+              "Without ReLU: [0. 0. 0. 0. 0.]"
+            ]
+          }
+        ],
+        "id": "generated-33"
+      },
+      {
+        "title": "The architecture of every deep network",
+        "section": "The architecture of every deep network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+-------+   +--------+   +------+   +--------+   +------+   +--------+",
+              "| Input |-->|Weighted |-->| ReLU |-->|Weighted |-->| ReLU |-->| Output |",
+              "|       |   |  Sum    |   |      |   |  Sum    |   |      |   |        |",
+              "+-------+   +--------+   +------+   +--------+   +------+   +--------+",
+              "Layer 1                  Layer 2"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Each [weighted sum \u2192 ReLU] is one layer. ReLU prevents collapse. This is what makes a network deep."
+          }
+        ],
+        "id": "generated-34"
+      },
+      {
+        "title": "The architecture of every deep network",
+        "section": "The architecture of every deep network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "In a GAN:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Generator: noise \u2192 layers with ReLU \u2192 fake data",
+              "Discriminator: data \u2192 layers with ReLU \u2192 real or fake?"
+            ]
+          }
+        ],
+        "id": "generated-35"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "Why can't \u0177 = wx + b learn y = x\u00b2?",
+              "Does training longer fix a model capacity problem?",
+              "Why does stacking two linear layers still produce a straight line?",
+              "What does ReLU(-3) return?",
+              "What does ReLU(5) return?",
+              "Without ReLU, what is x + (-x)?"
+            ]
+          }
+        ],
+        "id": "generated-36"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We saw that two ReLU neurons can make a V-shape. But we hand-picked the weights. Can a network with a hidden layer learn the right weights by itself? That's backpropagation \u2014 the engine of deep learning."
+          }
+        ],
+        "id": "generated-37"
+      }
+    ]
+  },
+  {
+    "number": "10",
+    "title": "Your First Hidden Layer",
+    "slides": [
+      {
+        "title": "Your First Hidden Layer",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L1-L7",
+              "L8",
+              "L9",
+              "L10"
+            ],
+            "rows": [
+              [
+                "One neuron learns",
+                "Multiple inputs",
+                "ReLU + why we need it",
+                "Hidden layer"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "In Lesson 9, two ReLU neurons made a V-shape. But we hand-picked the weights. Before the network can learn them, let's understand how the pieces connect."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "One neuron vs a network",
+        "section": "One neuron vs a network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Lesson 1:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Input  ->  [neuron]  ->  Output"
+            ]
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "One neuron vs a network",
+        "section": "One neuron vs a network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Now we put neurons in the middle:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Input  ->  [hidden neurons]  ->  [output neuron]  ->  Output"
+            ]
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "One neuron vs a network",
+        "section": "One neuron vs a network",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\"Hidden\" means we don't tell these neurons what to produce. They figure it out during training."
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "In Lesson 1, the forward pass was simple: \u0177 = wx + b. Now it has more steps, but the idea is the same \u2014 data flows forward from input to output."
+          },
+          {
+            "type": "text",
+            "text": "Weights: w1=1, w2=-1, v1=1, v2=1 (biases = 0)"
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Hidden neuron 1: multiply, then ReLU"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "z1 \u2190 1 \u00d7 3 = 3       (weighted sum)",
+              "h1 \u2190 ReLU(3) = 3     (activation \u2014 positive, passes through)"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Hidden neuron 2: multiply, then ReLU"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "z2 \u2190 -1 \u00d7 3 = -3     (weighted sum)",
+              "h2 \u2190 ReLU(-3) = 0    (activation \u2014 negative, blocked!)"
+            ]
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Output neuron: combine"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "\u0177 = 1\u00d73 + 1\u00d70 = 3"
+            ]
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 3",
+              "|",
+              "+------+------+",
+              "|              |",
+              "\u00d71            \u00d7(-1)",
+              "|              |"
+            ]
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z1 \u2190 3          z2=-3",
+              "|              |",
+              "ReLU          ReLU",
+              "|              |",
+              "h1 \u2190 3          h2=0",
+              "|              |"
+            ]
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+------+------+",
+              "|",
+              "\u0177 = 3 + 0 = 3"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Two new names:"
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "The forward pass \u2014 follow x = 3 through the network",
+        "section": "The forward pass \u2014 follow x = 3 through the network",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "z = before ReLU (pre-activation)",
+              "h = after ReLU (activation)"
+            ]
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Now follow x = -3",
+        "section": "Now follow x = -3",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -3",
+              "|",
+              "+------+------+",
+              "|              |",
+              "\u00d71            \u00d7(-1)",
+              "|              |"
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Now follow x = -3",
+        "section": "Now follow x = -3",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z1 \u2190 -3         z2=3",
+              "|              |",
+              "ReLU          ReLU",
+              "|              |",
+              "h1 \u2190 0          h2=3",
+              "|              |"
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Now follow x = -3",
+        "section": "Now follow x = -3",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+------+------+",
+              "|",
+              "\u0177 = 0 + 3 = 3"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The opposite neuron activated! They take turns."
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Define operation: def relu(z)",
+              "Output: max(0.0, z)",
+              "w1, w2 = 1.0, -1.0",
+              "v1, v2 = 1.0, 1.0",
+              "Repeat: for x in [-3.0, -1.0, 0.0, 1.0, 3.0]",
+              "h1 \u2190 relu(w1 * x)"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "h2 \u2190 relu(w2 * x)",
+              "prediction \u2190 v1 * h1 + v2 * h2"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -3  h1=0 h2=3  \u0177=3",
+              "x \u2190 -1  h1=0 h2=1  \u0177=1",
+              "x \u2190 0  h1=0 h2=0  \u0177=0",
+              "x \u2190 1  h1=1 h2=0  \u0177=1",
+              "x \u2190 3  h1=3 h2=0  \u0177=3"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The network produces |x| \u2014 same V-shape from Lesson 9."
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Try it in Python",
+        "section": "Try it in Python",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "That's the forward pass \u2014 input goes in, prediction comes out. Same concept as Lesson 1, just more neurons in the middle."
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "How many parameters?",
+        "section": "How many parameters?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Parameter",
+              "What it connects"
+            ],
+            "rows": [
+              [
+                "w1, b1",
+                "Input -> Hidden neuron 1"
+              ],
+              [
+                "w2, b2",
+                "Input -> Hidden neuron 2"
+              ],
+              [
+                "v1, v2",
+                "Hidden -> Output"
+              ],
+              [
+                "c",
+                "Output bias"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Total: 7. Our Lesson 1 neuron had 2."
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Experiment: change v2 from 1 to 2",
+        "section": "Experiment: change v2 from 1 to 2",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w1, w2 = 1.0, -1.0    # reset to original",
+              "v1, v2 = 1.0, 2.0     # changed v2!",
+              "Repeat: for x in [-3.0, 0.0, 3.0]",
+              "h1 \u2190 relu(w1 * x)",
+              "h2 \u2190 relu(w2 * x)"
+            ]
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Experiment: change v2 from 1 to 2",
+        "section": "Experiment: change v2 from 1 to 2",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -3  \u0177=6    (was 3)",
+              "x \u2190 0  \u0177=0    (same)",
+              "x \u2190 3  \u0177=3    (same)"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Only the left side changed. v2 scales neuron 2, which only activates for negative x."
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Experiment: same hidden weights = wasted",
+        "section": "Experiment: same hidden weights = wasted",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w1, w2 = 0.5, 0.5     # identical!",
+              "Repeat: for x in [-2.0, 0.0, 2.0]",
+              "h1 \u2190 relu(w1 * x)",
+              "h2 \u2190 relu(w2 * x)"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Experiment: same hidden weights = wasted",
+        "section": "Experiment: same hidden weights = wasted",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -2  h1=0.0 h2=0.0  <- same!",
+              "x \u2190 0  h1=0.0 h2=0.0  <- same!",
+              "x \u2190 2  h1=1.0 h2=1.0  <- same!"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Two neurons doing the same job. Wasted. Hidden weights must start different."
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "It can learn (preview)",
+        "section": "It can learn (preview)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We'll understand the backward pass in Lesson 11. But proof it works:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 np.array([-2.0, -1.0, 0.0, 1.0, 2.0])",
+              "y \u2190 np.abs(x)",
+              "n \u2190 len(x)",
+              "w1, b1, w2, b2 = 0.5, 0.0, -0.5, 0.0",
+              "v1, v2, c = 0.5, 0.5, 0.0",
+              "Repeat: for epoch in range(1, 2001)"
+            ]
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "It can learn (preview)",
+        "section": "It can learn (preview)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "h1 \u2190 np.maximum(0, w1*x+b1)",
+              "h2 \u2190 np.maximum(0, w2*x+b2)",
+              "pred \u2190 v1*h1 + v2*h2 + c",
+              "g \u2190 2*(pred-y)/n",
+              "d1 \u2190 g*v1*(w1*x+b1>0); d2 = g*v2*(w2*x+b2>0)",
+              "w1 -= 0.05*np.sum(d1*x); b1 -= 0.05*np.sum(d1)"
+            ]
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "It can learn (preview)",
+        "section": "It can learn (preview)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w2 -= 0.05*np.sum(d2*x); b2 -= 0.05*np.sum(d2)",
+              "v1 -= 0.05*np.sum(g*h1); v2 -= 0.05*np.sum(g*h2)",
+              "c  -= 0.05*np.sum(g)",
+              "Check: if epoch in [1, 100, 2000]",
+              "pred \u2190 v1*np.maximum(0,w1*x+b1) + v2*np.maximum(0,w2*x+b2) + c",
+              "pred \u2190 v1*np.maximum(0,w1*x+b1) + v2*np.maximum(0,w2*x+b2) + c"
+            ]
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "It can learn (preview)",
+        "section": "It can learn (preview)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch    1: loss=0.84801916",
+              "Epoch  100: loss=0.00230882",
+              "Epoch 2000: loss=0.00000000",
+              "Targets:     [2. 1. 0. 1. 2.]",
+              "Predictions: [2.     1.     0.     1.     2.    ]"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "It discovered the right weights on its own! But how? That's next."
+          }
+        ],
+        "id": "generated-29"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "What does \"hidden\" mean?",
+              "What is z? What is h?",
+              "How many parameters does this network have?",
+              "What happens if both hidden weights are identical?",
+              "What is a forward pass?"
+            ]
+          }
+        ],
+        "id": "generated-30"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The forward pass makes predictions. But how does the error travel backward to update hidden weights? That's backpropagation."
+          }
+        ],
+        "id": "generated-31"
+      }
+    ]
+  },
+  {
+    "number": "11",
+    "title": "Backpropagation",
+    "slides": [
+      {
+        "title": "Backpropagation",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L9",
+              "L10",
+              "L11"
+            ],
+            "rows": [
+              [
+                "ReLU + V-shape",
+                "Hidden layer forward pass",
+                "Backward pass"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "In Lesson 6, we fixed a single neuron's weight: gradient = 2 \u00d7 error \u00d7 input. Now we have two layers. Same idea \u2014 just keep passing the gradient backward, one connection at a time."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "The problem",
+        "section": "The problem",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Our network predicted 2, but the target is 4. The hidden weight w needs to change \u2014 but the error happened at the output, two connections away."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 2 \u2500\u2500[w=1]\u2500\u2500\u2192 z=2 \u2500\u2500[ReLU]\u2500\u2500\u2192 h=2 \u2500\u2500[v=1]\u2500\u2500\u2192 \u0177=2     target=4",
+              "loss \u2190 4",
+              "hidden weight    \u2190 how does the error reach here? \u2192     error is here"
+            ]
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "Step 1: Forward pass (save everything)",
+        "section": "Step 1: Forward pass (save everything)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 2.0",
+              "target \u2190 4.0",
+              "w \u2190 1.0     # hidden weight",
+              "v \u2190 1.0     # output weight",
+              "z \u2190 w * x            # 1 \u00d7 2 = 2",
+              "h \u2190 max(0, z)        # ReLU(2) = 2"
+            ]
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "Step 1: Forward pass (save everything)",
+        "section": "Step 1: Forward pass (save everything)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "pred \u2190 v * h         # 1 \u00d7 2 = 2",
+              "loss \u2190 (pred - target) ** 2   # (2-4)\u00b2 = 4"
+            ]
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "Step 1: Forward pass (save everything)",
+        "section": "Step 1: Forward pass (save everything)",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z \u2190 2.0",
+              "h \u2190 2.0",
+              "\u0177 = 2.0",
+              "loss \u2190 4.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "We save z, h, pred \u2014 the backward pass needs them."
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Step 1: Forward pass (save everything)",
+        "section": "Step 1: Forward pass (save everything)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 2 \u2500\u2500[\u00d71]\u2500\u2500\u2192 z=2 \u2500\u2500[ReLU]\u2500\u2500\u2192 h=2 \u2500\u2500[\u00d71]\u2500\u2500\u2192 \u0177=2",
+              "|",
+              "target \u2190 4",
+              "loss \u2190 4"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Step 2: How wrong is the prediction?",
+        "section": "Step 2: How wrong is the prediction?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This is where we start the backward pass. The loss tells us how wrong:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "blame \u2190 2 * (pred - target)"
+            ]
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Step 2: How wrong is the prediction?",
+        "section": "Step 2: How wrong is the prediction?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "blame \u2190 -4.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "-4 means: prediction is too low, push it up."
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Step 2: How wrong is the prediction?",
+        "section": "Step 2: How wrong is the prediction?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "loss \u2190 4",
+              "|",
+              "| blame = 2\u00d7(2-4) = -4",
+              "\u2193",
+              "\u0177 = 2"
+            ]
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Step 3: How much did output weight v cause this?",
+        "section": "Step 3: How much did output weight v cause this?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The output equation is \u0177 = v \u00d7 h. So v affected \u0177 by h."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "grad v \u2190 blame * h       # -4 \u00d7 2 = -8"
+            ]
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Step 3: How much did output weight v cause this?",
+        "section": "Step 3: How much did output weight v cause this?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "grad v \u2190 -8.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "v's gradient is -8. That's how much v needs to adjust."
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Step 3: How much did output weight v cause this?",
+        "section": "Step 3: How much did output weight v cause this?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "h \u2190 2 \u2500\u2500[\u00d7v=1]\u2500\u2500\u2192 \u0177=2",
+              "|",
+              "blame \u2190 -4",
+              "|",
+              "grad v \u2190 blame \u00d7 h",
+              "= -4 \u00d7 2"
+            ]
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Step 3: How much did output weight v cause this?",
+        "section": "Step 3: How much did output weight v cause this?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "= -8"
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Step 4: Pass the blame to hidden neuron's output h",
+        "section": "Step 4: Pass the blame to hidden neuron's output h",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "h also affected \u0177. By how much? By v."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "blame at h \u2190 blame * v     # -4 \u00d7 1 = -4"
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Step 4: Pass the blame to hidden neuron's output h",
+        "section": "Step 4: Pass the blame to hidden neuron's output h",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "blame reaching h = -4.0"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Step 4: Pass the blame to hidden neuron's output h",
+        "section": "Step 4: Pass the blame to hidden neuron's output h",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "h \u2190 2 \u2500\u2500[\u00d7v=1]\u2500\u2500\u2192 \u0177=2",
+              "\u2191                |",
+              "|          blame = -4",
+              "|                |",
+              "blame \u00d7 v = -4 \u00d7 1 = -4",
+              "blame at h \u2190 -4"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The blame has reached the hidden neuron's output (h). But it still needs to get through ReLU to reach z and then w."
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Step 5: Does ReLU let the blame through?",
+        "section": "Step 5: Does ReLU let the blame through?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "During the forward pass, ReLU did this:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "z was positive (z=2) \u2192 ReLU passed it through"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Step 5: Does ReLU let the blame through?",
+        "section": "Step 5: Does ReLU let the blame through?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The backward rule is the same:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "z was positive \u2192 blame passes through (multiply by 1)",
+              "z was negative \u2192 blame gets blocked (multiply by 0)"
+            ]
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Step 5: Does ReLU let the blame through?",
+        "section": "Step 5: Does ReLU let the blame through?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "gate \u2190 1.0 if z > 0 else 0.0     # z=2 > 0, so gate = 1",
+              "blame at z \u2190 blame_at_h * gate    # -4 \u00d7 1 = -4"
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Step 5: Does ReLU let the blame through?",
+        "section": "Step 5: Does ReLU let the blame through?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z \u2190 2.0 \u2192 gate = 1.0",
+              "blame after ReLU = -4.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Gate was open. Blame passed through unchanged."
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Step 5: Does ReLU let the blame through?",
+        "section": "Step 5: Does ReLU let the blame through?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z \u2190 2 \u2500\u2500[ReLU]\u2500\u2500\u2192 h=2",
+              "\u2191                |",
+              "|          blame = -4",
+              "|                |",
+              "|        gate = 1 (OPEN)",
+              "|                |"
+            ]
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Step 5: Does ReLU let the blame through?",
+        "section": "Step 5: Does ReLU let the blame through?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "-4 \u00d7 1 = -4",
+              "blame at z \u2190 -4"
+            ]
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Step 6: How much did hidden weight w cause this?",
+        "section": "Step 6: How much did hidden weight w cause this?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The hidden equation is z = w \u00d7 x. So w affected z by x."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "grad w \u2190 blame_at_z * x     # -4 \u00d7 2 = -8"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Step 6: How much did hidden weight w cause this?",
+        "section": "Step 6: How much did hidden weight w cause this?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "grad w \u2190 -8.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The blame reached the deepest weight!"
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "Step 6: How much did hidden weight w cause this?",
+        "section": "Step 6: How much did hidden weight w cause this?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 2 \u2500\u2500[\u00d7w=1]\u2500\u2500\u2192 z=2",
+              "\u2191",
+              "|",
+              "blame at z \u2190 -4",
+              "|",
+              "grad w \u2190 blame_at_z \u00d7 x"
+            ]
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "Step 6: How much did hidden weight w cause this?",
+        "section": "Step 6: How much did hidden weight w cause this?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "= -4 \u00d7 2",
+              "= -8"
+            ]
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "Step 7: Update both weights",
+        "section": "Step 7: Update both weights",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "lr \u2190 0.01",
+              "w new \u2190 w - lr * grad_w     # 1.0 - 0.01 \u00d7 (-8) = 1.08",
+              "v new \u2190 v - lr * grad_v     # 1.0 - 0.01 \u00d7 (-8) = 1.08"
+            ]
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "Step 7: Update both weights",
+        "section": "Step 7: Update both weights",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w: 1.0 \u2192 1.08",
+              "v: 1.0 \u2192 1.08"
+            ]
+          }
+        ],
+        "id": "generated-29"
+      },
+      {
+        "title": "Step 8: Did it help?",
+        "section": "Step 8: Did it help?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "new z \u2190 w_new * x               # 1.08 \u00d7 2 = 2.16",
+              "new h \u2190 max(0, new_z)            # ReLU(2.16) = 2.16",
+              "new pred \u2190 v_new * new_h         # 1.08 \u00d7 2.16 = 2.3328",
+              "new loss \u2190 (new_pred - target) ** 2   # (2.3328 - 4)\u00b2 = 2.78"
+            ]
+          }
+        ],
+        "id": "generated-30"
+      },
+      {
+        "title": "Step 8: Did it help?",
+        "section": "Step 8: Did it help?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "\u0177:    2.0 \u2192 2.3328",
+              "Loss: 4.0 \u2192 2.78"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Loss dropped from 4.0 to 2.78. One backward pass = improvement!"
+          }
+        ],
+        "id": "generated-31"
+      },
+      {
+        "title": "See the full backward flow",
+        "section": "See the full backward flow",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "loss \u2190 4",
+              "|",
+              "| Step 2: blame = 2\u00d7(2-4) = -4",
+              "\u2193",
+              "\u0177 = 2",
+              "|                 \\"
+            ]
+          }
+        ],
+        "id": "generated-32"
+      },
+      {
+        "title": "See the full backward flow",
+        "section": "See the full backward flow",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "| Step 4:          Step 3:",
+              "| blame \u00d7 v        blame \u00d7 h",
+              "| = -4 \u00d7 1         = -4 \u00d7 2",
+              "\u2193                    \u2193",
+              "blame at h \u2190 -4      grad_v = -8  \u2190 v adjusts by this",
+              "|"
+            ]
+          }
+        ],
+        "id": "generated-33"
+      },
+      {
+        "title": "See the full backward flow",
+        "section": "See the full backward flow",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "| Step 5: ReLU",
+              "| z=2 positive \u2192 gate OPEN",
+              "| blame \u00d7 1 = -4",
+              "\u2193",
+              "blame at z \u2190 -4",
+              "|"
+            ]
+          }
+        ],
+        "id": "generated-34"
+      },
+      {
+        "title": "See the full backward flow",
+        "section": "See the full backward flow",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "| Step 6:",
+              "| blame \u00d7 x",
+              "| = -4 \u00d7 2",
+              "\u2193",
+              "grad w \u2190 -8  \u2190 w adjusts by this"
+            ]
+          }
+        ],
+        "id": "generated-35"
+      },
+      {
+        "title": "Experiment: what if ReLU is OFF?",
+        "section": "Experiment: what if ReLU is OFF?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Change input to x = -2. Everything changes at Step 5."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -2.0",
+              "target \u2190 4.0",
+              "w, v = 1.0, 1.0",
+              "Forward",
+              "z \u2190 w * x             # 1 \u00d7 (-2) = -2",
+              "h \u2190 max(0, z)          # ReLU(-2) = 0  \u2190 blocked!"
+            ]
+          }
+        ],
+        "id": "generated-36"
+      },
+      {
+        "title": "Experiment: what if ReLU is OFF?",
+        "section": "Experiment: what if ReLU is OFF?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "pred \u2190 v * h           # 1 \u00d7 0 = 0",
+              "loss \u2190 (0 - 4) ** 2   # 16",
+              "Backward",
+              "blame \u2190 2 * (0 - 4)                    # -8  (strong!)",
+              "blame at h \u2190 blame * v                  # -8 \u00d7 1 = -8",
+              "gate \u2190 1.0 if z > 0 else 0.0           # z=-2, gate CLOSED"
+            ]
+          }
+        ],
+        "id": "generated-37"
+      },
+      {
+        "title": "Experiment: what if ReLU is OFF?",
+        "section": "Experiment: what if ReLU is OFF?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "blame at z \u2190 blame_at_h * gate          # -8 \u00d7 0 = 0  \u2190 blocked!",
+              "grad w \u2190 blame_at_z * x                 # 0 \u00d7 (-2) = 0"
+            ]
+          }
+        ],
+        "id": "generated-38"
+      },
+      {
+        "title": "Experiment: what if ReLU is OFF?",
+        "section": "Experiment: what if ReLU is OFF?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z \u2190 -2.0",
+              "loss \u2190 16",
+              "blame \u2190 -8.0",
+              "gate \u2190 0.0 (CLOSED!)",
+              "blame after ReLU = 0.0",
+              "grad w \u2190 0.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Loss is 16 (very wrong!) but grad_w = 0. The blame got blocked at Step 5."
+          }
+        ],
+        "id": "generated-39"
+      },
+      {
+        "title": "Experiment: what if ReLU is OFF?",
+        "section": "Experiment: what if ReLU is OFF?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 2 (gate OPEN):                 x=-2 (gate CLOSED):",
+              "Step 2: blame = -4                Step 2: blame = -8",
+              "\u2193                                 \u2193",
+              "Step 4: blame_at_h = -4           Step 4: blame_at_h = -8",
+              "\u2193                                 \u2193",
+              "Step 5: z=2, gate OPEN            Step 5: z=-2, gate CLOSED"
+            ]
+          }
+        ],
+        "id": "generated-40"
+      },
+      {
+        "title": "Experiment: what if ReLU is OFF?",
+        "section": "Experiment: what if ReLU is OFF?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "blame \u00d7 1 = -4                    blame \u00d7 0 = 0",
+              "\u2193                                 \u2193",
+              "Step 6: grad_w = -8  \u2713            Step 6: grad_w = 0  \u2717",
+              "w LEARNS                           w is STUCK"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "This is the dead ReLU problem. Fix: Leaky ReLU (max(0.01z, z)) \u2014 the gate never fully closes."
+          }
+        ],
+        "id": "generated-41"
+      },
+      {
+        "title": "Prove it works: train the full network",
+        "section": "Prove it works: train the full network",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 np.array([-2.0, -1.0, 0.0, 1.0, 2.0])",
+              "y \u2190 np.abs(x)",
+              "n \u2190 len(x)",
+              "w1, w2 = 0.5, -0.5",
+              "v1, v2 = 0.5, 0.5",
+              "Repeat: for epoch in range(1, 2001)"
+            ]
+          }
+        ],
+        "id": "generated-42"
+      },
+      {
+        "title": "Prove it works: train the full network",
+        "section": "Prove it works: train the full network",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Forward (Step 1)",
+              "h1 \u2190 np.maximum(0, w1 * x)",
+              "h2 \u2190 np.maximum(0, w2 * x)",
+              "pred \u2190 v1 * h1 + v2 * h2",
+              "Backward (Steps 2-6)",
+              "blame \u2190 2 * (pred - y) / n"
+            ]
+          }
+        ],
+        "id": "generated-43"
+      },
+      {
+        "title": "Prove it works: train the full network",
+        "section": "Prove it works: train the full network",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "d1 \u2190 blame * v1 * (w1 * x > 0)     # blame through ReLU for neuron 1",
+              "d2 \u2190 blame * v2 * (w2 * x > 0)     # blame through ReLU for neuron 2",
+              "w1 -= 0.05 * np.sum(d1 * x)         # Step 6: grad_w1",
+              "w2 -= 0.05 * np.sum(d2 * x)         # Step 6: grad_w2",
+              "v1 -= 0.05 * np.sum(blame * h1)     # Step 3: grad_v1",
+              "v2 -= 0.05 * np.sum(blame * h2)     # Step 3: grad_v2"
+            ]
+          }
+        ],
+        "id": "generated-44"
+      },
+      {
+        "title": "Prove it works: train the full network",
+        "section": "Prove it works: train the full network",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Check: if epoch in [1, 100, 2000]",
+              "pred \u2190 v1*np.maximum(0,w1*x) + v2*np.maximum(0,w2*x)",
+              "loss \u2190 np.mean((pred - y) ** 2)",
+              "pred \u2190 v1*np.maximum(0,w1*x) + v2*np.maximum(0,w2*x)"
+            ]
+          }
+        ],
+        "id": "generated-45"
+      },
+      {
+        "title": "Prove it works: train the full network",
+        "section": "Prove it works: train the full network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch    1: loss=0.84801916",
+              "Epoch  100: loss=0.00230882",
+              "Epoch 2000: loss=0.00000000",
+              "Targets:     [2. 1. 0. 1. 2.]",
+              "Predictions: [2.     1.     0.     1.     2.    ]"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The network learned |x| by repeating Steps 1-8 two thousand times."
+          }
+        ],
+        "id": "generated-46"
+      },
+      {
+        "title": "Summary: the 8 steps",
+        "section": "Summary: the 8 steps",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Step",
+              "What",
+              "Code"
+            ],
+            "rows": [
+              [
+                "1",
+                "Forward pass \u2014 save z, h, \u0177",
+                "z=w*x; h=ReLU(z); \u0177=v*h"
+              ],
+              [
+                "2",
+                "How wrong?",
+                "blame = 2\u00d7(\u0177 - target)"
+              ],
+              [
+                "3",
+                "Output weight blame",
+                "grad_v = blame \u00d7 h"
+              ],
+              [
+                "4",
+                "Pass blame to h",
+                "blame_at_h = blame \u00d7 v"
+              ],
+              [
+                "5",
+                "Through ReLU",
+                "blame_at_z = blame_at_h \u00d7 (1 if z>0 else 0)"
+              ],
+              [
+                "6",
+                "Hidden weight blame",
+                "grad_w = blame_at_z \u00d7 x"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-47"
+      },
+      {
+        "title": "Summary: the 8 steps",
+        "section": "Summary: the 8 steps",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Step",
+              "What",
+              "Code"
+            ],
+            "rows": [
+              [
+                "7",
+                "Update all weights",
+                "w -= lr \u00d7 grad_w"
+              ],
+              [
+                "8",
+                "Check: did loss drop?",
+                "Run forward pass again"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-48"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "At each connection, what do we multiply the blame by?",
+              "If z = 5, does ReLU pass the blame? (which step?)",
+              "If z = -3, does ReLU pass the blame?",
+              "Why do we save z during Step 1?",
+              "Why update all weights AFTER computing all gradients?"
+            ]
+          }
+        ],
+        "id": "generated-49"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We've been predicting numbers. But a GAN's Discriminator predicts real or fake \u2014 a probability between 0 and 1. For that we need: Sigmoid activation and Binary Cross-Entropy loss."
+          }
+        ],
+        "id": "generated-50"
+      }
+    ]
+  },
+  {
+    "number": "12",
+    "title": "Sigmoid and Binary Cross-Entropy",
+    "slides": [
+      {
+        "title": "Sigmoid and Binary Cross-Entropy",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L9",
+              "L10",
+              "L11",
+              "L12"
+            ],
+            "rows": [
+              [
+                "ReLU",
+                "Hidden layer",
+                "Backpropagation",
+                "Classification"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Until now, we predicted numbers (delivery time = 13 minutes). But a GAN's Discriminator needs to predict real or fake -- a yes/no answer."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "That's classification. And it needs two new tools."
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "The problem with raw numbers",
+        "section": "The problem with raw numbers",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Our neuron outputs any number: -5, 0, 3.7, 100..."
+          },
+          {
+            "type": "text",
+            "text": "But for \"real or fake?\" we need a number between 0 and 1:"
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "The problem with raw numbers",
+        "section": "The problem with raw numbers",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Output",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "close to 1",
+                "\"I think it's real\""
+              ],
+              [
+                "close to 0",
+                "\"I think it's fake\""
+              ],
+              [
+                "0.5",
+                "\"I can't tell\""
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "How do we squash any number into the 0-1 range?"
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "Meet Sigmoid",
+        "section": "Meet Sigmoid",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "\\sigma(z) = \\frac{1}{1 + e^{-z}}"
+          },
+          {
+            "type": "text",
+            "text": "Don't worry about the formula. Just see what it does:"
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "Meet Sigmoid",
+        "section": "Meet Sigmoid",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Define operation: def sigmoid(z)",
+              "Output: 1 / (1 + np.exp(-z))",
+              "Repeat: for z in [-5, -2, -1, 0, 1, 2, 5]"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Meet Sigmoid",
+        "section": "Meet Sigmoid",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "sigmoid( -5) = 0.0067",
+              "sigmoid( -2) = 0.1192",
+              "sigmoid( -1) = 0.2689",
+              "sigmoid(  0) = 0.5000",
+              "sigmoid(  1) = 0.7311",
+              "sigmoid(  2) = 0.8808"
+            ]
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Meet Sigmoid",
+        "section": "Meet Sigmoid",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "sigmoid(  5) = 0.9933"
+            ]
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Meet Sigmoid",
+        "section": "Meet Sigmoid",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Input z",
+              "Output",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "very negative (-5)",
+                "0.007",
+                "Almost certainly fake"
+              ],
+              [
+                "negative (-2)",
+                "0.12",
+                "Probably fake"
+              ],
+              [
+                "zero (0)",
+                "0.5",
+                "Can't tell"
+              ],
+              [
+                "positive (2)",
+                "0.88",
+                "Probably real"
+              ],
+              [
+                "very positive (5)",
+                "0.993",
+                "Almost certainly real"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "See the shape",
+        "section": "See the shape",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "output",
+              "1.0 |                    ___________",
+              "|                  /",
+              "0.8 |                /",
+              "|              /",
+              "0.5 |.............*...............     <-- z=0 gives exactly 0.5"
+            ]
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "See the shape",
+        "section": "See the shape",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "|          /",
+              "0.2 |        /",
+              "|      /",
+              "0.0 |_____/",
+              "+--+--+--+--+--+--+--+--+---> input z",
+              "-5 -4 -3 -2 -1  0  1  2  3  4  5"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Three key facts:"
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "See the shape",
+        "section": "See the shape",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "Always between 0 and 1 -- perfect for probabilities",
+              "z = 0 -> output = 0.5 -- the midpoint",
+              "Smooth S-shape -- gradual transition, not a sudden jump"
+            ]
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Compare: ReLU vs Sigmoid",
+        "section": "Compare: ReLU vs Sigmoid",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "",
+              "ReLU",
+              "Sigmoid"
+            ],
+            "rows": [
+              [
+                "Output range",
+                "0 to infinity",
+                "0 to 1"
+              ],
+              [
+                "Shape",
+                "Bent line",
+                "S-curve"
+              ],
+              [
+                "Used for",
+                "Hidden layers",
+                "Output layer (classification)"
+              ],
+              [
+                "Purpose",
+                "Add nonlinearity",
+                "Produce a probability"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Compare: ReLU vs Sigmoid",
+        "section": "Compare: ReLU vs Sigmoid",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "ReLU:                          Sigmoid:",
+              "|          /                 1.0|          ___",
+              "|        /                     |        /",
+              "|      /                   0.5|......*......",
+              "|    /                         |    /",
+              "|__/                        0.0|___/"
+            ]
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Compare: ReLU vs Sigmoid",
+        "section": "Compare: ReLU vs Sigmoid",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+---------> z                  +---------> z"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Now we need a new loss function",
+        "section": "Now we need a new loss function",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "In Lesson 2, we used MSE (Mean Squared Error) for numbers."
+          },
+          {
+            "type": "text",
+            "text": "For classification (0 or 1 targets), we use Binary Cross-Entropy (BCE):"
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Now we need a new loss function",
+        "section": "Now we need a new loss function",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "BCE = -[y \\cdot \\log(p) + (1-y) \\cdot \\log(1-p)]"
+          },
+          {
+            "type": "text",
+            "text": "Where:"
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Now we need a new loss function",
+        "section": "Now we need a new loss function",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "y = target (1 for real, 0 for fake)",
+              "p = sigmoid output (our predicted probability)"
+            ]
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Why not just use MSE?",
+        "section": "Why not just use MSE?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Target: y = 1 (real)",
+              "Our prediction: p = 0.99 (almost correct)",
+              "mse loss \u2190 (0.99 - 1) ** 2",
+              "bce loss \u2190 -(1 * np.log(0.99))"
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Why not just use MSE?",
+        "section": "Why not just use MSE?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "MSE loss:  0.000100",
+              "BCE loss:  0.010050"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Both small -- good. But watch what happens with a very wrong prediction:"
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Why not just use MSE?",
+        "section": "Why not just use MSE?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Target: y = 1 (real)",
+              "Our prediction: p = 0.01 (very wrong!)",
+              "mse loss \u2190 (0.01 - 1) ** 2",
+              "bce loss \u2190 -(1 * np.log(0.01))"
+            ]
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Why not just use MSE?",
+        "section": "Why not just use MSE?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "MSE loss:  0.9801",
+              "BCE loss:  4.6052"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "BCE punishes confident wrong answers much more than MSE. That's what we want for classification."
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "BCE step by step",
+        "section": "BCE step by step",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "When target = 1 (real):"
+          },
+          {
+            "type": "text",
+            "text": "BCE = -\\log(p)"
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "BCE step by step",
+        "section": "BCE step by step",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The closer p is to 1, the smaller the loss:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Repeat: for p in [0.01, 0.1, 0.5, 0.9, 0.99]",
+              "loss \u2190 -np.log(p)"
+            ]
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "BCE step by step",
+        "section": "BCE step by step",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "p \u2190 0.01  loss=4.6052    <-- very wrong, huge loss",
+              "p \u2190 0.10  loss=2.3026",
+              "p \u2190 0.50  loss=0.6931",
+              "p \u2190 0.90  loss=0.1054",
+              "p \u2190 0.99  loss=0.0101    <-- almost right, tiny loss"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "When target = 0 (fake):"
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "BCE step by step",
+        "section": "BCE step by step",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "BCE = -\\log(1-p)"
+          },
+          {
+            "type": "text",
+            "text": "The closer p is to 0, the smaller the loss:"
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "BCE step by step",
+        "section": "BCE step by step",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Repeat: for p in [0.01, 0.1, 0.5, 0.9, 0.99]",
+              "loss \u2190 -np.log(1 - p)"
+            ]
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "BCE step by step",
+        "section": "BCE step by step",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "p \u2190 0.01  loss=0.0101    <-- correctly says fake, tiny loss",
+              "p \u2190 0.10  loss=0.1054",
+              "p \u2190 0.50  loss=0.6931",
+              "p \u2190 0.90  loss=2.3026",
+              "p \u2190 0.99  loss=4.6052    <-- wrongly says real, huge loss"
+            ]
+          }
+        ],
+        "id": "generated-29"
+      },
+      {
+        "title": "The combined formula",
+        "section": "The combined formula",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Define operation: def bce_loss(y, p)",
+              "Output: -(y * np.log(p) + (1 - y) * np.log(1 - p))",
+              "Test: target is REAL (y=1)",
+              "Repeat: for p in [0.1, 0.5, 0.9]",
+              "Test: target is FAKE (y=0)",
+              "Repeat: for p in [0.1, 0.5, 0.9]"
+            ]
+          }
+        ],
+        "id": "generated-30"
+      },
+      {
+        "title": "The combined formula",
+        "section": "The combined formula",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Target \u2190 1 (real):",
+              "predicted 0.1 -> loss = 2.3026    <-- wrong, high loss",
+              "predicted 0.5 -> loss = 0.6931",
+              "predicted 0.9 -> loss = 0.1054    <-- correct, low loss",
+              "Target \u2190 0 (fake):",
+              "predicted 0.1 -> loss = 0.1054    <-- correct, low loss"
+            ]
+          }
+        ],
+        "id": "generated-31"
+      },
+      {
+        "title": "The combined formula",
+        "section": "The combined formula",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "predicted 0.5 -> loss = 0.6931",
+              "predicted 0.9 -> loss = 2.3026    <-- wrong, high loss"
+            ]
+          }
+        ],
+        "id": "generated-32"
+      },
+      {
+        "title": "How this connects to GANs",
+        "section": "How this connects to GANs",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Generator makes fake image",
+              "|",
+              "v",
+              "Discriminator sees it",
+              "|",
+              "v"
+            ]
+          }
+        ],
+        "id": "generated-33"
+      },
+      {
+        "title": "How this connects to GANs",
+        "section": "How this connects to GANs",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Sigmoid -> p = 0.8",
+              "|",
+              "v",
+              "BCE loss with target = 0 (it's fake)",
+              "loss \u2190 -log(1 - 0.8) = 1.61   <-- \"you were fooled!\"",
+              "Discriminator updates to output lower p for fakes."
+            ]
+          }
+        ],
+        "id": "generated-34"
+      },
+      {
+        "title": "How this connects to GANs",
+        "section": "How this connects to GANs",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Generator updates to make fakes that get higher p."
+            ]
+          },
+          {
+            "type": "text",
+            "text": "This is the core of GAN training. Sigmoid + BCE make it work."
+          }
+        ],
+        "id": "generated-35"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "What range does Sigmoid output?",
+              "What does sigmoid(0) return?",
+              "Why don't we use MSE for classification?",
+              "If target = 1 and prediction = 0.99, is BCE loss high or low?",
+              "If target = 0 and prediction = 0.99, is BCE loss high or low?",
+              "In a GAN, what does the Discriminator's Sigmoid output mean?"
+            ]
+          }
+        ],
+        "id": "generated-36"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We have all the pieces: hidden layers, backpropagation, Sigmoid, BCE. Now let's build a classification network -- a neuron that learns to say \"yes\" or \"no\". That's the Discriminator's job in a GAN."
+          }
+        ],
+        "id": "generated-37"
+      }
+    ]
+  },
+  {
+    "number": "13",
+    "title": "Build a Classifier",
+    "slides": [
+      {
+        "title": "Build a Classifier",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L10",
+              "L11",
+              "L12",
+              "L13"
+            ],
+            "rows": [
+              [
+                "Hidden layer",
+                "Backpropagation",
+                "Sigmoid + BCE",
+                "Build a classifier"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "We have all the pieces. Now let's put them together \u2014 build a network that learns to say \"yes\" or \"no\"."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This is exactly what a GAN's Discriminator does."
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "The task",
+        "section": "The task",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Can you tell if a number is positive or negative?"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Input x",
+              "Label y",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "-3",
+                "0",
+                "Negative \u2192 class 0"
+              ],
+              [
+                "-2",
+                "0",
+                "Negative \u2192 class 0"
+              ],
+              [
+                "-1",
+                "0",
+                "Negative \u2192 class 0"
+              ],
+              [
+                "1",
+                "1",
+                "Positive \u2192 class 1"
+              ],
+              [
+                "2",
+                "1",
+                "Positive \u2192 class 1"
+              ],
+              [
+                "3",
+                "1",
+                "Positive \u2192 class 1"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "The task",
+        "section": "The task",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Simple for us. But can a neuron learn this from data?"
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "The network",
+        "section": "The network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "One neuron + Sigmoid at the output:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2500\u2500[w, b]\u2500\u2500\u2192 z \u2500\u2500[Sigmoid]\u2500\u2500\u2192 p",
+              "|",
+              "0 to 1 probability",
+              "\"how likely is class 1?\""
+            ]
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "The network",
+        "section": "The network",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Forward pass:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "z \u2190 w \u00d7 x + b          (weighted sum \u2014 same as Lesson 1)",
+              "p \u2190 sigmoid(z)          (squash to 0-1 \u2014 new from Lesson 12)"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "Forward pass by hand",
+        "section": "Forward pass by hand",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Start with w = 0.5, b = 0:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Define operation: def sigmoid(z)",
+              "Output: 1 / (1 + np.exp(-z))",
+              "w, b = 0.5, 0.0",
+              "Repeat: for x in [-3, -1, 1, 3]",
+              "z \u2190 w * x + b",
+              "p \u2190 sigmoid(z)"
+            ]
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "Forward pass by hand",
+        "section": "Forward pass by hand",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -3  z= -1.5  p=0.1824",
+              "x \u2190 -1  z= -0.5  p=0.3775",
+              "x \u2190 1  z=  0.5  p=0.6225",
+              "x \u2190 3  z=  1.5  p=0.8176"
+            ]
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "Forward pass by hand",
+        "section": "Forward pass by hand",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "x",
+              "z",
+              "p",
+              "Correct?"
+            ],
+            "rows": [
+              [
+                "-3",
+                "-1.5",
+                "0.18",
+                "Should be 0 \u2192 0.18 is low \u2713"
+              ],
+              [
+                "-1",
+                "-0.5",
+                "0.38",
+                "Should be 0 \u2192 0.38 is not low enough"
+              ],
+              [
+                "1",
+                "0.5",
+                "0.62",
+                "Should be 1 \u2192 0.62 is not high enough"
+              ],
+              [
+                "3",
+                "1.5",
+                "0.82",
+                "Should be 1 \u2192 0.82 is high \u2713"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Not bad for a random start, but not perfect. Let's make it learn."
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Calculate the loss (BCE)",
+        "section": "Calculate the loss (BCE)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "X \u2190 np.array([-3.0, -2.0, -1.0, 1.0, 2.0, 3.0])",
+              "y \u2190 np.array([0, 0, 0, 1, 1, 1])   # 0=negative, 1=positive",
+              "w, b = 0.5, 0.0",
+              "z \u2190 w * X + b",
+              "p \u2190 sigmoid(z)",
+              "BCE loss for each example"
+            ]
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Calculate the loss (BCE)",
+        "section": "Calculate the loss (BCE)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "losses \u2190 -(y * np.log(p) + (1 - y) * np.log(1 - p))",
+              "total loss \u2190 np.mean(losses)",
+              "Repeat: for i in range(len(X))"
+            ]
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Calculate the loss (BCE)",
+        "section": "Calculate the loss (BCE)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -3  target=0  p=0.1824  loss=0.2015",
+              "x \u2190 -2  target=0  p=0.2689  loss=0.3133",
+              "x \u2190 -1  target=0  p=0.3775  loss=0.4741",
+              "x \u2190 1  target=1  p=0.6225  loss=0.4741",
+              "x \u2190 2  target=1  p=0.7311  loss=0.3133",
+              "x \u2190 3  target=1  p=0.8176  loss=0.2015"
+            ]
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Calculate the loss (BCE)",
+        "section": "Calculate the loss (BCE)",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Average BCE loss: 0.3296"
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Train it",
+        "section": "Train it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "The gradient for BCE + Sigmoid has a beautifully simple form:"
+          },
+          {
+            "type": "text",
+            "text": "\\text{gradient} = p - y"
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Train it",
+        "section": "Train it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "That's it! If target is 1 and we predicted 0.8, the gradient is 0.8 - 1 = -0.2 (push up). If target is 0 and we predicted 0.8, the gradient is 0.8 - 0 = 0.8 (push down)."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "X \u2190 np.array([-3.0, -2.0, -1.0, 1.0, 2.0, 3.0])",
+              "y \u2190 np.array([0, 0, 0, 1, 1, 1])",
+              "n \u2190 len(X)",
+              "w, b = 0.5, 0.0",
+              "lr \u2190 0.1",
+              "Repeat: for epoch in range(1, 201)"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Train it",
+        "section": "Train it",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Forward",
+              "z \u2190 w * X + b",
+              "p \u2190 sigmoid(z)",
+              "Gradient (BCE + Sigmoid combined)",
+              "error \u2190 p - y                     # simple!",
+              "grad w \u2190 np.mean(error * X)"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Train it",
+        "section": "Train it",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "grad b \u2190 np.mean(error)",
+              "Update",
+              "w -= lr * grad_w",
+              "b -= lr * grad_b",
+              "Check: if epoch in [1, 10, 50, 200]",
+              "loss \u2190 -np.mean(y * np.log(p) + (1-y) * np.log(1-p))"
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Train it",
+        "section": "Train it",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch   1: w=0.5488, b=0.0000, loss=0.3296",
+              "Epoch  10: w=0.8668, b=-0.0000, loss=0.2027",
+              "Epoch  50: w=1.5049, b=-0.0000, loss=0.0876",
+              "Epoch 200: w=2.3590, b=-0.0000, loss=0.0335"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "The loss drops from 0.33 to 0.0335. The neuron learned the correct decision boundary."
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Check the predictions",
+        "section": "Check the predictions",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "z \u2190 w * X + b",
+              "p \u2190 sigmoid(z)",
+              "Repeat: for i in range(len(X))",
+              "label \u2190 \"positive\" if p[i] > 0.5 else \"negative\"",
+              "correct \u2190 \"\u2713\" if (p[i] > 0.5) == y[i] else \"\u2717\""
+            ]
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Check the predictions",
+        "section": "Check the predictions",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -3  p=0.000844  \u2192 negative  target=0  \u2713",
+              "x \u2190 -2  p=0.008854  \u2192 negative  target=0  \u2713",
+              "x \u2190 -1  p=0.086354  \u2192 negative  target=0  \u2713",
+              "x \u2190 1  p=0.913646  \u2192 positive  target=1  \u2713",
+              "x \u2190 2  p=0.991146  \u2192 positive  target=1  \u2713",
+              "x \u2190 3  p=0.999156  \u2192 positive  target=1  \u2713"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "100% correct. The neuron learned to classify positive vs negative."
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "What did it learn?",
+        "section": "What did it learn?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "w \u2190 2.36  (positive weight)",
+              "b \u2248 0",
+              "For x = 3:   z = 2.36 \u00d7 3 = 7.08  \u2192 sigmoid(7.08) \u2248 0.999",
+              "For x = -3:  z = 2.36 \u00d7 -3 = -7.08 \u2192 sigmoid(-7.08) \u2248 0.001"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "A large w makes sigmoid output very close to 0 or 1 \u2014 confident predictions."
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "What did it learn?",
+        "section": "What did it learn?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "p",
+              "1.0 |                        \u25cf  \u25cf  \u25cf",
+              "|                      /",
+              "0.5 |.....................*...............",
+              "|                  /",
+              "0.0 |  \u25cf  \u25cf  \u25cf       /"
+            ]
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "What did it learn?",
+        "section": "What did it learn?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "+--+--+--+--+--+--+--+--\u2192 x",
+              "-3 -2 -1  0  1  2  3"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Experiment: what does b do?",
+        "section": "Experiment: what does b do?",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Shift the decision boundary",
+              "w, b = 5.0, -5.0    # boundary moves to x=1",
+              "Repeat: for x in [-1, 0, 1, 2, 3]",
+              "p \u2190 sigmoid(w * x + b)"
+            ]
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "Experiment: what does b do?",
+        "section": "Experiment: what does b do?",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -1  p=0.0000  \u2192 negative",
+              "x \u2190 0  p=0.0067  \u2192 negative",
+              "x \u2190 1  p=0.5000  \u2192 negative     \u2190 decision point shifted!",
+              "x \u2190 2  p=0.9933  \u2192 positive",
+              "x \u2190 3  p=1.0000  \u2192 positive"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "b shifts where the 0.5 decision boundary is. w controls how sharp the transition is."
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "This is a Discriminator!",
+        "section": "This is a Discriminator!",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "What we just built is a baby version of a GAN's Discriminator:"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "What we built",
+              "GAN Discriminator"
+            ],
+            "rows": [
+              [
+                "Input: a number",
+                "Input: an image"
+              ],
+              [
+                "Output: positive or negative?",
+                "Output: real or fake?"
+              ],
+              [
+                "1 neuron + Sigmoid",
+                "Many layers + Sigmoid"
+              ],
+              [
+                "BCE loss",
+                "BCE loss"
+              ],
+              [
+                "Learns from labeled data",
+                "Learns from real + generated data"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "This is a Discriminator!",
+        "section": "This is a Discriminator!",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Same idea. Just bigger inputs and more layers."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "Our classifier:",
+              "number \u2500\u2500\u2192 [w,b] \u2500\u2500\u2192 Sigmoid \u2500\u2500\u2192 0 or 1",
+              "GAN Discriminator:",
+              "image \u2500\u2500\u2192 [many layers + ReLU] \u2500\u2500\u2192 Sigmoid \u2500\u2500\u2192 real or fake"
+            ]
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "What does the Sigmoid output represent?",
+              "What loss function do we use for classification?",
+              "The gradient for BCE + Sigmoid simplifies to what?",
+              "What does a large w do to the Sigmoid output?",
+              "What does b control?",
+              "How is this classifier similar to a GAN's Discriminator?"
+            ]
+          }
+        ],
+        "id": "generated-29"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We have a classifier (Discriminator). Now we need the other half \u2014 the Generator. How does a network create data from random noise? And how do Generator and Discriminator train against each other? Time to build a GAN."
+          }
+        ],
+        "id": "generated-30"
+      }
+    ]
+  },
+  {
+    "number": "14",
+    "title": "Introduction to PyTorch",
+    "slides": [
+      {
+        "title": "Introduction to PyTorch",
+        "section": "OPEN",
+        "kind": "cover",
+        "blocks": [],
+        "id": "generated-1"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "L11",
+              "L12",
+              "L13",
+              "L14"
+            ],
+            "rows": [
+              [
+                "Backpropagation",
+                "Sigmoid + BCE",
+                "Built a classifier",
+                "PyTorch"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "In Lessons 1-13, we wrote everything from scratch -- forward pass, gradients, updates, all by hand."
+          }
+        ],
+        "id": "generated-2"
+      },
+      {
+        "title": "Where we are",
+        "section": "Where we are",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "That was important for understanding. But real networks have millions of weights. Writing gradients by hand for all of them? Impossible."
+          },
+          {
+            "type": "text",
+            "text": "PyTorch does the hard parts for you. You build the network. PyTorch calculates ALL the gradients automatically."
+          }
+        ],
+        "id": "generated-3"
+      },
+      {
+        "title": "Install PyTorch",
+        "section": "Install PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Run this once",
+              "pip install torch"
+            ]
+          }
+        ],
+        "id": "generated-4"
+      },
+      {
+        "title": "Tensors = NumPy arrays, but smarter",
+        "section": "Tensors = NumPy arrays, but smarter",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "In NumPy, we used arrays. In PyTorch, we use tensors. Same idea -- just with superpowers."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "a \u2190 torch.tensor([1.0, 2.0, 3.0])",
+              "b \u2190 torch.tensor([4.0, 5.0, 6.0])"
+            ]
+          }
+        ],
+        "id": "generated-5"
+      },
+      {
+        "title": "Tensors = NumPy arrays, but smarter",
+        "section": "Tensors = NumPy arrays, but smarter",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "a: tensor([1., 2., 3.])",
+              "b: tensor([4., 5., 6.])",
+              "a + b: tensor([5., 7., 9.])",
+              "a * b: tensor([ 4., 10., 18.])",
+              "dot product: tensor(32.)"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Looks just like NumPy. So why switch?"
+          }
+        ],
+        "id": "generated-6"
+      },
+      {
+        "title": "The superpower: automatic gradients",
+        "section": "The superpower: automatic gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "This is the big deal. Watch:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "w \u2190 torch.tensor(1.0, requires_grad=True)",
+              "x \u2190 torch.tensor(2.0)",
+              "target \u2190 torch.tensor(4.0)",
+              "prediction \u2190 w * x",
+              "loss \u2190 (prediction - target) ** 2",
+              "Backward pass -- ONE LINE!"
+            ]
+          }
+        ],
+        "id": "generated-7"
+      },
+      {
+        "title": "The superpower: automatic gradients",
+        "section": "The superpower: automatic gradients",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Send the loss backward to calculate gradients"
+            ]
+          }
+        ],
+        "id": "generated-8"
+      },
+      {
+        "title": "The superpower: automatic gradients",
+        "section": "The superpower: automatic gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "prediction \u2190 2.0",
+              "loss \u2190 4.0",
+              "gradient of w = -8.0"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "loss.backward() -- that one line calculated the gradient automatically!"
+          }
+        ],
+        "id": "generated-9"
+      },
+      {
+        "title": "The superpower: automatic gradients",
+        "section": "The superpower: automatic gradients",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "In Lesson 6, we spent an entire lesson deriving gradient = 2 * error * input = 2 * (2-4) * 2 = -8."
+          },
+          {
+            "type": "text",
+            "text": "PyTorch did it in one line."
+          }
+        ],
+        "id": "generated-10"
+      },
+      {
+        "title": "Compare: by hand vs PyTorch",
+        "section": "Compare: by hand vs PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "BY HAND (Lessons 1-11):",
+              "z \u2190 w * x + b",
+              "h \u2190 max(0, z)",
+              "pred \u2190 v * h",
+              "loss \u2190 (pred - target) ** 2",
+              "d pred \u2190 2 * (pred - target)       # manual gradient step 1"
+            ]
+          }
+        ],
+        "id": "generated-11"
+      },
+      {
+        "title": "Compare: by hand vs PyTorch",
+        "section": "Compare: by hand vs PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "grad v \u2190 d_pred * h                 # manual gradient step 2",
+              "d h \u2190 d_pred * v                    # manual gradient step 3",
+              "d z \u2190 d_h * (1 if z > 0 else 0)   # manual gradient step 4",
+              "grad w \u2190 d_z * x                   # manual gradient step 5",
+              "PYTORCH:",
+              "pred \u2190 model(x)"
+            ]
+          }
+        ],
+        "id": "generated-12"
+      },
+      {
+        "title": "Compare: by hand vs PyTorch",
+        "section": "Compare: by hand vs PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "loss \u2190 (pred - target) ** 2",
+              "Send the loss backward to calculate gradients"
+            ]
+          }
+        ],
+        "id": "generated-13"
+      },
+      {
+        "title": "Build a network with nn.Sequential",
+        "section": "Build a network with nn.Sequential",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "PyTorch has ready-made building blocks:"
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "model \u2190 nn.Sequential(",
+              "nn.Linear(1, 4),      # 1 input -> 4 hidden neurons",
+              "nn.ReLU(),             # activation (Lesson 9)",
+              "nn.Linear(4, 1),      # 4 hidden -> 1 output",
+              "nn.Sigmoid()           # squash to 0-1 (Lesson 12)",
+              ")"
+            ]
+          }
+        ],
+        "id": "generated-14"
+      },
+      {
+        "title": "Build a network with nn.Sequential",
+        "section": "Build a network with nn.Sequential",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Sequential(",
+              "(0): Linear(in_features=1, out_features=4, bias=True)",
+              "(1): ReLU()",
+              "(2): Linear(in_features=4, out_features=1, bias=True)",
+              "(3): Sigmoid()",
+              ")"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "That's the whole network. No manual weights, no manual ReLU code."
+          }
+        ],
+        "id": "generated-15"
+      },
+      {
+        "title": "Count the parameters",
+        "section": "Count the parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "total \u2190 sum(p.numel() for p in model.parameters())",
+              "Repeat: for name, param in model.named_parameters()"
+            ]
+          }
+        ],
+        "id": "generated-16"
+      },
+      {
+        "title": "Count the parameters",
+        "section": "Count the parameters",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Total parameters: 13",
+              "0.weight: shape=[4, 1], count=4",
+              "0.bias: shape=[4], count=4",
+              "2.weight: shape=[1, 4], count=4",
+              "2.bias: shape=[1], count=1"
+            ]
+          }
+        ],
+        "id": "generated-17"
+      },
+      {
+        "title": "Count the parameters",
+        "section": "Count the parameters",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Layer",
+              "Weights",
+              "Biases",
+              "Total"
+            ],
+            "rows": [
+              [
+                "Input -> Hidden (4 neurons)",
+                "4",
+                "4",
+                "8"
+              ],
+              [
+                "Hidden -> Output (1 neuron)",
+                "4",
+                "1",
+                "5"
+              ],
+              [
+                "Total",
+                "",
+                "",
+                "13"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-18"
+      },
+      {
+        "title": "Forward pass -- just call the model",
+        "section": "Forward pass -- just call the model",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 torch.tensor([[2.0]])",
+              "p \u2190 model(x)"
+            ]
+          }
+        ],
+        "id": "generated-19"
+      },
+      {
+        "title": "Forward pass -- just call the model",
+        "section": "Forward pass -- just call the model",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Input: 2.0, Output: 0.5731"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "This is one example output. The exact value changes with PyTorch's random initial weights."
+          }
+        ],
+        "id": "generated-20"
+      },
+      {
+        "title": "Forward pass -- just call the model",
+        "section": "Forward pass -- just call the model",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "One line. PyTorch did: Linear -> ReLU -> Linear -> Sigmoid."
+          }
+        ],
+        "id": "generated-21"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Same task: classify positive vs negative numbers."
+          },
+          {
+            "type": "steps",
+            "steps": [
+              "X \u2190 torch.tensor([[-3.], [-2.], [-1.], [1.], [2.], [3.]])",
+              "y \u2190 torch.tensor([[0.], [0.], [0.], [1.], [1.], [1.]])",
+              "model \u2190 nn.Sequential(",
+              "nn.Linear(1, 4),",
+              "nn.ReLU(),",
+              "nn.Linear(4, 1),"
+            ]
+          }
+        ],
+        "id": "generated-22"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "nn.Sigmoid()",
+              ")",
+              "loss fn \u2190 nn.BCELoss()",
+              "optimizer \u2190 torch.optim.SGD(model.parameters(), lr=0.1)",
+              "Repeat: for epoch in range(1, 201)",
+              "pred \u2190 model(X)"
+            ]
+          }
+        ],
+        "id": "generated-23"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "loss \u2190 loss_fn(pred, y)",
+              "Clear the old gradients",
+              "Send the loss backward to calculate gradients",
+              "Update the learnable parameters",
+              "Check: if epoch in [1, 10, 50, 200]",
+              "with torch.no_grad():"
+            ]
+          }
+        ],
+        "id": "generated-24"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "pred \u2190 model(X)",
+              "Repeat: for i in range(len(X))",
+              "label \u2190 \"positive\" if pred[i].item() > 0.5 else \"negative\""
+            ]
+          }
+        ],
+        "id": "generated-25"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Epoch   1: loss=0.7234",
+              "Epoch  10: loss=0.4891",
+              "Epoch  50: loss=0.0512",
+              "Epoch 200: loss=0.0013",
+              "x \u2190 -3  p=0.0002  -> negative",
+              "x \u2190 -2  p=0.0011  -> negative"
+            ]
+          }
+        ],
+        "id": "generated-26"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "x \u2190 -1  p=0.0085  -> negative",
+              "x \u2190 1  p=0.9920  -> positive",
+              "x \u2190 2  p=0.9990  -> positive",
+              "x \u2190 3  p=0.9998  -> positive"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "These are representative training results. Exact losses and probabilities vary with random initialization."
+          }
+        ],
+        "id": "generated-27"
+      },
+      {
+        "title": "Train the classifier from Lesson 13 -- in PyTorch",
+        "section": "Train the classifier from Lesson 13 -- in PyTorch",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "Same result as Lesson 13 -- but no manual gradients!"
+          }
+        ],
+        "id": "generated-28"
+      },
+      {
+        "title": "The training loop -- 3 lines that do everything",
+        "section": "The training loop -- 3 lines that do everything",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Clear the old gradients",
+              "Send the loss backward to calculate gradients",
+              "Update the learnable parameters"
+            ]
+          }
+        ],
+        "id": "generated-29"
+      },
+      {
+        "title": "The training loop -- 3 lines that do everything",
+        "section": "The training loop -- 3 lines that do everything",
+        "kind": "table",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "Line",
+              "What it does",
+              "Which lesson did this manually?"
+            ],
+            "rows": [
+              [
+                "zero_grad()",
+                "Clears old gradients",
+                "We didn't need this before"
+              ],
+              [
+                "backward()",
+                "Backpropagation",
+                "Lesson 11 (steps 2-6)"
+              ],
+              [
+                "step()",
+                "w = w - lr * gradient",
+                "Lesson 4"
+              ]
+            ]
+          }
+        ],
+        "id": "generated-30"
+      },
+      {
+        "title": "Experiment: make the network deeper",
+        "section": "Experiment: make the network deeper",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "shallow \u2190 nn.Sequential(",
+              "nn.Linear(1, 4), nn.ReLU(),",
+              "nn.Linear(4, 1), nn.Sigmoid()",
+              ")",
+              "deep \u2190 nn.Sequential(",
+              "nn.Linear(1, 8), nn.ReLU(),"
+            ]
+          }
+        ],
+        "id": "generated-31"
+      },
+      {
+        "title": "Experiment: make the network deeper",
+        "section": "Experiment: make the network deeper",
+        "kind": "steps",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "nn.Linear(8, 8), nn.ReLU(),",
+              "nn.Linear(8, 4), nn.ReLU(),",
+              "nn.Linear(4, 1), nn.Sigmoid()",
+              ")"
+            ]
+          }
+        ],
+        "id": "generated-32"
+      },
+      {
+        "title": "Experiment: make the network deeper",
+        "section": "Experiment: make the network deeper",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "steps",
+            "steps": [
+              "Shallow: 13 parameters",
+              "Deep:    129 parameters"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Adding layers is just adding more lines. PyTorch handles all the gradients for all 129 parameters automatically."
+          }
+        ],
+        "id": "generated-33"
+      },
+      {
+        "title": "What PyTorch replaced",
+        "section": "What PyTorch replaced",
+        "kind": "mixed",
+        "blocks": [
+          {
+            "type": "table",
+            "headers": [
+              "What you learned",
+              "PyTorch equivalent"
+            ],
+            "rows": [
+              [
+                "y = w * x + b (Lesson 1)",
+                "nn.Linear(1, 1)"
+              ],
+              [
+                "ReLU(z) = max(0, z) (Lesson 9)",
+                "nn.ReLU()"
+              ],
+              [
+                "Sigmoid(z) (Lesson 12)",
+                "nn.Sigmoid()"
+              ],
+              [
+                "BCE loss (Lesson 12)",
+                "nn.BCELoss()"
+              ],
+              [
+                "Manual gradients (L6, L11)",
+                "loss.backward()"
+              ],
+              [
+                "w = w - lr * grad (Lesson 4)",
+                "optimizer.step()"
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "text": "You understand what these do because you built them by hand. PyTorch just does them faster."
+          }
+        ],
+        "id": "generated-34"
+      },
+      {
+        "title": "Knowledge check",
+        "section": "Knowledge check",
+        "kind": "list",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              "What is requires_grad=True for?",
+              "What does loss.backward() do?",
+              "What are the 3 lines in the training loop?",
+              "How do you build a network with 2 hidden layers in PyTorch?",
+              "Why did we learn everything by hand first before using PyTorch?"
+            ]
+          }
+        ],
+        "id": "generated-35"
+      },
+      {
+        "title": "Next lesson",
+        "section": "Next lesson",
+        "kind": "text",
+        "blocks": [
+          {
+            "type": "text",
+            "text": "We have PyTorch. We understand Discriminators (classifiers). Now let's build the other half -- the Generator -- and make them compete. It's time to build a GAN."
+          }
+        ],
+        "id": "generated-36"
+      }
+    ]
+  }
+]

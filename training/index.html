@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAN Mastery · Training materials</title>
+<style>
+:root{--ink:#111827;--paper:#f7f4ed;--line:rgba(17,24,39,.13);--muted:#68707c;--blue:#3157d5;--blue-soft:#e8edff;--coral:#eb5a46;--coral-soft:#fff0ed;--mint:#277a59;--mint-soft:#e3f5ed;--violet:#7353bd;--violet-soft:#f0ebff;
+--display:"Segoe UI Variable Display","Aptos Display","Segoe UI",sans-serif;--body:"Segoe UI Variable Text","Aptos","Segoe UI",sans-serif;--mono:"Cascadia Code","SFMono-Regular",Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+body:before{content:"";position:fixed;inset:0;background-image:radial-gradient(rgba(49,87,213,.12) .65px,transparent .65px);background-size:22px 22px;opacity:.34;pointer-events:none}
+main{position:relative;max-width:1240px;margin:0 auto;padding:clamp(24px,4vw,56px) clamp(16px,4vw,48px) 64px}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:clamp(28px,5vh,56px)}
+.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--ink);color:#fff;font:850 12px var(--display);text-decoration:none}
+.crumbs{font-size:10px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:#6d7176}.crumbs a{color:var(--blue);text-decoration:none}
+.kicker{margin:0 0 14px;color:var(--blue);font:800 13px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+h1{margin:0;font-family:var(--display);font-size:clamp(40px,6vw,84px);font-weight:740;line-height:.97;letter-spacing:-.055em}
+.lede{max-width:760px;margin:20px 0 0;color:#525b6a;font-size:clamp(17px,1.5vw,22px);line-height:1.45}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 8px}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.72);font:800 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#525b6a}
+.tag i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+h2{margin:48px 0 16px;font-family:var(--display);font-size:clamp(24px,2.6vw,36px);letter-spacing:-.035em}
+.topic{display:grid;grid-template-columns:minmax(200px,.85fr) repeat(4,minmax(0,1fr));gap:10px;margin:0 0 12px;padding:12px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.55)}
+.topic-head{padding:10px 12px}.topic-head small{display:block;color:var(--muted);font:850 9px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.topic-head strong{display:block;margin-top:6px;font:740 clamp(18px,1.6vw,24px)/1.15 var(--display);letter-spacing:-.025em}
+.topic-head p{margin:8px 0 0;color:#5c6470;font-size:13px;line-height:1.4}
+.col{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:16px;background:var(--soft);min-width:0}
+.col>small{color:var(--c);font:850 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+.col a{display:block;padding:8px 10px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:13px;font-weight:650;line-height:1.3;overflow-wrap:anywhere}
+.col a span{display:block;margin-top:2px;color:var(--muted);font:600 11px var(--mono)}
+.col a:hover{border-color:var(--c);transform:translateY(-1px)}
+.col .none{color:var(--muted);font-size:12px;font-style:italic;padding:6px 2px}
+.adv{--c:var(--blue);--soft:var(--blue-soft)}.simple{--c:var(--ink);--soft:#efeadf}.labs{--c:var(--coral);--soft:var(--coral-soft)}.docs{--c:var(--mint);--soft:var(--mint-soft)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:28px}
+.card{display:flex;flex-direction:column;gap:10px;padding:26px;border:1px solid var(--line);border-radius:22px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 20px 60px rgba(17,24,39,.06)}
+.card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.card small{color:var(--blue);font:850 10px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.card strong{font:740 clamp(24px,2.4vw,34px)/1.05 var(--display);letter-spacing:-.04em}
+.card p{margin:0;color:#5c6470;font-size:14px;line-height:1.45}
+.card ul{margin:4px 0 0;padding-left:18px;color:#525b6a;font-size:13px;line-height:1.5}
+.card.planned{opacity:.5;pointer-events:none;box-shadow:none}
+.foot{margin-top:40px;color:var(--muted);font-size:12px;line-height:1.6}.foot code{font-family:var(--mono)}
+@media(max-width:980px){.topic{grid-template-columns:1fr 1fr}.topic-head{grid-column:1/-1}}
+@media(max-width:560px){.topic{grid-template-columns:1fr}}
+
+.path{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:28px 0 4px}
+.path a{flex:1 1 150px;display:block;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.72);color:var(--ink);text-decoration:none}
+.path a small{display:block;color:var(--blue);font:850 9px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.path a strong{display:block;margin-top:4px;font-size:13px;line-height:1.3}
+.path a.here{background:var(--ink);color:#fff;border-color:var(--ink)}.path a.here small{color:#9ce1c4}
+.path b{align-self:center;color:var(--muted);font-weight:700}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 0;max-width:980px}
+.outcomes div{padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.outcomes small{color:var(--mint);font:850 9px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.outcomes p{margin:6px 0 0;font-size:14px;line-height:1.45;color:#3f4652}
+.needs{font-size:12px!important;color:#68707c!important}.needs b{color:var(--coral);font:850 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-right:4px}
+.naming{margin-top:28px;padding:14px 16px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:12px;line-height:1.6;max-width:980px}
+@media(max-width:700px){.outcomes{grid-template-columns:1fr}.path b{display:none}}
+
+.unit{margin-top:64px;padding-top:28px;border-top:2px solid var(--ink)}
+.unit-title{margin:0;font-family:var(--display);font-size:clamp(30px,4vw,54px);font-weight:740;line-height:1;letter-spacing:-.045em}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 0}
+</style>
+</head>
+<body><main>
+<div class="top" id="top"><span class="mark">GM</span><div class="crumbs">GAN Mastery · Training materials</div></div>
+<p class="kicker">GAN Mastery</p>
+<h1>Training materials, by unit</h1>
+<p class="lede">Five units that build on each other — each grouped the same way: advanced decks, simple decks, labs and docs, organised by topic so you can teach at your own pace.</p>
+<nav class="path" aria-label="Learning path"><a href="#unit-1"><small>Unit 1 · noise → image</small><strong>GenAI · GANs · NN · DCGAN</strong></a><b>→</b><a href="#unit-2"><small>Unit 2 · noise → specific image</small><strong>WGAN · cGAN · control</strong></a><b>→</b><a href="#unit-3"><small>Unit 3 · noise → measured image</small><strong>IS · FID · bias · StyleGAN</strong></a><b>→</b><a href="#unit-4"><small>Unit 4 · image → image (paired)</small><strong>Pix2Pix · augmentation · privacy</strong></a><b>→</b><a href="#unit-5"><small>Unit 5 · image → image (unpaired)</small><strong>CycleGAN · capstone</strong></a></nav>
+<div class="cards">
+  <a class="card" href="#unit-1"><small>Unit 1</small><strong>Generative AI, GANs, PyTorch and DCGAN</strong><ul><li>4 advanced decks · 22 simple decks · 8 labs · lesson notes · NN course app</li></ul><p>Generative AI landscape → the GAN idea → neural networks → build GANs up to DCGAN.</p></a>
+  <a class="card" href="#unit-2"><small>Unit 2</small><strong>Better loss, stable training, control</strong><ul><li>2 advanced decks · 5 simple decks · 4 labs · lesson notes</li></ul><p>Why BCE fails → WGAN → WGAN-GP → conditional GANs → latent control.</p></a>
+  <a class="card" href="#unit-3"><small>Unit 3</small><strong>Evaluate and scale</strong><ul><li>4 simple decks · 2 labs · lesson notes</li></ul><p>IS and FID, bias and fairness, StyleGAN.</p></a>
+  <a class="card" href="#unit-4"><small>Unit 4</small><strong>Image translation, augmentation and privacy</strong><ul><li>3 simple decks · 1 lab · lesson notes</li></ul><p>Image-to-image, Pix2Pix, GANs for augmentation and private data.</p></a>
+  <a class="card" href="#unit-5"><small>Unit 5</small><strong>CycleGAN and capstone</strong><ul><li>2 simple decks · 2 labs · lesson notes</li></ul><p>Unpaired translation, then satellite → map on real data.</p></a>
+  <a class="card" href="slide-decks/v2/deep-dive/index.html"><small>Deep dive · any time</small><strong>How neural networks learn</strong><ul><li>110 slides · 12 live labs</li></ul><p>Gradient descent, optimizers, activations, loss functions and the training toolkit.</p></a>
+</div>
+<h2>Units</h2>
+<p class="lede">Each unit: what you need, what you will be able to do, and per topic its v2 deck, v1 lesson pages, labs and docs.</p>
+<div class="legend">
+  <span class="tag" style="--c:var(--blue)"><i></i>v2 deck · full teaching deck, live labs, formula walkthroughs</span>
+  <span class="tag" style="--c:var(--ink)"><i></i>v1 lesson pages · one short deck per lesson</span>
+  <span class="tag" style="--c:var(--coral)"><i></i>Labs · Jupyter notebooks</span>
+  <span class="tag" style="--c:var(--mint)"><i></i>Docs · lesson notes (Markdown)</span>
+</div>
+<section class="unit" id="unit-1">
+<p class="kicker">Unit 1</p>
+<h2 class="unit-title">Generative AI, GANs, PyTorch and DCGAN</h2>
+<p class="lede">From the generative-AI landscape to a DCGAN that draws digits: the GAN idea, everything inside G and D, then building and debugging real GANs.</p>
+<div class="outcomes"><div><small>You need</small><p>Python and basic algebra. No prior neural-network or PyTorch experience.</p></div><div><small>You will be able to</small><p>Explain the adversarial game, build a neural network from first principles and in PyTorch, train an MNIST GAN and a DCGAN, and diagnose mode collapse.</p></div></div>
+<section class="topic">
+  <div class="topic-head"><small>Topic 1</small><strong>Generative AI and the GAN idea</strong><p>The landscape (VAE, GAN, Transformer, Diffusion) and the forger-vs-detective game.</p></div>
+  <div class="col adv"><small>v2 deck</small><a href="slide-decks/v2/unit-1/1-generative-ai-and-gans.html">Generative AI and the GAN idea<span>62 slides · 3 live labs</span></a></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-1/S1-generative-ai.html">S1 · The world of generative AI<span>18 slides</span></a><a href="slide-decks/v1/unit-1/S2-what-is-a-gan.html">S2 · What is a GAN?<span>25 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L00.html">NN-L00 · Overview of generative AI<span>28 slides</span></a></div><div class="col labs"><small>Labs</small><div class="none">—</div></div><div class="col docs"><small>Docs</small><a href="unit-1/docs/session-1-generative-ai.md">Generative AI notes</a><a href="unit-1/docs/session-2-what-is-a-gan.md">The GAN idea notes</a><a href="unit-1/docs/gan-lessons/L00-the-world-of-generative-ai.md">L00 · The world of generative AI</a><a href="unit-1/docs/gan-lessons/L01-what-is-a-gan.md">L01 · What is a GAN?</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 2</small><strong>Neural networks: neuron to PyTorch</strong><p>Everything inside G and D: neuron, loss, gradients, backprop, Sigmoid + BCE, PyTorch.</p><p class="needs"><b>Needs</b> Topic 1 (what G and D must do).</p></div>
+  <div class="col adv"><small>v2 deck</small><a href="slide-decks/v2/unit-1/2-neural-networks.html">Neural networks: from one neuron to PyTorch<span>48 slides · 4 live labs</span></a><a href="slide-decks/v2/nn-course-app/README.md">Neural networks course app<span>14 lessons · run locally with npm</span></a></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-1/nn-lessons/NN-L01.html">NN-L01 · What is a neuron?<span>16 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L02.html">NN-L02 · How wrong is the prediction?<span>19 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L03.html">NN-L03 · Which direction should the weight move?<span>19 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L04.html">NN-L04 · How far should the weight move?<span>20 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L05.html">NN-L05 · Make the neuron learn repeatedly<span>20 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L06.html">NN-L06 · Calculate the gradient directly<span>21 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L07.html">NN-L07 · Learn both weight and bias<span>24 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L08.html">NN-L08 · A neuron with multiple inputs<span>24 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L09.html">NN-L09 · Why one neuron is not enough<span>26 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L10.html">NN-L10 · Your first hidden layer<span>25 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L11.html">NN-L11 · Backpropagation<span>26 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L12.html">NN-L12 · Sigmoid and binary cross-entropy<span>25 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L13.html">NN-L13 · Build a classifier<span>29 slides</span></a><a href="slide-decks/v1/unit-1/nn-lessons/NN-L14.html">NN-L14 · Introduction to PyTorch<span>30 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-1/labs/lab-p1-the-learning-neuron.ipynb">P1 · The learning neuron</a><a href="unit-1/labs/lab-p2-hidden-layers-and-backprop.ipynb">P2 · Hidden layers and backprop</a><a href="unit-1/labs/lab-p3-build-a-classifier.ipynb">P3 · Build a classifier</a><a href="unit-1/labs/lab-00-intro-to-pytorch.ipynb">Lab 0 · Introduction to PyTorch</a></div><div class="col docs"><small>Docs</small><a href="unit-1/docs/session-3-neural-networks.md">Neural networks notes</a><a href="unit-1/docs/nn-lessons/lesson-01-what-is-a-neuron.md">Lesson 01 · What is a neuron?</a><a href="unit-1/docs/nn-lessons/lesson-02-how-wrong-is-the-prediction.md">Lesson 02 · How wrong is the prediction?</a><a href="unit-1/docs/nn-lessons/lesson-03-which-direction-should-the-weight-move.md">Lesson 03 · Which direction should the weight move?</a><a href="unit-1/docs/nn-lessons/lesson-04-how-far-should-the-weight-move.md">Lesson 04 · How far should the weight move?</a><a href="unit-1/docs/nn-lessons/lesson-05-make-the-neuron-learn-repeatedly.md">Lesson 05 · Make the neuron learn repeatedly</a><a href="unit-1/docs/nn-lessons/lesson-06-calculate-the-gradient-directly.md">Lesson 06 · Calculate the gradient directly</a><a href="unit-1/docs/nn-lessons/lesson-07-learn-both-weight-and-bias.md">Lesson 07 · Learn both weight and bias</a><a href="unit-1/docs/nn-lessons/lesson-08-a-neuron-with-multiple-inputs.md">Lesson 08 · A neuron with multiple inputs</a><a href="unit-1/docs/nn-lessons/lesson-09-why-one-neuron-is-not-enough.md">Lesson 09 · Why one neuron is not enough</a><a href="unit-1/docs/nn-lessons/lesson-10-your-first-hidden-layer.md">Lesson 10 · Your first hidden layer</a><a href="unit-1/docs/nn-lessons/lesson-11-backpropagation.md">Lesson 11 · Backpropagation</a><a href="unit-1/docs/nn-lessons/lesson-12-sigmoid-and-bce.md">Lesson 12 · Sigmoid and binary cross-entropy</a><a href="unit-1/docs/nn-lessons/lesson-13-build-a-classifier.md">Lesson 13 · Build a classifier</a><a href="unit-1/docs/nn-lessons/lesson-14-introduction-to-pytorch.md">Lesson 14 · Introduction to PyTorch</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 3</small><strong>Build GANs: the number 7 to DCGAN</strong><p>First GAN, MNIST, convolutions, DCGAN — and how GANs break.</p><p class="needs"><b>Needs</b> Topics 1–2 (GAN loop; Linear, ReLU, Sigmoid, BCE, PyTorch training loop).</p></div>
+  <div class="col adv"><small>v2 deck</small><a href="slide-decks/v2/unit-1/3-build-gans.html">Build GANs: from the number 7 to DCGAN<span>91 slides · 5 live labs</span></a></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-1/gan-lessons/L02.html">L02 · Build your first GAN<span>18 slides</span></a><a href="slide-decks/v1/unit-1/gan-lessons/L03.html">L03 · GAN for images (MNIST)<span>17 slides</span></a><a href="slide-decks/v1/unit-1/gan-lessons/L04.html">L04 · Convolutions crash course<span>22 slides</span></a><a href="slide-decks/v1/unit-1/gan-lessons/L05.html">L05 · DCGAN<span>18 slides</span></a><a href="slide-decks/v1/unit-1/gan-lessons/L06.html">L06 · When GANs break<span>19 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-1/labs/lab-01-simple-gan.ipynb">Lab 1 · Build your first GAN</a><a href="unit-1/labs/lab-02-mnist-gan.ipynb">Lab 2 · GAN for images (MNIST)</a><a href="unit-1/labs/lab-03-dcgan.ipynb">Lab 3 · DCGAN</a><a href="unit-1/labs/lab-04-training-tricks.ipynb">Lab 4 · Break it, then fix it</a></div><div class="col docs"><small>Docs</small><a href="unit-1/docs/session-4-build-first-gan.md">Build GANs notes</a><a href="unit-1/docs/gan-lessons/L02-build-your-first-gan.md">L02 · Build your first GAN</a><a href="unit-1/docs/gan-lessons/L03-gan-for-images.md">L03 · GAN for images</a><a href="unit-1/docs/gan-lessons/L04-convolutions-crash-course.md">L04 · Convolutions</a><a href="unit-1/docs/gan-lessons/L05-dcgan.md">L05 · DCGAN</a><a href="unit-1/docs/gan-lessons/L06-when-gans-break.md">L06 · When GANs break</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 4</small><strong>Activation and loss functions</strong><p>Which activation goes where in G and D, why — and how losses score them.</p><p class="needs"><b>Needs</b> Topic 3 (MNIST GAN and DCGAN).</p></div>
+  <div class="col adv"><small>v2 deck</small><a href="slide-decks/v2/unit-1/4-activations-in-gans.html">Activation functions in GANs<span>22 slides · 3 live labs</span></a><a href="slide-decks/v2/unit-1/activation-functions-deep-dive.html">Activation functions — deep dive<span>20 slides</span></a><a href="slide-decks/v2/unit-1/loss-functions-deep-dive.html">Loss functions — deep dive<span>21 slides</span></a></div><div class="col simple"><small>v1 lesson pages</small><div class="none">—</div></div><div class="col labs"><small>Labs</small><div class="none">—</div></div><div class="col docs"><small>Docs</small><div class="none">—</div></div>
+</section>
+<h2>Whole-unit references</h2>
+<section class="topic" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+  <div class="col docs"><small>Unit notes</small><a href="unit-1/docs/unit-1-complete-notes.md">Unit 1 — complete notes</a></div>
+  <div class="col labs"><small>Lab guide</small><a href="unit-1/labs/README.md">Labs README · setup and lab map</a></div>
+  <div class="col simple"><small>Course summary</small><a href="unit-1/docs/nn-lessons/COURSE-SUMMARY.md">Neural-networks course summary</a></div>
+  <div class="col adv"><small>Go deeper</small><a href="slide-decks/v2/deep-dive/index.html">Deep dive · How neural networks learn<span>110 slides · 12 live labs</span></a></div>
+</section>
+<p class="foot"><a href="#unit-2">Unit 2 →</a></p>
+</section><section class="unit" id="unit-2">
+<p class="kicker">Unit 2</p>
+<h2 class="unit-title">Better loss, stable training, control</h2>
+<p class="lede">Fix the loss itself (WGAN, WGAN-GP), then take control of what the generator makes (conditional and controllable GANs).</p>
+<div class="outcomes"><div><small>You need</small><p>Unit 1 — especially BCE, the GAN training loop, DCGAN and the band-aid fixes from “When GANs break”.</p></div><div><small>You will be able to</small><p>Explain why BCE fails, train a WGAN-GP, generate a chosen digit with a conditional GAN, and steer outputs with interpolation, latent arithmetic and truncation.</p></div></div>
+<section class="topic">
+  <div class="topic-head"><small>Topic 1</small><strong>Better loss: from BCE to WGAN-GP</strong><p>Why BCE fails, the Wasserstein distance and critic, and the gradient penalty.</p><p class="needs"><b>Needs</b> Unit 1: BCE, non-saturating G loss, mode collapse.</p></div>
+  <div class="col adv"><small>v2 deck</small><a href="slide-decks/v2/unit-2/1-better-loss-wgan.html">Better loss: from BCE to WGAN-GP<span>78 slides · 6 live labs</span></a></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-2/L07.html">L07 · Why BCE loss fails<span>22 slides</span></a><a href="slide-decks/v1/unit-2/L08.html">L08 · WGAN: Wasserstein distance<span>29 slides</span></a><a href="slide-decks/v1/unit-2/L09.html">L09 · WGAN-GP: gradient penalty<span>28 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-2/labs/lab-08-wgan.ipynb">Lab 08 · WGAN on MNIST</a><a href="unit-2/labs/lab-09-wgan-gp.ipynb">Lab 09 · WGAN-GP on MNIST</a></div><div class="col docs"><small>Docs</small><a href="unit-2/docs/lessons/L07-why-bce-loss-fails.md">L07 · Why BCE loss fails</a><a href="unit-2/docs/lessons/L08-wgan-wasserstein-distance.md">L08 · WGAN</a><a href="unit-2/docs/lessons/L09-wgan-gp-gradient-penalty.md">L09 · WGAN-GP</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 2</small><strong>Control: conditional and controllable GANs</strong><p>Generate a chosen digit, then steer style with latent interpolation, arithmetic and truncation.</p><p class="needs"><b>Needs</b> Unit 1 MNIST GAN and DCGAN; topic 1 for the cGAN + WGAN-GP variant.</p></div>
+  <div class="col adv"><small>v2 deck</small><a href="slide-decks/v2/unit-2/2-control.html">Control: conditional and controllable GANs<span>50 slides · 5 live labs</span></a></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-2/L10.html">L10 · Conditional GAN<span>22 slides</span></a><a href="slide-decks/v1/unit-2/L11.html">L11 · Controllable generation<span>22 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-2/labs/lab-10-conditional-gan.ipynb">Lab 10 · Conditional GAN on MNIST</a><a href="unit-2/labs/lab-11-controllable-generation.ipynb">Lab 11 · Controllable generation (run lab 10 first)</a></div><div class="col docs"><small>Docs</small><a href="unit-2/docs/lessons/L10-conditional-gan.md">L10 · Conditional GAN</a><a href="unit-2/docs/lessons/L11-controllable-generation.md">L11 · Controllable generation</a></div>
+</section>
+<h2>Whole-unit references</h2>
+<section class="topic" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+  <div class="col labs"><small>Lab guide</small><a href="unit-2/labs/README.md">Labs README · lab map and setup</a></div>
+  <div class="col adv"><small>Go deeper</small><a href="slide-decks/v2/deep-dive/index.html">Deep dive · losses and optimizers<span>110 slides · 12 live labs</span></a></div>
+</section>
+<p class="foot"><a href="#unit-1">← Unit 1</a> · <a href="#unit-3">Unit 3 →</a></p>
+</section><section class="unit" id="unit-3">
+<p class="kicker">Unit 3</p>
+<h2 class="unit-title">Evaluate and scale</h2>
+<p class="lede">Measure GAN quality properly, check generators for bias, and meet StyleGAN.</p>
+<div class="outcomes"><div><small>You need</small><p>Units 1–2 — especially mode collapse, the conditional GAN and truncation (L11).</p></div><div><small>You will be able to</small><p>Compute and interpret IS and FID, audit a generator for bias, and explain StyleGAN’s mapping network, AdaIN and style mixing.</p></div></div>
+<section class="topic">
+  <div class="topic-head"><small>Topic 1</small><strong>Evaluating GANs: IS and FID</strong><p>Why “looks good” is not enough; Inception Score; FID from features to formula.</p><p class="needs"><b>Needs</b> Unit 1 mode collapse (diversity) and DCGAN samples.</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-3/L12.html">L12 · Evaluating GANs<span>24 slides</span></a><a href="slide-decks/v1/unit-3/L13.html">L13 · FID deep dive<span>19 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-3/labs/lab-13-fid-score.ipynb">Lab 13 · FID score</a></div><div class="col docs"><small>Docs</small><a href="unit-3/docs/lessons/L12-evaluating-gans.md">L12 · Evaluating GANs</a><a href="unit-3/docs/lessons/L13-fid-deep-dive.md">L13 · FID deep dive</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 2</small><strong>Bias and fairness</strong><p>Data, model and evaluation bias in generators — and how to mitigate them.</p><p class="needs"><b>Needs</b> Topic 1 (FID, per-group metrics).</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-3/L14.html">L14 · GAN bias and fairness<span>14 slides</span></a></div><div class="col labs"><small>Labs</small><div class="none">—</div></div><div class="col docs"><small>Docs</small><a href="unit-3/docs/lessons/L14-gan-bias-and-fairness.md">L14 · GAN bias and fairness</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 3</small><strong>StyleGAN</strong><p>Mapping network, AdaIN, style mixing, noise injection, truncation in w.</p><p class="needs"><b>Needs</b> Unit 2 L11 (latent space, truncation); Unit 1 DCGAN.</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-3/L15.html">L15 · StyleGAN<span>19 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-3/labs/lab-15-stylegan.ipynb">Lab 15 · Mini-StyleGAN on MNIST</a></div><div class="col docs"><small>Docs</small><a href="unit-3/docs/lessons/L15-stylegan.md">L15 · StyleGAN</a></div>
+</section>
+
+<p class="foot"><a href="#unit-2">← Unit 2</a> · <a href="#unit-4">Unit 4 →</a></p>
+</section><section class="unit" id="unit-4">
+<p class="kicker">Unit 4</p>
+<h2 class="unit-title">Image translation, augmentation and privacy</h2>
+<p class="lede">Turn one image into another with paired data, and use GANs for augmentation and private synthetic data.</p>
+<div class="outcomes"><div><small>You need</small><p>Units 1–3 — conditional GANs (L10), DCGAN layers, FID for evaluation.</p></div><div><small>You will be able to</small><p>Build a Pix2Pix model (U-Net + PatchGAN, L1 + GAN loss) and explain when GAN augmentation and DP training help.</p></div></div>
+<section class="topic">
+  <div class="topic-head"><small>Topic 1</small><strong>Image-to-image translation and Pix2Pix</strong><p>Encoder–decoder, U-Net skip connections, PatchGAN, L1 + GAN loss.</p><p class="needs"><b>Needs</b> Unit 2 L10 (conditioning G and D on an input); Unit 1 convolutions.</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-4/L16.html">L16 · Image-to-image translation<span>18 slides</span></a><a href="slide-decks/v1/unit-4/L17.html">L17 · Pix2Pix: U-Net + PatchGAN<span>18 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-4/labs/lab-17-pix2pix.ipynb">Lab 17 · Pix2Pix: edges to digits</a></div><div class="col docs"><small>Docs</small><a href="unit-4/docs/lessons/L16-image-to-image-framework.md">L16 · Image-to-image framework</a><a href="unit-4/docs/lessons/L17-pix2pix.md">L17 · Pix2Pix</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 2</small><strong>Data augmentation and privacy</strong><p>GANs for small datasets, conditional augmentation, DP-SGD, PATE-GAN.</p><p class="needs"><b>Needs</b> Topic 1; Unit 3 evaluation (FID) and bias.</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-4/L18.html">L18 · Data augmentation and privacy<span>19 slides</span></a></div><div class="col labs"><small>Labs</small><div class="none">—</div></div><div class="col docs"><small>Docs</small><a href="unit-4/docs/lessons/L18-data-augmentation-and-privacy.md">L18 · Data augmentation and privacy</a></div>
+</section>
+
+<p class="foot"><a href="#unit-3">← Unit 3</a> · <a href="#unit-5">Unit 5 →</a></p>
+</section><section class="unit" id="unit-5">
+<p class="kicker">Unit 5</p>
+<h2 class="unit-title">CycleGAN and the satellite-to-map capstone</h2>
+<p class="lede">Translate without paired data, then apply everything to real satellite imagery.</p>
+<div class="outcomes"><div><small>You need</small><p>Unit 4 Pix2Pix (U-Net, PatchGAN, L1 + GAN loss).</p></div><div><small>You will be able to</small><p>Train a CycleGAN with cycle-consistency and identity losses, and complete an end-to-end satellite → map project.</p></div></div>
+<section class="topic">
+  <div class="topic-head"><small>Topic 1</small><strong>CycleGAN: unpaired translation</strong><p>Cycle-consistency and identity losses, ResNet generator, LSGAN loss, replay buffer.</p><p class="needs"><b>Needs</b> Unit 4 Pix2Pix.</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-5/L19.html">L19 · CycleGAN: unpaired translation<span>20 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-5/labs/lab-19-cyclegan.ipynb">Lab 19 · CycleGAN</a></div><div class="col docs"><small>Docs</small><a href="unit-5/docs/lessons/L19-cyclegan.md">L19 · CycleGAN</a></div>
+</section><section class="topic">
+  <div class="topic-head"><small>Topic 2</small><strong>Capstone: satellite to map</strong><p>Pix2Pix on real satellite imagery, the CycleGAN alternative, and the full course recap.</p><p class="needs"><b>Needs</b> Topic 1 and Unit 4.</p></div>
+  <div class="col adv"><small>v2 deck</small><div class="none">Planned — use the v1 lesson pages</div></div><div class="col simple"><small>v1 lesson pages</small><a href="slide-decks/v1/unit-5/L20.html">L20 · Satellite to map + course wrap-up<span>17 slides</span></a></div><div class="col labs"><small>Labs</small><a href="unit-5/labs/lab-20-satellite-to-map.ipynb">Lab 20 · Satellite to map</a></div><div class="col docs"><small>Docs</small><a href="unit-5/docs/lessons/L20-satellite-to-map-and-wrapup.md">L20 · Satellite to map and wrap-up</a></div>
+</section>
+
+<p class="foot"><a href="#unit-4">← Unit 4</a> · <a href="#top">Back to top ↑</a></p>
+</section>
+<p class="naming"><b>Numbering.</b> Lesson and lab numbers are historical and stable: NN-L00–L14 are the neural-network lessons; S1/S2 replace the old L00/L01; GAN lessons run L02–L20. Unit 1’s notebooks are lab-p1–p3, lab-00 and lab-01–04; from Unit 2 a lab shares its lesson’s number (lab-08 ↔ L08), and lessons without a notebook leave gaps (L07, L12, L14, L16, L18).</p>
+<h2>Slide decks</h2>
+<div class="cards">
+  <a class="card" href="slide-decks/v1/index.html"><small>Slide decks · v1</small><strong>Lesson pages</strong><p>One short HTML deck per lesson, Units 1–5.</p></a>
+  <a class="card" href="slide-decks/v2/index.html"><small>Slide decks · v2</small><strong>Everything else</strong><p>Advanced topic decks with live labs, the deep dives and the neural-networks course app.</p></a>
+</div>
+<p class="foot">Plan: <a href="TRAINING-PLAN.md">TRAINING-PLAN.md</a> · Advanced decks are built from <code>training/deck-builder</code> (<code>npm run build</code>); these pages are generated by <code>deck-builder/scripts/make-index.py</code>.</p>
+
+</main></body>
+</html>

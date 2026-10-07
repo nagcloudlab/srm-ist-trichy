@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L17 — Pix2Pix: U-Net + PatchGAN</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L17">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L16.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L16</a><a href="../../../index.html#unit-4" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L17 &bull; Unit 4</a><a href="L18.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L18 &rarr;</a></div>
+
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-4">Unit 4</a> &bull; L17</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="We know the framework from L16. Now we build the real thing: Pix2Pix (Isola et al., CVPR 2017). Remember L10: a conditional GAN feeds the condition to G and D. Pix2Pix is exactly that — with a whole input image as the condition. But first, we need to fix the encoder-decoder's biggest weakness."
+     data-ask="What was the encoder-decoder's fatal flaw?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 17</div>
+  <h1>Pix2Pix: U-Net + PatchGAN</h1>
+  <p class="subtitle">Skip connections save the details &mdash; the first general-purpose paired translator</p>
+</div>
+
+<!-- 2 ─── HOOK: BOTTLENECK REVISITED ─── -->
+<div class="slide"
+     data-say="The tragedy: the encoder KNEW where every edge was at layer 1. But by the bottleneck, that information is gone. 512 numbers can't hold a whole city scene. The decoder has to GUESS. That's why outputs are blurry."
+     data-ask="If the encoder already knows where everything is, why can't the decoder just ask?"
+     data-time="2 min">
+  <h2>The Bottleneck Tragedy</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The encoder KNOWS where everything is</h4>
+        <p>At early layers (128x128, 64x64), the encoder has precise edge positions, window locations, every detail.</p>
+        <p class="mt-1">But by the bottleneck (<strong>1x1x512</strong>), all those precise positions are compressed away.</p>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>The decoder has to GUESS</h4>
+        <p>"There's a building somewhere... maybe on the left?"</p>
+        <p class="mt-1" style="font-weight:600;">Result: blurry edges, wrong positions, lost details.</p>
+      </div>
+    </div>
+    <div class="step" style="text-align:center;">
+      <blockquote style="padding:1.2rem 1.5rem;border-left:5px solid #1a1d2e;background:#f8f9fb;border-radius:0 12px 12px 0;">
+        <p style="font-size:clamp(1.1rem,2vw,1.4rem);font-weight:700;font-style:italic;line-height:1.5;">
+          &ldquo;What if we let the decoder <strong>directly access</strong> the encoder's feature maps?&rdquo;
+        </p>
+        <p style="font-size:clamp(0.9rem,1.5vw,1.1rem);color:var(--text-secondary);margin-top:0.5rem;">
+          That's the U-Net idea.
+        </p>
+      </blockquote>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── U-NET IDEA ─── -->
+<div class="slide"
+     data-say="U-Net: connect each encoder layer to its mirror decoder layer. The skip connections carry precise spatial info directly across. The decoder gets BOTH the big picture from the bottleneck AND the exact positions from the encoder."
+     data-ask="What kind of information flows through skip connections vs the bottleneck?"
+     data-time="3 min">
+  <h2>U-Net: Skip Connections to the Rescue</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 700 360" style="width:100%;max-width:700px;">
+      <!-- Encoder side -->
+      <text x="120" y="20" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">ENCODER</text>
+      <!-- E1 -->
+      <rect x="30" y="30" width="180" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+      <text x="120" y="49" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">128x128x64</text>
+      <line x1="120" y1="58" x2="120" y2="70" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- E2 -->
+      <rect x="50" y="70" width="140" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+      <text x="120" y="89" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">64x64x128</text>
+      <line x1="120" y1="98" x2="120" y2="110" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- E3 -->
+      <rect x="65" y="110" width="110" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+      <text x="120" y="129" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">32x32x256</text>
+      <line x1="120" y1="138" x2="120" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- E4 -->
+      <rect x="78" y="150" width="84" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+      <text x="120" y="169" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">16x16x512</text>
+      <line x1="120" y1="178" x2="120" y2="190" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- Bottleneck -->
+      <rect x="90" y="190" width="60" height="28" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="120" y="208" text-anchor="middle" font-size="9" font-family="JetBrains Mono,monospace" font-weight="700" fill="#3b6df0">1x1x512</text>
+
+      <!-- Decoder side -->
+      <text x="560" y="20" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">DECODER</text>
+      <!-- D1 -->
+      <rect x="470" y="30" width="180" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="560" y="49" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">128x128x64</text>
+      <line x1="560" y1="58" x2="560" y2="70" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- D2 -->
+      <rect x="490" y="70" width="140" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="560" y="89" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">64x64x128</text>
+      <line x1="560" y1="98" x2="560" y2="110" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- D3 -->
+      <rect x="505" y="110" width="110" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="560" y="129" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">32x32x256</text>
+      <line x1="560" y1="138" x2="560" y2="150" stroke="#4a5068" stroke-width="1.5"/>
+      <!-- D4 -->
+      <rect x="518" y="150" width="84" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="560" y="169" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">16x16x512</text>
+      <line x1="560" y1="178" x2="560" y2="190" stroke="#4a5068" stroke-width="1.5"/>
+
+      <!-- Connect bottleneck to decoder -->
+      <line x1="150" y1="204" x2="530" y2="204" stroke="#3b6df0" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <polygon points="527,200 533,204 527,208" fill="#3b6df0"/>
+
+      <!-- SKIP CONNECTIONS -->
+      <line x1="210" y1="44" x2="470" y2="44" stroke="#10b981" stroke-width="2" stroke-dasharray="8,4" class="flow-arrow"/>
+      <polygon points="467,40 473,44 467,48" fill="#10b981"/>
+      <line x1="190" y1="84" x2="490" y2="84" stroke="#10b981" stroke-width="2" stroke-dasharray="8,4" class="flow-arrow"/>
+      <polygon points="487,80 493,84 487,88" fill="#10b981"/>
+      <line x1="175" y1="124" x2="505" y2="124" stroke="#10b981" stroke-width="2" stroke-dasharray="8,4" class="flow-arrow"/>
+      <polygon points="502,120 508,124 502,128" fill="#10b981"/>
+      <line x1="162" y1="164" x2="518" y2="164" stroke="#10b981" stroke-width="2" stroke-dasharray="8,4" class="flow-arrow"/>
+      <polygon points="515,160 521,164 515,168" fill="#10b981"/>
+
+      <!-- Skip labels -->
+      <text x="340" y="38" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#10b981">skip (concat)</text>
+      <text x="340" y="78" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#10b981">skip (concat)</text>
+      <text x="340" y="118" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#10b981">skip (concat)</text>
+      <text x="340" y="158" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#10b981">skip (concat)</text>
+
+      <!-- Legend -->
+      <rect x="180" y="250" width="320" height="80" rx="10" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+      <text x="210" y="273" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#10b981">Skip connections carry:</text>
+      <text x="210" y="290" font-size="9" font-family="Inter,sans-serif" fill="#4a5068">Edge positions, fine textures, spatial details</text>
+      <text x="210" y="310" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#3b6df0">Bottleneck path carries:</text>
+      <text x="210" y="325" font-size="9" font-family="Inter,sans-serif" fill="#4a5068">Semantic meaning, global structure, high-level decisions</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 4 ─── WHY U-SHAPED ─── -->
+<div class="slide"
+     data-say="It's called U-Net because the architecture looks like the letter U. The skip connections are the horizontal bridges across the U. The key: concatenate means double the channels at each decoder layer."
+     data-ask="What does concatenation mean in terms of channel count?"
+     data-time="2 min">
+  <h2>Why It's Called U-Net</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>The U shape</h4>
+        <p>Encoder goes <strong>down</strong> (compress).<br>Decoder goes <strong>up</strong> (expand).<br>Skip connections bridge <strong>across</strong>.</p>
+        <p class="mt-1">Originally invented for medical image segmentation (Ronneberger et al., 2015). Perfect for image-to-image translation.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>What "concat" means</h4>
+        <p>At the 64&times;64 level:</p>
+        <ul>
+          <li>Decoder up-conv produces: 64x64x<strong>128</strong></li>
+          <li>Encoder skip had: 64x64x<strong>128</strong></li>
+          <li>Concatenate: 64x64x<strong>256</strong></li>
+          <li>Next up-conv: 128x128x<strong>64</strong></li>
+        </ul>
+        <p class="mt-1" style="font-weight:600;">Double the channels at each skip!</p>
+      </div>
+    </div>
+  </div>
+  <div class="formula mt-2">decoder_input = concat(upsampled_below, encoder_skip) &rarr; doubled channels &rarr; conv back</div>
+</div>
+
+<!-- 5 ─── U-NET IN CODE ─── -->
+<div class="slide"
+     data-say="The core pattern is simple: during encoding, SAVE each layer. During decoding, CONCATENATE with the saved layer. This is the heart of U-Net."
+     data-ask="What's the difference between a regular encoder-decoder and a U-Net?"
+     data-time="2 min">
+  <h2>U-Net: The Core Pattern in Code</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Encode: save each layer</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;">
+          e1 = enc1(x) &nbsp;&nbsp;&nbsp;<strong># save!</strong><br>
+          e2 = enc2(e1) &nbsp;<strong># save!</strong><br>
+          e3 = enc3(e2) &nbsp;<strong># save!</strong><br>
+          ...<br>
+          b = bottleneck(e7)
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Decode: concat with saved</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;">
+          d1 = dec1(b)<br>
+          d1 = <strong>cat([d1, e7])</strong> &nbsp;<strong># skip!</strong><br>
+          d2 = dec2(d1)<br>
+          d2 = <strong>cat([d2, e6])</strong> &nbsp;<strong># skip!</strong><br>
+          ...<br>
+          output = final(d7)
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="background:#f8f9fb;text-align:center;">
+    <p><strong>Without skip:</strong> decoder ONLY knows what survived the bottleneck</p>
+    <p><strong>With skip:</strong> decoder knows the big picture AND the exact positions</p>
+  </div>
+</div>
+
+<!-- 6 ─── PATCHGAN DETAILED ─── -->
+<div class="slide"
+     data-say="PatchGAN from L16, now in full detail. 4 conv layers, last two use stride=1. Input is 6 channels (input+output concatenated). Output is 30x30 grid. Each cell has a 70x70 receptive field."
+     data-ask="Why is it called a 70x70 PatchGAN if the output is 30x30?"
+     data-time="2 min">
+  <h2>PatchGAN Discriminator (Full Detail)</h2>
+  <div class="two-col align-center">
+    <div>
+      <table class="compare-table">
+        <tr><th>Layer</th><th>Operation</th><th>Size</th></tr>
+        <tr><td><strong>Input</strong></td><td>concat(input, output)</td><td>256x256x<strong>6</strong></td></tr>
+        <tr><td>1</td><td>Conv 4x4, stride 2</td><td>128x128x64</td></tr>
+        <tr><td>2</td><td>Conv 4x4, stride 2 + BN</td><td>64x64x128</td></tr>
+        <tr><td>3</td><td>Conv 4x4, stride 2 + BN</td><td>32x32x256</td></tr>
+        <tr><td>4</td><td>Conv 4x4, stride <strong>1</strong> + BN</td><td>31x31x512</td></tr>
+        <tr class="highlight-row"><td><strong>Output</strong></td><td>Conv 4x4, stride <strong>1</strong></td><td><strong>30x30x1</strong></td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Why "70x70"?</h4>
+        <p>Each cell in the 30x30 output has a <strong>receptive field of 70x70 pixels</strong> in the original 256x256 input.</p>
+        <p class="mt-1">The Pix2Pix paper tested patch sizes:</p>
+        <ul>
+          <li><strong>1x1</strong> (PixelGAN): sharp colors, no structure</li>
+          <li><strong>16x16</strong>: some texture</li>
+          <li><strong>70x70</strong>: good textures + structure</li>
+          <li><strong>256x256</strong> (full): no better, more params</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── PIX2PIX LOSS ─── -->
+<div class="slide"
+     data-say="Two losses working together. G wants to fool D AND match the target. D learns to distinguish real pairs from fake pairs. BCEWithLogitsLoss handles the PatchGAN grid automatically."
+     data-ask="Why BCEWithLogitsLoss instead of applying sigmoid first?"
+     data-time="2 min">
+  <h2>The Pix2Pix Loss</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Generator Loss</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.9;">
+          fake = G(input)<br>
+          d_fake = D(cat(input, fake))<br>
+          <br>
+          loss_GAN = BCE(d_fake, <strong>ones</strong>)<br>
+          loss_L1 = L1(fake, target)<br>
+          <br>
+          <strong>loss_G = loss_GAN + 100 * loss_L1</strong>
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Discriminator Loss</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.9;">
+          real_pair = cat(input, target)<br>
+          fake_pair = cat(input, fake.<strong>detach()</strong>)<br>
+          <br>
+          loss_real = BCE(D(real_pair), <strong>ones</strong>)<br>
+          loss_fake = BCE(D(fake_pair), <strong>zeros</strong>)<br>
+          <br>
+          <strong>loss_D = (loss_real + loss_fake) / 2</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="background:#f8f9fb;text-align:center;">
+    <p><strong>BCEWithLogitsLoss:</strong> sigmoid + BCE in one step &mdash; numerically stable, handles PatchGAN grids automatically</p>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="The code on the previous slide is this objective. Read it left to right: a conditional GAN term — D judges the pair (x, y) — plus 100 times the L1 distance to the target image. Stress that y here is the target IMAGE, not a class label as in L10."
+     data-ask="Which term would you remove to get the blurry result from L16?"
+     data-time="3 min">
+  <h2>The Pix2Pix objective <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">G* = arg min<sub>G</sub> max<sub>D</sub> &nbsp;L<sub>cGAN</sub>(G, D) + λ · L<sub>L1</sub>(G)</div>
+    <div class="fx-read">Read it: fool a pair-checking discriminator, and stay close to the target image — λ = 100</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">x</span><div><strong>Input image</strong><span class="fx-job">Edges, sketch, satellite photo</span></div><span class="fx-chip">the condition</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">y</span><div><strong>Target image</strong><span class="fx-job">The real output that matches x (not a class label)</span></div><span class="fx-chip">ground truth</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">G(x)</span><div><strong>Generated output</strong><span class="fx-job">U-Net; dropout supplies the randomness</span></div><span class="fx-chip">image</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">D(x, ·)</span><div><strong>Pair checker</strong><span class="fx-job">PatchGAN: is this output real for this input?</span></div><span class="fx-chip">30×30 grid</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">L<sub>cGAN</sub></span><div><strong>Conditional GAN loss</strong><span class="fx-job">log D(x, y) + log(1 − D(x, G(x)))</span></div><span class="fx-chip">sharpness</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">L<sub>L1</sub></span><div><strong>Pixel loss</strong><span class="fx-job">mean |y − G(x)| over all pixels</span></div><span class="fx-chip">≥ 0</span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">λ</span><div><strong>Weight on L1</strong><span class="fx-job">Paper default for every task</span></div><span class="fx-chip">100</span></div>
+    </div>
+    <div class="fx-key">In code G minimizes BCE(D(x, G(x)), 1) + 100 · L1 — the non-saturating form from Unit 1.</div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Compute one generator loss. Four target pixels, four generated pixels, and D's average patch score. Notice the L1 term is 15 while the GAN term is 1.2 — L1 dominates the number, but the GAN gradient is the one that sharpens textures."
+     data-ask="If D's average patch score rose to 0.9, what would the GAN term become?"
+     data-time="3 min">
+  <h2>One generator step: L1 dominates the number, GAN sharpens <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>y = (0.9, −0.2, 0.4, −1.0)</li><li>G(x) = (0.7, 0.0, 0.5, −0.9)</li><li>mean D(x, G(x)) = 0.3</li><li>λ = 100</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">|y − G(x)| = (0.2, 0.2, 0.1, 0.1)</span><span class="fx-note">pixel-by-pixel error</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">L<sub>L1</sub> = 0.6 / 4 = 0.15</span><span class="fx-note">mean over pixels</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">λ · L<sub>L1</sub> = 100 × 0.15 = 15.0</span><span class="fx-note">stay faithful to the target</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">L<sub>GAN</sub> = −ln 0.3 = 1.20</span><span class="fx-note">non-saturating: fool D on every patch</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">loss_G = 1.20 + 15.0 = 16.2</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Large λ keeps colours and layout right; the small GAN term is what removes the blur.</div>
+  </div>
+</div>
+
+<!-- 8 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Mid-lesson recap. We've covered the big innovations: U-Net fixes the bottleneck, PatchGAN provides local texture quality, and the combined loss gives us sharp + correct."
+     data-ask="Which innovation do you think matters most for quality?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Component</th><th>What It Does</th><th>Why It Matters</th></tr>
+    <tr><td><strong>U-Net</strong></td><td>Skip connections encoder &rarr; decoder</td><td>Preserves fine spatial details</td></tr>
+    <tr><td><strong>PatchGAN</strong></td><td>Grid of local real/fake scores</td><td>Forces good local textures</td></tr>
+    <tr><td><strong>GAN + L1</strong></td><td>Sharpness + accuracy combined</td><td>Sharp AND correct output</td></tr>
+    <tr><td><strong>BCEWithLogits</strong></td><td>Stable loss for grid output</td><td>No log(0) numerical issues</td></tr>
+    <tr><td><strong>Conditional D</strong></td><td>D sees input + output (6ch)</td><td>Output must match input</td></tr>
+  </table>
+</div>
+
+<!-- 9 ─── DROPOUT AS NOISE ─── -->
+<div class="slide"
+     data-say="Surprising detail: Pix2Pix uses 50% dropout in the first three decoder layers, AND keeps it ON at test time. Why? U-Net is so powerful it can just COPY the input through skip connections. Dropout forces it to actually learn the transformation."
+     data-ask="Why would you keep dropout ON at test time? Isn't that unusual?"
+     data-time="2 min">
+  <h2>Dropout as Noise</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The Problem</h4>
+        <p>U-Net is SO powerful that it can learn to <strong>just copy</strong> the input through skip connections and ignore the bottleneck entirely.</p>
+        <p class="mt-1">Result: output = slightly modified input (no real translation)</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>The Fix: Dropout(0.5)</h4>
+        <ul>
+          <li>Randomly drops 50% of activations</li>
+          <li>Forces the network to use <strong>multiple paths</strong></li>
+          <li class="step">Kept <strong>ON at test time</strong> (unusual!)</li>
+          <li class="step">Adds controlled randomness to output</li>
+        </ul>
+        <p class="mt-1 text-muted">Models uncertainty: colorization has multiple valid answers</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── DATA AUGMENTATION ─── -->
+<div class="slide"
+     data-say="Critical rule for paired data: you MUST transform both images identically. If you crop the input at one position and the target at another, they no longer match. The trick: concatenate both, transform together, split back."
+     data-ask="What disaster happens if input and target get different random crops?"
+     data-time="2 min">
+  <h2>Data Augmentation: The Critical Rule</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>WRONG: Different transforms</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;">
+          input_aug = RandomCrop(input)<br>
+          target_aug = RandomCrop(target)<br>
+          <strong># Different crops! Misaligned!</strong>
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>RIGHT: Same transform for both</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;">
+          both = cat([input, target])<br>
+          both = RandomCrop(both)<br>
+          input_aug, target_aug = split(both)<br>
+          <strong># Perfectly aligned!</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="background:#f8f9fb;">
+    <h4>Pix2Pix Augmentation Recipe</h4>
+    <p><strong>1.</strong> Resize to 286x286 &rarr; <strong>2.</strong> Random crop to 256x256 &rarr; <strong>3.</strong> Random horizontal flip (50%)<br>All applied identically to input AND target.</p>
+  </div>
+</div>
+
+<!-- 11 ─── FULL RECIPE ─── -->
+<div class="slide"
+     data-say="Here's the complete Pix2Pix recipe in one slide. Note the batch size of 1 — yes, ONE image at a time. With one image, BatchNorm statistics come from that image's own pixels — effectively instance normalization; the paper also keeps these test-time statistics instead of running averages."
+     data-ask="Batch size 1 — how can that work with BatchNorm?"
+     data-time="2 min">
+  <h2>The Full Pix2Pix Recipe</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Architecture</h4>
+        <table class="compare-table">
+          <tr><td><strong>Generator</strong></td><td>U-Net (8 encoder + 8 decoder layers)</td></tr>
+          <tr><td><strong>Discriminator</strong></td><td>70x70 PatchGAN</td></tr>
+          <tr><td><strong>D input</strong></td><td>concat(input, output) = 6 channels</td></tr>
+          <tr><td><strong>Norm</strong></td><td>BatchNorm at batch 1 = per-image (instance) statistics</td></tr>
+        </table>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Loss</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;">
+          G: BCE + 100 * L1<br>
+          D: BCE(real, 1) + BCE(fake, 0)
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Training Details</h4>
+        <table class="compare-table">
+          <tr><td><strong>Optimizer</strong></td><td>Adam(lr=2e-4, betas=(0.5, 0.999))</td></tr>
+          <tr><td><strong>Batch size</strong></td><td><strong>1</strong> (yes, one image!)</td></tr>
+          <tr><td><strong>Epochs</strong></td><td>200</td></tr>
+          <tr><td><strong>Dropout</strong></td><td>0.5, first 3 decoder layers, ON at test</td></tr>
+          <tr><td><strong>Augmentation</strong></td><td>Resize 286 &rarr; crop 256, flip</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── WHY PIX2PIX WORKS ─── -->
+<div class="slide"
+     data-say="Three forces work together: L1 for structure, GAN for sharpness, U-Net for spatial details. Remove any one and quality drops significantly."
+     data-ask="What happens if you remove each component one at a time?"
+     data-time="2 min">
+  <h2>Why Pix2Pix Works So Well</h2>
+  <div class="three-col">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>L1 Loss</h4>
+      <p>"Stay close to the ground truth"</p>
+      <p class="mt-1 text-muted">Handles overall structure and color. Prevents hallucination. Alone: <strong>blurry</strong></p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>GAN Loss</h4>
+      <p>"Look realistic to D"</p>
+      <p class="mt-1 text-muted">Handles sharpness and texture. Forces realistic details. Alone: <strong>ignores input</strong></p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>U-Net Skips</h4>
+      <p>"Don't lose the details"</p>
+      <p class="mt-1 text-muted">Carries precise spatial info. Encoder says WHERE, decoder says WHAT. Alone: <strong>copies input</strong></p>
+    </div>
+  </div>
+  <div class="formula mt-2">Remove any one &rarr; quality drops significantly</div>
+</div>
+
+<!-- LAB ─── LAB DEMO ─── -->
+<div class="slide"
+     data-say="Live demo of lab-17. Build the edge-to-digit pairs, show U-Net and PatchGAN shapes, start the training loop and talk while it runs. Then the two experiments that prove the lesson: L1 only versus L1 + GAN, and no skip versus U-Net. Note: the notebook calls gen.eval() for testing, which switches dropout OFF — the paper keeps it on; ask learners to try both."
+     data-ask="Before running experiment 1: will the L1-only model have a LOWER or HIGHER L1 error than Pix2Pix?"
+     data-time="30 min">
+  <h2>Lab Demo: <code>lab-17-pix2pix.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> build Pix2Pix on MNIST &mdash; Sobel edges in, the original digit out.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>Create paired data</strong>: edge map x &harr; digit y (same image, so perfectly aligned)</li>
+        <li><strong>U-Net</strong> + <strong>PatchGAN</strong>: 28&times;28 &rarr; 1&times;1 bottleneck; D outputs a 6&times;6 grid</li>
+        <li><strong>Training loop</strong>: BCE + 100 &middot; L1, Adam 2e-4, &beta;1 0.5</li>
+        <li>Experiments: <strong>L1 only vs L1 + GAN</strong>, <strong>PatchGAN scores</strong>, <strong>no skip vs U-Net</strong></li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>L1-only often has the <strong>lower</strong> L1 error but looks <strong>softer</strong></li>
+          <li>Each cell of the 6&times;6 PatchGAN map is one 22&times;22 patch&rsquo;s verdict</li>
+          <li>No-skip outputs lose stroke detail the U-Net keeps</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Set <code>lambda_L1</code> to 1 and to 1000. Which run hallucinates strokes, and which one blurs?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Four key takeaways from Pix2Pix."
+     data-ask="Which component surprised you most?"
+     data-time="1.5 min">
+  <h2>Lesson 17 Summary</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>U-Net Fixes the Bottleneck</h4>
+      <p>Skip connections carry edge positions and fine textures directly to the decoder</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>70x70 PatchGAN</h4>
+      <p>30x30 grid of scores &mdash; each cell judges a local patch for texture quality</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>GAN + 100*L1</h4>
+      <p>Sharpness from GAN, accuracy from L1 &mdash; together they give sharp AND correct</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">4</p>
+      <h4>Dropout at Test Time</h4>
+      <p>Prevents skip-connection copying, adds controlled randomness for uncertain tasks</p>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Give students time to think before revealing."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>U-Net gives the decoder direct access to encoder features. Why not just remove the bottleneck entirely?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">The bottleneck forces the network to learn <strong>semantic meaning</strong> &mdash; WHAT objects are, not just WHERE they are. Without it, the decoder would just copy the input through skip connections with minimal transformation. The bottleneck provides the "what to change" signal, while skips provide "where things are."</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Pix2Pix trains with batch size 1. How does BatchNorm work with a single image?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">With one image, the &ldquo;batch&rdquo; statistics are just that image&rsquo;s own mean and variance over its pixels &mdash; so BatchNorm behaves like <strong>InstanceNorm</strong>. Pix2Pix uses these per-image statistics at test time too, rather than running averages.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>What breaks if you apply different random crops to input and target?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">The input and target become <strong>misaligned</strong>. The model tries to learn a mapping where the edges in the input don't correspond to the structures in the target. The L1 loss gives nonsensical gradients, and the model either fails to converge or learns to ignore the input entirely.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="We've built the Pix2Pix system. Next: GANs as a practical tool. How do you use them to solve real problems like scarce data and privacy?"
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>Data Augmentation &amp; Privacy</h1>
+  <p class="subtitle">L18: Using GANs to generate synthetic training data and protect patient privacy</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

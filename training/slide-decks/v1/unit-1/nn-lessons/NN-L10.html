@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L10 — 🏗️ Your First Hidden Layer</title>
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ── L10-specific styles ── */
+
+/* Network architecture SVG wrapper */
+.l10-network-svg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0;
+  flex: 1;
+}
+
+/* Formula pair display */
+.l10-arithmetic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+.l10-arithmetic article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.8rem;
+  text-align: center;
+  min-width: 200px;
+}
+.l10-arithmetic article small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.l10-arithmetic article span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+}
+.l10-arithmetic article strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+.l10-arithmetic article.active {
+  border-color: var(--accent-green);
+  background: #ecfdf5;
+}
+.l10-arithmetic article.blocked {
+  border-color: var(--accent-red);
+  background: #fef2f2;
+}
+.l10-arithmetic b {
+  font-size: 2rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* Output combine section */
+.l10-output-sum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+.l10-output-sum article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.6rem;
+  text-align: center;
+  min-width: 170px;
+}
+.l10-output-sum article small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.l10-output-sum article span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.3rem;
+}
+.l10-output-sum article strong {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+.l10-output-sum article.total {
+  border-color: var(--accent-blue);
+  background: #f0f4ff;
+}
+.l10-output-sum b {
+  font-size: 2.2rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* z vs h explainer */
+.l10-zh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+.l10-zh article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  min-width: 200px;
+}
+.l10-zh article small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.l10-zh article strong {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.l10-zh article p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.l10-zh article span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--accent-blue);
+}
+.l10-zh b {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--accent-purple);
+  background: #f5f3ff;
+  border: 1.5px solid var(--accent-purple);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  white-space: nowrap;
+}
+
+/* Forward pass table */
+.l10-forward-table {
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  margin: 1.5rem 0;
+}
+.l10-forward-table > div {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.l10-forward-table > div:last-child { border-bottom: none; }
+.l10-forward-table > div:first-child {
+  background: var(--bg-accent-light);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-blue);
+}
+.l10-forward-table > div span {
+  padding: 0.65rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-light);
+}
+.l10-forward-table > div span:last-child { border-right: none; }
+.l10-forward-table .prediction-cell {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+/* Parameter table */
+.l10-parameter-table {
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  margin: 1.5rem 0;
+}
+.l10-parameter-table > div {
+  display: grid;
+  grid-template-columns: 120px 1fr 60px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.l10-parameter-table > div:last-child { border-bottom: none; }
+.l10-parameter-table > div:first-child {
+  background: var(--bg-accent-light);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-blue);
+}
+.l10-parameter-table > div > * {
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-light);
+}
+.l10-parameter-table > div > *:last-child { border-right: none; }
+.l10-parameter-table > div strong { color: var(--accent-blue); font-weight: 700; }
+.l10-parameter-table > div b { text-align: center; font-weight: 700; color: var(--text-primary); }
+.l10-parameter-table .total { background: #f0f4ff; }
+.l10-parameter-table .total strong { color: var(--text-primary); }
+.l10-parameter-table .total b { color: var(--accent-blue); font-size: 1.1rem; }
+
+/* Learning table */
+.l10-learning-table {
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  margin: 1.5rem 0;
+}
+.l10-learning-table > div {
+  display: grid;
+  grid-template-columns: 80px 180px 1fr;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.l10-learning-table > div:last-child { border-bottom: none; }
+.l10-learning-table > div:first-child {
+  background: var(--bg-accent-light);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-blue);
+}
+.l10-learning-table > div > * {
+  padding: 0.7rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-light);
+}
+.l10-learning-table > div > *:last-child { border-right: none; }
+.l10-learning-table > div strong { color: var(--accent-red); font-weight: 700; }
+.l10-learning-table .learned { background: #ecfdf5; }
+.l10-learning-table .learned strong { color: var(--accent-green); }
+
+/* Turns layout */
+.l10-turns {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  margin: 2rem 0;
+}
+.l10-turns article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+  text-align: center;
+}
+.l10-turns article:first-child { border-left: 4px solid var(--accent-purple); background: #f5f3ff; }
+.l10-turns article:last-child  { border-left: 4px solid var(--accent-green); background: #ecfdf5; }
+.l10-turns article:nth-child(2) { border-color: var(--border); }
+.l10-turns article small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.l10-turns article strong {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.l10-turns article p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+/* Starts layout */
+.l10-starts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.l10-starts article {
+  border-radius: 14px;
+  padding: 1.4rem 1.8rem;
+  text-align: center;
+}
+.l10-starts article:first-child { background: #ecfdf5; border: 1.5px solid var(--accent-green); }
+.l10-starts article:last-child  { background: #fef2f2; border: 1.5px solid var(--accent-red); }
+.l10-starts article small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.l10-starts article strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.l10-starts article p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+/* Proof block */
+.l10-proof {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  max-width: 520px;
+}
+.l10-proof > div {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+}
+.l10-proof > div small {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  flex-shrink: 0;
+  width: 100px;
+}
+.l10-proof > div strong {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.l10-proof .learned {
+  background: #ecfdf5;
+  border-color: var(--accent-green);
+}
+.l10-proof .learned strong { color: var(--accent-green); }
+
+/* Course phase map */
+.l10-phase-map {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+  align-items: center;
+  justify-content: center;
+}
+.l10-phase-map article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  text-align: center;
+  min-width: 140px;
+}
+.l10-phase-map article small {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.l10-phase-map article strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.l10-phase-map article.active {
+  border-color: var(--accent-blue);
+  background: #f0f4ff;
+}
+.l10-phase-map article.active small { color: var(--accent-blue); }
+.l10-phase-map article.active strong { color: var(--text-primary); }
+
+/* Values grid for forward setup */
+.l10-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+.l10-values article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  text-align: center;
+}
+.l10-values article small {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.l10-values article strong {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Experiment cards */
+.l10-experiment {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+.l10-experiment article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.8rem;
+  text-align: center;
+  min-width: 190px;
+}
+.l10-experiment article small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.l10-experiment article strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.l10-experiment article p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+.l10-experiment b {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Mini results row */
+.l10-mini-results {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.l10-mini-results span {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+}
+.l10-mini-results span b { color: var(--accent-blue); font-weight: 700; }
+
+/* Side effect layout */
+.l10-side-effect {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin: 1.5rem 0;
+}
+.l10-side-effect article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  text-align: center;
+}
+.l10-side-effect article small {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.l10-side-effect article strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+}
+.l10-side-effect article span {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+/* Same-hidden symmetry */
+.l10-same-table {
+  display: grid;
+  grid-template-columns: 60px 60px 60px 80px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  margin-top: 0.75rem;
+}
+.l10-same-table span {
+  padding: 0.5rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  text-align: center;
+}
+.l10-same-table span:nth-child(4n) { border-right: none; }
+.l10-same-table .same-cell { color: var(--accent-red); font-weight: 700; }
+
+/* Takeaway and rule chips */
+.takeaway {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: var(--bg-accent-light);
+  border-left: 4px solid var(--accent-blue);
+  border-radius: 0 10px 10px 0;
+  padding: 0.9rem 1.2rem;
+  line-height: 1.6;
+}
+.rule-chip {
+  display: inline-block;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 1.2rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+/* Quiz grid */
+.l10-quiz {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+.l10-quiz article {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.l10-quiz article span {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--accent-blue);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.l10-quiz article p {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0 0 0.3rem 0;
+  line-height: 1.4;
+}
+.l10-quiz article strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.4;
+}
+.l10-quiz article.answered strong {
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+/* Bridge layout for next lesson */
+.l10-bridge {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+.l10-bridge > div {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem 2rem;
+  text-align: center;
+  min-width: 200px;
+}
+.l10-bridge > div small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.l10-bridge > div strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.l10-bridge > div p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+.l10-bridge .arrow-bridge {
+  font-size: 2rem;
+  color: var(--text-light);
+}
+
+/* Revealable quiz — hide answers initially */
+.revealable .reveal-answer { display: none; }
+.revealable.revealed .reveal-answer { display: block; }
+</style>
+</head>
+<body data-lesson="NN-L10">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L09</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L10 / 14</a><a href="NN-L11.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L11 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L10</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- ═══════════════════════════════════════════════════
+  1 — COVER
+════════════════════════════════════════════════════ -->
+<div class="slide cover"
+     data-say="Lesson 9 built a V with hand-picked neurons. This lesson opens the network and follows the values."
+     data-ask="Where would you place neurons between input and output?"
+     data-time="1 min">
+  <div class="lesson-number">10 &bull; PART 2 &bull; DEEP NEURAL NETWORKS</div>
+  <h1>Your First Hidden Layer</h1>
+  <p class="subtitle">Follow one input through neurons in the middle</p>
+
+  <!-- Mini cover network diagram -->
+  <div class="l10-network-svg" style="margin-top:2rem;max-height:200px;">
+    <svg viewBox="0 0 560 180" style="max-width:480px;width:100%;" role="img" aria-label="Input node connects to two hidden ReLU neurons which connect to one output node">
+      <!-- Input node -->
+      <circle cx="70" cy="90" r="36" fill="#f0f4ff" stroke="#3b6df0" stroke-width="2.5"/>
+      <text x="70" y="85" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">INPUT</text>
+      <text x="70" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#3b6df0" font-weight="900">x</text>
+
+      <!-- Lines input → hidden -->
+      <line x1="106" y1="75" x2="218" y2="56" stroke="#3b6df0" stroke-width="2" opacity="0.5"/>
+      <line x1="106" y1="105" x2="218" y2="124" stroke="#3b6df0" stroke-width="2" opacity="0.5"/>
+
+      <!-- Hidden neuron 1 -->
+      <circle cx="254" cy="46" r="36" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+      <text x="254" y="41" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#10b981" font-weight="700">HIDDEN 1</text>
+      <text x="254" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b6df0" font-weight="700">ReLU</text>
+
+      <!-- Hidden neuron 2 -->
+      <circle cx="254" cy="134" r="36" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="254" y="129" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ef4444" font-weight="700">HIDDEN 2</text>
+      <text x="254" y="144" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b6df0" font-weight="700">ReLU</text>
+
+      <!-- Lines hidden → output -->
+      <line x1="290" y1="56" x2="418" y2="82" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+      <line x1="290" y1="124" x2="418" y2="98" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+
+      <!-- Output node -->
+      <circle cx="454" cy="90" r="36" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="454" y="85" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">OUTPUT</text>
+      <text x="454" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#3b6df0" font-weight="900">ŷ</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  2 — LEARNING OUTCOMES
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Connect the need for nonlinear pieces to the hidden layer that contains them."
+     data-ask="Which idea from Lesson 9 will sit between layers?"
+     data-time="2 min">
+  <h2>ReLU created the bend. Now connect the pieces.</h2>
+  <div class="l10-phase-map">
+    <article>
+      <small>Lessons 1–7</small>
+      <strong>One neuron learns</strong>
+    </article>
+    <div style="font-size:1.5rem;color:var(--text-light);">&rarr;</div>
+    <article>
+      <small>Lesson 8</small>
+      <strong>Multiple inputs</strong>
+    </article>
+    <div style="font-size:1.5rem;color:var(--text-light);">&rarr;</div>
+    <article>
+      <small>Lesson 9</small>
+      <strong>ReLU creates bends</strong>
+    </article>
+    <div style="font-size:1.5rem;color:var(--text-light);">&rarr;</div>
+    <article class="active">
+      <small>Lesson 10 &bull; Now</small>
+      <strong>Hidden layer</strong>
+    </article>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  4 — NEURON VS NETWORK
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="A network adds intermediate neurons without changing the direction of data flow."
+     data-ask="What is new in the second path?"
+     data-time="2 min">
+  <h2>Put useful neurons in the middle</h2>
+  <div style="display:flex;flex-direction:column;gap:1.5rem;margin-top:1.5rem;max-width:700px;">
+    <div class="revealable card accent-blue">
+      <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.75rem;">Lesson 1 &bull; One neuron</div>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;font-size:1.05rem;">
+        <span style="background:#f0f4ff;border:1.5px solid #3b6df0;border-radius:8px;padding:0.3rem 0.8rem;">Input</span>
+        <span style="color:var(--text-muted);">&rarr;</span>
+        <strong style="background:#e8f0ff;border:1.5px solid #3b6df0;border-radius:8px;padding:0.3rem 0.8rem;color:#3b6df0;">Neuron</strong>
+        <span style="color:var(--text-muted);">&rarr;</span>
+        <span style="background:#f0f4ff;border:1.5px solid #3b6df0;border-radius:8px;padding:0.3rem 0.8rem;">Output</span>
+      </div>
+    </div>
+    <div class="card accent-green">
+      <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.75rem;">Now &bull; A network</div>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;font-size:1.05rem;">
+        <span style="background:#ecfdf5;border:1.5px solid #10b981;border-radius:8px;padding:0.3rem 0.8rem;">Input</span>
+        <span style="color:var(--text-muted);">&rarr;</span>
+        <strong style="background:#d1fae5;border:1.5px solid #10b981;border-radius:8px;padding:0.3rem 0.8rem;color:#059669;">Hidden neurons</strong>
+        <span style="color:var(--text-muted);">&rarr;</span>
+        <strong style="background:#d1fae5;border:1.5px solid #10b981;border-radius:8px;padding:0.3rem 0.8rem;color:#059669;">Output neuron</strong>
+        <span style="color:var(--text-muted);">&rarr;</span>
+        <span style="background:#ecfdf5;border:1.5px solid #10b981;border-radius:8px;padding:0.3rem 0.8rem;">Output</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  5 — WHY "HIDDEN"?
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Hidden means no direct target is supplied for these internal activations."
+     data-ask="Who decides what each hidden neuron should detect?"
+     data-time="2 min">
+  <h2>We never give hidden neurons target answers</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="revealable card accent-blue">
+      <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.75rem;">We provide</div>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <div style="background:#dbeafe;border-radius:8px;padding:0.5rem 1rem;font-weight:700;color:#3b6df0;font-size:1rem;">input x</div>
+        <div style="background:#dbeafe;border-radius:8px;padding:0.5rem 1rem;font-weight:700;color:#3b6df0;font-size:1rem;">final target y</div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;color:var(--text-muted);font-style:italic;">but not</div>
+    </div>
+    <div class="card accent-red">
+      <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.75rem;">We do not provide</div>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <div style="background:#fee2e2;border-radius:8px;padding:0.5rem 1rem;font-weight:700;color:#ef4444;font-size:1rem;text-decoration:line-through;opacity:0.7;">target h&#8321;</div>
+        <div style="background:#fee2e2;border-radius:8px;padding:0.5rem 1rem;font-weight:700;color:#ef4444;font-size:1rem;text-decoration:line-through;opacity:0.7;">target h&#8322;</div>
+      </div>
+    </div>
+  </div>
+  <p class="takeaway">The hidden neurons <strong>figure out useful intermediate features</strong> during training.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  6 — THE ARCHITECTURE
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Count nodes first, then count the connections."
+     data-ask="How many hidden neurons are shown?"
+     data-time="2 min">
+  <h2>One input &bull; two hidden neurons &bull; one output</h2>
+  <div class="l10-network-svg">
+    <svg viewBox="0 0 700 260" style="max-width:640px;width:100%;" role="img" aria-label="Architecture: input x feeds into hidden neuron 1 with ReLU(z1) and hidden neuron 2 with ReLU(z2), both feed into output neuron ŷ">
+      <defs>
+        <marker id="arrL10a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#3b6df0" opacity="0.6"/>
+        </marker>
+        <marker id="arrL10b" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#8b5cf6" opacity="0.6"/>
+        </marker>
+      </defs>
+      <!-- Layer labels -->
+      <text x="100" y="240" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700" letter-spacing="0.08em">VISIBLE INPUT</text>
+      <text x="350" y="240" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700" letter-spacing="0.08em">HIDDEN LAYER</text>
+      <text x="600" y="240" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700" letter-spacing="0.08em">OUTPUT LAYER</text>
+
+      <!-- Input → hidden arrows -->
+      <line x1="145" y1="110" x2="290" y2="75" stroke="#3b6df0" stroke-width="2" opacity="0.5" marker-end="url(#arrL10a)"/>
+      <line x1="145" y1="130" x2="290" y2="175" stroke="#3b6df0" stroke-width="2" opacity="0.5" marker-end="url(#arrL10a)"/>
+
+      <!-- Hidden → output arrows -->
+      <line x1="410" y1="75" x2="555" y2="112" stroke="#8b5cf6" stroke-width="2" opacity="0.5" marker-end="url(#arrL10b)"/>
+      <line x1="410" y1="175" x2="555" y2="128" stroke="#8b5cf6" stroke-width="2" opacity="0.5" marker-end="url(#arrL10b)"/>
+
+      <!-- Input node -->
+      <circle cx="100" cy="120" r="44" fill="#f0f4ff" stroke="#3b6df0" stroke-width="2.5"/>
+      <text x="100" y="113" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">INPUT</text>
+      <text x="100" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#3b6df0" font-weight="900">x</text>
+
+      <!-- Hidden neuron 1 -->
+      <circle cx="350" cy="65" r="56" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+      <text x="350" y="54" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">HIDDEN 1</text>
+      <text x="350" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" font-weight="700">ReLU(z&#8321;)</text>
+
+      <!-- Hidden neuron 2 -->
+      <circle cx="350" cy="183" r="56" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="350" y="172" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">HIDDEN 2</text>
+      <text x="350" y="188" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" font-weight="700">ReLU(z&#8322;)</text>
+
+      <!-- Output node -->
+      <circle cx="600" cy="120" r="44" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="600" y="113" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">OUTPUT</text>
+      <text x="600" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#3b6df0" font-weight="900">ŷ</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  7 — FORWARD PASS SETUP
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Fix all parameters so the class can focus on information flow."
+     data-ask="Which hidden branch receives a negative weighted sum?"
+     data-time="2 min">
+  <h2>Follow x = 3 from input to prediction</h2>
+  <div class="l10-values">
+    <article>
+      <small>Input</small>
+      <strong>x = 3</strong>
+    </article>
+    <article>
+      <small>Hidden weight 1</small>
+      <strong>w&#8321; = 1</strong>
+    </article>
+    <article>
+      <small>Hidden weight 2</small>
+      <strong>w&#8322; = &minus;1</strong>
+    </article>
+    <article>
+      <small>Output weights</small>
+      <strong>v&#8321; = 1 &bull; v&#8322; = 1</strong>
+    </article>
+    <article>
+      <small>All biases</small>
+      <strong>0</strong>
+    </article>
+  </div>
+  <p class="takeaway">Data moves <strong>forward</strong>. Every neuron uses the output of the layer before it.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  8 — HIDDEN NEURON 1 (positive branch)
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Multiply first, then activate. Keep z and h separate."
+     data-ask="Why does three pass through ReLU unchanged?"
+     data-time="2 min">
+  <h2>The positive branch passes through</h2>
+  <div class="l10-arithmetic">
+    <article>
+      <small>1 &bull; Weighted sum</small>
+      <span>z&#8321; = w&#8321;x + b&#8321;</span>
+      <strong>z&#8321; = 1 &times; 3 + 0 = 3</strong>
+    </article>
+    <b>&rarr;</b>
+    <article class="active">
+      <small>2 &bull; Activation</small>
+      <span>h&#8321; = ReLU(z&#8321;)</span>
+      <strong>h&#8321; = ReLU(3) = 3</strong>
+    </article>
+  </div>
+  <div style="display:flex;justify-content:center;margin-top:0.5rem;">
+    <svg viewBox="0 0 340 140" style="max-width:320px;width:100%;border-radius:12px;background:#f8f9fb;border:1.5px solid #e2e5ef;" role="img" aria-label="ReLU graph: for input 3 the output is 3, gate is open">
+      <defs>
+        <marker id="axArr1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#4a5068"/></marker>
+      </defs>
+      <line x1="30" y1="110" x2="315" y2="110" stroke="#4a5068" stroke-width="1.5" marker-end="url(#axArr1)"/>
+      <line x1="170" y1="20" x2="170" y2="115" stroke="#4a5068" stroke-width="1.5" marker-end="url(#axArr1)"/>
+      <text x="308" y="108" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5">z</text>
+      <text x="175" y="30" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5">h</text>
+      <!-- ReLU shape: flat at 0 for negatives, then diagonal -->
+      <polyline points="30,110 170,110 300,40" fill="none" stroke="#10b981" stroke-width="3"/>
+      <!-- Mark z1=3 point -->
+      <circle cx="280" cy="53" r="6" fill="#10b981" stroke="white" stroke-width="1.5"/>
+      <text x="285" y="48" font-family="JetBrains Mono,monospace" font-size="10" fill="#10b981" font-weight="700">z=3 &rarr; h=3</text>
+      <!-- dashed drop lines -->
+      <line x1="280" y1="53" x2="280" y2="110" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+      <text x="170" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#8b90a5">0</text>
+      <text x="280" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#10b981" font-weight="700">3</text>
+      <text x="35" y="105" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-style="italic">gate OPEN</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  9 — HIDDEN NEURON 2 (negative branch)
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="The second weight reverses the sign; ReLU then blocks the negative value."
+     data-ask="What is h&#8322;?"
+     data-time="2 min">
+  <h2>The negative branch is blocked</h2>
+  <div class="l10-arithmetic">
+    <article>
+      <small>1 &bull; Weighted sum</small>
+      <span>z&#8322; = w&#8322;x + b&#8322;</span>
+      <strong>z&#8322; = &minus;1 &times; 3 + 0 = &minus;3</strong>
+    </article>
+    <b>&rarr;</b>
+    <article class="blocked">
+      <small>2 &bull; Activation</small>
+      <span>h&#8322; = ReLU(z&#8322;)</span>
+      <strong>h&#8322; = ReLU(&minus;3) = 0</strong>
+    </article>
+  </div>
+  <div style="display:flex;justify-content:center;margin-top:0.5rem;">
+    <svg viewBox="0 0 340 140" style="max-width:320px;width:100%;border-radius:12px;background:#f8f9fb;border:1.5px solid #e2e5ef;" role="img" aria-label="ReLU graph: for input minus 3 the output is zero, gate is closed">
+      <defs>
+        <marker id="axArr2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#4a5068"/></marker>
+      </defs>
+      <line x1="30" y1="110" x2="315" y2="110" stroke="#4a5068" stroke-width="1.5" marker-end="url(#axArr2)"/>
+      <line x1="170" y1="20" x2="170" y2="115" stroke="#4a5068" stroke-width="1.5" marker-end="url(#axArr2)"/>
+      <text x="308" y="108" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5">z</text>
+      <text x="175" y="30" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5">h</text>
+      <polyline points="30,110 170,110 300,40" fill="none" stroke="#8b90a5" stroke-width="2" stroke-dasharray="6,3" opacity="0.5"/>
+      <!-- Mark z2=-3 point on the flat part -->
+      <circle cx="60" cy="110" r="6" fill="#ef4444" stroke="white" stroke-width="1.5"/>
+      <text x="20" y="100" font-family="JetBrains Mono,monospace" font-size="10" fill="#ef4444" font-weight="700">z=&minus;3</text>
+      <text x="20" y="88" font-family="JetBrains Mono,monospace" font-size="10" fill="#ef4444" font-weight="700">h=0</text>
+      <text x="60" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#ef4444" font-weight="700">&minus;3</text>
+      <text x="170" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#8b90a5">0</text>
+      <text x="225" y="105" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-style="italic">gate CLOSED</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  10 — OUTPUT NEURON
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="The output neuron weights and adds the two hidden activations."
+     data-ask="Which hidden neuron contributes to this prediction?"
+     data-time="2 min">
+  <h2>Combine the hidden activations</h2>
+  <div class="l10-output-sum">
+    <article>
+      <small>Hidden 1 contribution</small>
+      <span>v&#8321; &times; h&#8321;</span>
+      <strong>1 &times; 3 = 3</strong>
+    </article>
+    <b>+</b>
+    <article>
+      <small>Hidden 2 contribution</small>
+      <span>v&#8322; &times; h&#8322;</span>
+      <strong>1 &times; 0 = 0</strong>
+    </article>
+    <b>=</b>
+    <article class="total">
+      <small>Prediction</small>
+      <span>v&#8321;h&#8321; + v&#8322;h&#8322; + c</span>
+      <strong>ŷ = 3</strong>
+    </article>
+  </div>
+  <p class="rule-chip">Only hidden neuron 1 contributes. Neuron 2 was blocked by ReLU.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  11 — FULL TRACE x=3
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Trace the full left-to-right path without skipping any symbol."
+     data-ask="Where does z become h?"
+     data-time="3 min">
+  <h2>Every number in the x = 3 forward pass</h2>
+  <div class="l10-network-svg">
+    <svg viewBox="0 0 720 280" style="max-width:680px;width:100%;" role="img" aria-label="x=3 flows into hidden neuron 1: z1=3 becomes h1=3 (gate open), and hidden neuron 2: z2=-3 becomes h2=0 (gate closed). Output ŷ=3">
+      <defs>
+        <marker id="arrP1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
+        <marker id="arrP2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b90a5" opacity="0.5"/></marker>
+        <marker id="arrP3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b5cf6"/></marker>
+      </defs>
+
+      <!-- Input → h1 (green/active) -->
+      <line x1="148" y1="108" x2="295" y2="72" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrP1)"/>
+      <!-- Input → h2 (muted) -->
+      <line x1="148" y1="128" x2="295" y2="188" stroke="#8b90a5" stroke-width="1.5" opacity="0.4" marker-end="url(#arrP2)"/>
+      <!-- h1 → output (purple/active) -->
+      <line x1="425" y1="72" x2="572" y2="108" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrP3)"/>
+      <!-- h2 → output (muted dashed) -->
+      <line x1="415" y1="200" x2="572" y2="128" stroke="#8b90a5" stroke-width="1.5" opacity="0.3" stroke-dasharray="5,4" marker-end="url(#arrP2)"/>
+
+      <!-- Input node -->
+      <circle cx="100" cy="118" r="46" fill="#f0f4ff" stroke="#3b6df0" stroke-width="2.5"/>
+      <text x="100" y="108" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">INPUT</text>
+      <text x="100" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#3b6df0" font-weight="900">x = 3</text>
+
+      <!-- Hidden 1 — active green -->
+      <circle cx="360" cy="62" r="62" fill="#ecfdf5" stroke="#10b981" stroke-width="3"/>
+      <text x="360" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">HIDDEN 1</text>
+      <text x="360" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#3b6df0" font-weight="700">z&#8321;=3 &rarr; h&#8321;=3</text>
+      <text x="360" y="80" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">gate OPEN</text>
+
+      <!-- Hidden 2 — blocked red -->
+      <circle cx="360" cy="196" r="62" fill="#fef2f2" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,3"/>
+      <text x="360" y="182" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">HIDDEN 2</text>
+      <text x="360" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#3b6df0" font-weight="700">z&#8322;=&minus;3 &rarr; h&#8322;=0</text>
+      <text x="360" y="214" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#ef4444" font-weight="700">gate CLOSED</text>
+
+      <!-- Output node -->
+      <circle cx="620" cy="118" r="46" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="620" y="108" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">OUTPUT</text>
+      <text x="620" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#8b5cf6" font-weight="900">ŷ = 3</text>
+    </svg>
+  </div>
+  <p class="rule-chip" style="display:block;text-align:center;">3 enters &rarr; hidden neurons transform it &rarr; output neuron combines them</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  12 — OPPOSITE INPUT x=-3
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Repeat the same operations for negative three."
+     data-ask="Which branch is now open?"
+     data-time="3 min">
+  <h2>Now follow x = &minus;3</h2>
+  <div class="l10-network-svg">
+    <svg viewBox="0 0 720 280" style="max-width:680px;width:100%;" role="img" aria-label="x=-3 flows in: hidden neuron 1: z1=-3 becomes h1=0 (closed), hidden neuron 2: z2=3 becomes h2=3 (open). Output ŷ=3">
+      <defs>
+        <marker id="arrN1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b90a5" opacity="0.5"/></marker>
+        <marker id="arrN2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b5cf6"/></marker>
+        <marker id="arrN3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
+      </defs>
+
+      <!-- Input → h1 (muted/closed) -->
+      <line x1="148" y1="108" x2="295" y2="72" stroke="#8b90a5" stroke-width="1.5" opacity="0.35" stroke-dasharray="5,4" marker-end="url(#arrN1)"/>
+      <!-- Input → h2 (active) -->
+      <line x1="148" y1="130" x2="295" y2="188" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrN3)"/>
+      <!-- h1 → output (muted) -->
+      <line x1="425" y1="72" x2="572" y2="108" stroke="#8b90a5" stroke-width="1.5" opacity="0.3" stroke-dasharray="5,4" marker-end="url(#arrN1)"/>
+      <!-- h2 → output (active) -->
+      <line x1="425" y1="196" x2="572" y2="130" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrN2)"/>
+
+      <!-- Input -->
+      <circle cx="100" cy="118" r="46" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="100" y="108" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">INPUT</text>
+      <text x="100" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#ef4444" font-weight="900">x = &minus;3</text>
+
+      <!-- Hidden 1 — blocked -->
+      <circle cx="360" cy="62" r="62" fill="#f8f9fb" stroke="#8b90a5" stroke-width="2" stroke-dasharray="6,3"/>
+      <text x="360" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">HIDDEN 1</text>
+      <text x="360" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b90a5" font-weight="700">z&#8321;=&minus;3 &rarr; h&#8321;=0</text>
+      <text x="360" y="80" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">gate CLOSED</text>
+
+      <!-- Hidden 2 — active -->
+      <circle cx="360" cy="196" r="62" fill="#ecfdf5" stroke="#10b981" stroke-width="3"/>
+      <text x="360" y="182" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">HIDDEN 2</text>
+      <text x="360" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#3b6df0" font-weight="700">z&#8322;=3 &rarr; h&#8322;=3</text>
+      <text x="360" y="214" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#10b981" font-weight="700">gate OPEN</text>
+
+      <!-- Output -->
+      <circle cx="620" cy="118" r="46" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="620" y="108" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="700">OUTPUT</text>
+      <text x="620" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="18" fill="#8b5cf6" font-weight="900">ŷ = 3</text>
+    </svg>
+  </div>
+  <p class="rule-chip" style="display:block;text-align:center;">The same network. The opposite gate opens.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  13 — TAKING TURNS
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="The neurons divide the input space: one handles each side."
+     data-ask="What happens at zero?"
+     data-time="2 min">
+  <h2>The opposite hidden neuron activates</h2>
+  <div class="l10-turns">
+    <article>
+      <small>Negative inputs</small>
+      <strong>h&#8322; is active</strong>
+      <p>Neuron 2 handles the left side.</p>
+    </article>
+    <article>
+      <small>At zero</small>
+      <strong>both are 0</strong>
+      <p>The two branches meet.</p>
+    </article>
+    <article>
+      <small>Positive inputs</small>
+      <strong>h&#8321; is active</strong>
+      <p>Neuron 1 handles the right side.</p>
+    </article>
+  </div>
+  <p class="takeaway">Each neuron specializes on one <strong>half of the number line</strong>. Together they cover everything.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  14 — Z vs H NAMES
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Use z for the pre-activation and h for the value the next layer receives."
+     data-ask="Which one is changed by ReLU?"
+     data-time="2 min">
+  <h2>z is before ReLU &bull; h is after ReLU</h2>
+  <div class="l10-zh">
+    <article>
+      <small>Pre-activation</small>
+      <strong>z</strong>
+      <p>The weighted sum before ReLU.</p>
+      <span>z = wx + b</span>
+    </article>
+    <b>ReLU&nbsp;&darr;</b>
+    <article>
+      <small>Activation</small>
+      <strong>h</strong>
+      <p>The value after ReLU — the next layer's input.</p>
+      <span>h = max(0, z)</span>
+    </article>
+  </div>
+  <p class="rule-chip" style="display:block;text-align:center;">ReLU is the only operation between z and h. Everything else in the network uses h.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  15 — FORWARD PASS TABLE
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Read each row as a complete forward pass."
+     data-ask="Why is the final prediction always nonnegative?"
+     data-time="3 min">
+  <h2>The network produces |x|</h2>
+  <div class="l10-forward-table">
+    <div>
+      <span>x</span>
+      <span>h&#8321; = ReLU(x)</span>
+      <span>h&#8322; = ReLU(&minus;x)</span>
+      <span>ŷ = h&#8321; + h&#8322;</span>
+    </div>
+    <div><span>&minus;3</span><span>0</span><span>3</span><span class="prediction-cell">3</span></div>
+    <div><span>&minus;1</span><span>0</span><span>1</span><span class="prediction-cell">1</span></div>
+    <div><span>0</span><span>0</span><span>0</span><span class="prediction-cell">0</span></div>
+    <div><span>1</span><span>1</span><span>0</span><span class="prediction-cell">1</span></div>
+    <div><span>3</span><span>3</span><span>0</span><span class="prediction-cell">3</span></div>
+  </div>
+  <p class="rule-chip" style="display:block;text-align:center;">The forward pass computes |x|: input goes in, prediction comes out. ReLU outputs are never negative.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  16 — LIVE CALCULATOR (interactive placeholder)
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Move x through zero, then change v&#8322; and observe only the negative side."
+     data-ask="Which values change when v&#8322; changes?"
+     data-time="5 min">
+  <h2>Change the input and the left-side influence</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:1.5rem;margin-top:1rem;">
+    <div class="card accent-blue" style="max-width:600px;width:100%;text-align:center;">
+      <p style="color:var(--text-muted);margin-bottom:1rem;">Interactive lab: slide <strong>x</strong> from &minus;3 to 3 and watch h&#8321;, h&#8322;, and ŷ update live. Then adjust <strong>v&#8322;</strong> and observe which region changes.</p>
+      <div style="font-size:0.8rem;color:#3b6df0;font-weight:600;">[ hidden-layer interactive lab ]</div>
+    </div>
+    <div class="card accent-purple" style="max-width:600px;width:100%;">
+      <strong>Instructor tip:</strong>
+      <p style="color:var(--text-muted);margin-top:0.5rem;">Move x through zero first. Ask: "which neuron just turned on?" Then change v&#8322; and ask: "which side of the V changed?"</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  17 — PARAMETER MAP
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Separate input-to-hidden parameters from hidden-to-output parameters."
+     data-ask="Why does the output need one shared bias?"
+     data-time="3 min">
+  <h2>This small network has seven learnable values</h2>
+  <div class="l10-parameter-table">
+    <div>
+      <span>Parameters</span>
+      <span>Connection</span>
+      <span>Count</span>
+    </div>
+    <div>
+      <strong>w&#8321;, b&#8321;</strong>
+      <span>Input &rarr; Hidden neuron 1</span>
+      <b>2</b>
+    </div>
+    <div>
+      <strong>w&#8322;, b&#8322;</strong>
+      <span>Input &rarr; Hidden neuron 2</span>
+      <b>2</b>
+    </div>
+    <div>
+      <strong>v&#8321;, v&#8322;</strong>
+      <span>Hidden layer &rarr; Output neuron</span>
+      <b>2</b>
+    </div>
+    <div>
+      <strong>c</strong>
+      <span>Output bias</span>
+      <b>1</b>
+    </div>
+    <div class="total">
+      <strong>Total</strong>
+      <span>Lesson 1 had only 2</span>
+      <b>7</b>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  18 — OUTPUT-WEIGHT EXPERIMENT
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Only the second hidden activation is scaled differently."
+     data-ask="At x = 3, does h&#8322; contribute anything?"
+     data-time="3 min">
+  <h2>Change v&#8322; from 1 to 2</h2>
+  <div class="l10-experiment">
+    <article>
+      <small>Original</small>
+      <strong>v&#8321; = 1 &bull; v&#8322; = 1</strong>
+      <p>ŷ = h&#8321; + h&#8322;</p>
+    </article>
+    <b>&rarr; change one value &rarr;</b>
+    <article style="border-color:#3b6df0;background:#f0f4ff;">
+      <small>Experiment</small>
+      <strong style="color:#3b6df0;">v&#8321; = 1 &bull; v&#8322; = 2</strong>
+      <p>ŷ = h&#8321; + 2h&#8322;</p>
+    </article>
+  </div>
+  <div class="l10-mini-results">
+    <span>x = &minus;3 &rarr; ŷ = <b>6</b></span>
+    <span>x = 0 &rarr; ŷ = <b>0</b></span>
+    <span>x = 3 &rarr; ŷ = <b>3</b></span>
+  </div>
+  <p class="takeaway">Doubling v&#8322; doubles the output for <strong>negative inputs only</strong> — because only h&#8322; is active there.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  19 — LOCAL EFFECT
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="The output weight controls the region where its hidden neuron is active."
+     data-ask="Why does the right side stay fixed?"
+     data-time="2 min">
+  <h2>Only the left side changes</h2>
+  <div class="l10-side-effect">
+    <article>
+      <small>x &lt; 0 &bull; h&#8322; active</small>
+      <strong>output doubles</strong>
+      <span>&minus;3 &rarr; 6</span>
+    </article>
+    <article>
+      <small>x = 0 &bull; both off</small>
+      <strong>no change</strong>
+      <span>0 &rarr; 0</span>
+    </article>
+    <article>
+      <small>x &gt; 0 &bull; h&#8322; off</small>
+      <strong>no change</strong>
+      <span>3 &rarr; 3</span>
+    </article>
+  </div>
+  <p class="takeaway"><strong>v&#8322; scales neuron 2</strong>, so it changes only the region where neuron 2 is active. Each output weight has local control.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  20 — WASTED CAPACITY
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Identical hidden weights produce identical activations for every input."
+     data-ask="What useful capacity is lost?"
+     data-time="3 min">
+  <h2>Identical hidden weights learn the same feature</h2>
+  <div style="max-width:560px;margin:1.5rem auto;">
+    <div class="card accent-red" style="text-align:center;margin-bottom:1.2rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Identical start</div>
+      <div style="font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:#ef4444;">w&#8321; = 0.5 &bull; w&#8322; = 0.5</div>
+    </div>
+    <div class="l10-same-table">
+      <span style="font-weight:700;color:#3b6df0;background:#eef2ff;">x</span>
+      <span style="font-weight:700;color:#3b6df0;background:#eef2ff;">h&#8321;</span>
+      <span style="font-weight:700;color:#3b6df0;background:#eef2ff;">h&#8322;</span>
+      <span style="font-weight:700;color:#3b6df0;background:#eef2ff;">result</span>
+      <span>&minus;2</span><span>0.0</span><span>0.0</span><span class="same-cell">same</span>
+      <span>0</span><span>0.0</span><span>0.0</span><span class="same-cell">same</span>
+      <span>2</span><span>1.0</span><span>1.0</span><span class="same-cell">same</span>
+    </div>
+  </div>
+  <p class="takeaway">Two neurons doing the same job are <strong>wasted capacity</strong>. The network can't learn two different features.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  21 — INITIALIZATION RULE
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Different starting values break symmetry so neurons can specialize."
+     data-ask="What roles did the two original neurons discover?"
+     data-time="2 min">
+  <h2>Hidden neurons must start differently</h2>
+  <div class="l10-starts">
+    <article>
+      <small>Neuron 1</small>
+      <strong>w&#8321; = +0.5</strong>
+      <p>Can specialize on positive inputs. Passes large positive z through ReLU.</p>
+    </article>
+    <article>
+      <small>Neuron 2</small>
+      <strong>w&#8322; = &minus;0.5</strong>
+      <p>Can specialize on negative inputs. Flips the sign so the other side passes.</p>
+    </article>
+  </div>
+  <p class="rule-chip" style="display:block;text-align:center;">Different initial weights <strong>break symmetry</strong> &rarr; different neurons can learn different features</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  22 — LEARNING PREVIEW
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Do not derive backprop yet; use the loss record as proof that the network can learn."
+     data-ask="At which checkpoint is the loss nearly zero?"
+     data-time="3 min">
+  <h2>The hidden layer can discover the V-shape</h2>
+  <div class="l10-learning-table">
+    <div>
+      <span>Epoch</span>
+      <span>Loss</span>
+      <span>What changed</span>
+    </div>
+    <div>
+      <span>1</span>
+      <strong>0.84801916</strong>
+      <span>rough first prediction</span>
+    </div>
+    <div>
+      <span>100</span>
+      <strong>0.00230882</strong>
+      <span>nearly the V-shape</span>
+    </div>
+    <div class="learned">
+      <span>2000</span>
+      <strong>0.00000000</strong>
+      <span>exact relationship</span>
+    </div>
+  </div>
+  <p class="takeaway">The network discovered useful hidden and output weights <strong>from data alone</strong>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  23 — PROOF — PREDICTIONS MATCH TARGETS
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Compare the five targets and predictions one by one."
+     data-ask="What shape has the network recovered?"
+     data-time="2 min">
+  <h2>Predictions converge to every target</h2>
+  <div class="l10-proof">
+    <div>
+      <small>Inputs</small>
+      <strong>[&minus;2, &minus;1, 0, 1, 2]</strong>
+    </div>
+    <div>
+      <small>Targets</small>
+      <strong>[2, 1, 0, 1, 2]</strong>
+    </div>
+    <div class="learned">
+      <small>Predictions</small>
+      <strong>[2, 1, 0, 1, 2]</strong>
+    </div>
+  </div>
+  <p class="rule-chip" style="display:block;text-align:center;">It learned |x| exactly — but the backward-pass arithmetic comes next lesson.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+  24 — KNOWLEDGE CHECK (revealable)
+════════════════════════════════════════════════════ -->
+<div class="slide"
+     data-say="Ask all questions before revealing the answers."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; What does 'hidden' mean?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">We don't tell hidden neurons what to output — they figure it out.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; What is z? What is h?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">z = before ReLU (pre-activation). h = after ReLU (activation).</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; How many parameters?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">7: four weights (w₁, w₂, v₁, v₂) and three biases.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; What if both hidden weights are identical?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Both neurons learn the same feature — one is wasted.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>05 &mdash; What is a forward pass?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">Data flows from input through layers to produce a prediction.</p></div>
+    </div>
+  </div>
+</div>
+<div class="slide cover"
+     data-say="Forward pass explains prediction. Backpropagation explains learning."
+     data-ask="What information must reach the hidden weights?"
+     data-time="1 min">
+  <h2>The prediction moves forward. The error must move backward.</h2>
+  <div class="l10-bridge" style="margin-top:2rem;">
+    <div>
+      <small>Forward pass</small>
+      <strong>input &rarr; prediction</strong>
+      <p>compute what the network believes</p>
+    </div>
+    <div class="arrow-bridge">&rarr;</div>
+    <div style="border-color:#3b6df0;background:#f0f4ff;">
+      <small>Backpropagation</small>
+      <strong>error &rarr; hidden weights</strong>
+      <p>assign responsibility and learn</p>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;font-style:italic;color:var(--text-secondary);font-size:1.05rem;">How does each hidden connection receive the right gradient?</p>
+  <span style="display:inline-block;margin-top:1rem;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;color:#3b6df0;">NEXT &bull; LESSON 11</span>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L11.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L11 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answers</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

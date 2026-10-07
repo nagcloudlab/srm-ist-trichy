@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S2 &mdash; What Is a GAN?</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="S2">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="S1-generative-ai.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; S1</a><a href="../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">S2 &bull; Unit 1</a><a href="nn-lessons/NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">Neural networks &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-1">Unit 1</a> &bull; Generative AI and the GAN idea</div>
+
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This is the most important session of the entire training. Every concept we build over the four days — DCGAN, WGAN, conditional GANs, StyleGAN — is just this session plus one new idea. Nail this and everything else is easy."
+     data-ask="What do you already know or think you know about GANs?"
+     data-time="1 min">
+  <div class="lesson-number">Unit 1 / Generative AI and the GAN idea</div>
+  <h1>What Is a GAN?</h1>
+  <p class="subtitle">Two neural networks <strong>compete</strong> &mdash; one <strong>creates fakes</strong>, the other <strong>detects them</strong> &mdash; and both get <strong>better</strong>. That&rsquo;s the whole idea. Everything else is details.</p>
+</div>
+
+<!-- 4 ─── FORGER VS DETECTIVE — TEXT ─── -->
+<div class="slide"
+     data-say="Now walk through each round with text. Reveal each round with a press. Let them feel the escalation. Pause after Round 1000 and let the silence do the work before pressing to the summary."
+     data-ask="In real life, when do competitors make each other better?"
+     data-time="3 min">
+  <h2>🎭 The Story: Forger vs Detective</h2>
+  <div style="display:flex;flex-direction:column;gap:0.8rem;max-width:700px;margin:0 auto;">
+    <div class="card" style="display:flex;gap:1rem;align-items:center;">
+      <div style="font-size:1.5rem;min-width:2.5rem;text-align:center;font-weight:700;">1</div>
+      <div><strong>Round 1:</strong> Forger paints stick figures. Detective laughs &mdash; <strong>&ldquo;Obviously fake.&rdquo;</strong></div>
+    </div>
+    <div class="card step" style="display:flex;gap:1rem;align-items:center;">
+      <div style="font-size:1.5rem;min-width:2.5rem;text-align:center;font-weight:700;">10</div>
+      <div><strong>Round 10:</strong> Better colors, still blurry. Detective: <strong>&ldquo;Still fake &mdash; brushwork is wrong.&rdquo;</strong></div>
+    </div>
+    <div class="card step" style="display:flex;gap:1rem;align-items:center;">
+      <div style="font-size:1.5rem;min-width:2.5rem;text-align:center;font-weight:700;">100</div>
+      <div><strong>Round 100:</strong> Right colors, right textures. Detective: <strong>&ldquo;Hmm&hellip; I&rsquo;m not sure.&rdquo;</strong></div>
+    </div>
+    <div class="card step" style="display:flex;gap:1rem;align-items:center;background:#ecfdf5;">
+      <div style="font-size:1.5rem;min-width:2.5rem;text-align:center;font-weight:700;">1000</div>
+      <div><strong>Round 1000:</strong> Perfect fakes. Detective: <strong>&ldquo;I literally cannot tell.&rdquo;</strong></div>
+    </div>
+    <div class="step" style="text-align:center;margin-top:0.5rem;">
+      <p style="font-size:1.15rem;font-weight:700;">Both got better <strong>because of each other</strong>. This is a <strong>Generative Adversarial Network</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── THE GAME IS ON! (from deeplearning.ai C1W1) ─── -->
+<div class="slide"
+     data-say="Make the competition tangible with numbers. The forger shows a painting, the detective gives a confidence score. Each round, both adjust. Watch the scores shift as the forger improves and the detective sharpens. By the end, the detective is at 50-50 — completely fooled."
+     data-ask="At what point does the detective start losing?"
+     data-time="3 min">
+  <h2>🎮 The Game Is <span class="accent">On!</span></h2>
+  <div style="display:flex;flex-direction:column;gap:0.8rem;max-width:720px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:auto 1fr auto 1fr;gap:0.8rem;align-items:center;">
+      <!-- Round 1 -->
+      <div style="font-weight:900;font-size:1.3rem;color:var(--accent-blue);">1</div>
+      <div class="card" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+        <div class="character gen" style="width:40px;height:40px;font-size:0.9rem;"><span>G</span></div>
+        <div><p style="font-size:0.85rem;">Terrible fake &mdash; stick figures</p></div>
+      </div>
+      <div class="character disc" style="width:40px;height:40px;font-size:0.9rem;"><span>D</span></div>
+      <div class="card" style="padding:0.6rem 1rem;background:#fef2f2;">
+        <p style="font-size:1.1rem;font-weight:900;color:var(--accent-red);">5% Real</p>
+        <p style="font-size:0.75rem;color:var(--text-muted);">&ldquo;Obviously fake&rdquo;</p>
+      </div>
+      <!-- Round 2 -->
+      <div class="step" style="font-weight:900;font-size:1.3rem;color:var(--accent-blue);">2</div>
+      <div class="card step" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+        <div class="character gen" style="width:40px;height:40px;font-size:0.9rem;"><span>G</span></div>
+        <div><p style="font-size:0.85rem;">Better try &mdash; right colors, blurry</p></div>
+      </div>
+      <div class="character disc step" style="width:40px;height:40px;font-size:0.9rem;"><span>D</span></div>
+      <div class="card step" style="padding:0.6rem 1rem;">
+        <p style="font-size:1.1rem;font-weight:900;color:var(--accent-purple);">40% Real</p>
+        <p style="font-size:0.75rem;color:var(--text-muted);">&ldquo;Getting better but still fake&rdquo;</p>
+      </div>
+      <!-- Round 3 -->
+      <div class="step" style="font-weight:900;font-size:1.3rem;color:var(--accent-blue);">3</div>
+      <div class="card step" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+        <div class="character gen" style="width:40px;height:40px;font-size:0.9rem;"><span>G</span></div>
+        <div><p style="font-size:0.85rem;">Impressive &mdash; textures, details</p></div>
+      </div>
+      <div class="character disc step" style="width:40px;height:40px;font-size:0.9rem;"><span>D</span></div>
+      <div class="card step" style="padding:0.6rem 1rem;">
+        <p style="font-size:1.1rem;font-weight:900;color:var(--accent-cyan);">80% Real</p>
+        <p style="font-size:0.75rem;color:var(--text-muted);">&ldquo;Hmm, I&rsquo;m not sure&hellip;&rdquo;</p>
+      </div>
+      <!-- Round 4 -->
+      <div class="step" style="font-weight:900;font-size:1.3rem;color:var(--accent-blue);">4</div>
+      <div class="card step" style="padding:0.6rem 1rem;display:flex;align-items:center;gap:0.8rem;background:#ecfdf5;">
+        <div class="character gen" style="width:40px;height:40px;font-size:0.9rem;"><span>G</span></div>
+        <div><p style="font-size:0.85rem;">Perfect fakes &mdash; <strong>end of game!</strong></p></div>
+      </div>
+      <div class="character disc step" style="width:40px;height:40px;font-size:0.9rem;"><span>D</span></div>
+      <div class="card step" style="padding:0.6rem 1rem;background:#f8f9fb;">
+        <p style="font-size:1.1rem;font-weight:900;">50% Real</p>
+        <p style="font-size:0.75rem;color:var(--text-muted);">&ldquo;I literally cannot tell&rdquo;</p>
+      </div>
+    </div>
+    <div class="step formula" style="font-size:0.95rem;">When D reaches 50% on everything &rarr; G has won &rarr; Nash equilibrium</div>
+  </div>
+</div>
+
+<!-- 5 ─── THE TWO PLAYERS ─── -->
+<div class="slide"
+     data-say="Map the story to GAN terminology. The Generator is the forger — paintbrush. The Discriminator is the detective — magnifying glass. Both are standard neural networks. Neither is magic."
+     data-ask="Which player has the harder job — the Generator or the Discriminator?"
+     data-time="2 min">
+  <h2>⚔️ The Two Players</h2>
+  <div style="display:flex;justify-content:center;gap:3rem;margin-bottom:1.5rem;">
+    <div style="text-align:center;">
+      <div class="character gen float" style="margin:0 auto 0.5rem;"><span>G</span><span class="badge">&#127912;</span></div>
+      <p style="margin-top:0.5rem;font-weight:700;">Generator</p>
+      <p style="font-size:0.85rem;">The Forger</p>
+    </div>
+    <div style="display:flex;align-items:center;font-size:1.4rem;font-weight:900;color:var(--text-light);">VS</div>
+    <div style="text-align:center;">
+      <div class="character disc float" style="margin:0 auto 0.5rem;animation-delay:0.5s;"><span>D</span><span class="badge">&#128269;</span></div>
+      <p style="margin-top:0.5rem;font-weight:700;">Discriminator</p>
+      <p style="font-size:0.85rem;">The Detective</p>
+    </div>
+  </div>
+  <table class="compare-table" style="max-width:660px;margin:0 auto;">
+    <tr><th></th><th>Generator (G)</th><th>Discriminator (D)</th></tr>
+    <tr><td><strong>Input</strong></td><td>Random noise z</td><td>An image (real or fake)</td></tr>
+    <tr><td><strong>Output</strong></td><td>A fake image</td><td>Probability: real or fake? (0&ndash;1)</td></tr>
+    <tr><td><strong>Goal</strong></td><td>Fool the Detective</td><td>Catch the fakes</td></tr>
+    <tr><td><strong>Built with</strong></td><td>Neural network</td><td>Neural network (classifier)</td></tr>
+  </table>
+</div>
+
+<!-- 5b ─── D IS JUST A CLASSIFIER (from deeplearning.ai C1W1) ─── -->
+<div class="slide"
+     data-say="Key insight: the Discriminator is literally just a classifier you already know how to build. Normal classifiers distinguish between cat, dog, bird — many classes. The Discriminator just narrows it to TWO classes: real or fake. Same neural network, same loss function, fewer outputs. If you've built a classifier, you've already built half a GAN."
+     data-ask="What's different between a normal classifier and a GAN discriminator?"
+     data-time="2 min">
+  <h2>D Is Just a <span class="accent">Classifier</span></h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card mb-1">
+        <h4>Normal Classifier</h4>
+        <div class="diagram" style="padding:0.5rem;gap:0.3rem;">
+          <div class="box"><div class="label">Image</div><div class="value" style="font-size:0.8rem;">&#128049;</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box highlight"><div class="label">NN</div><div class="value" style="font-size:0.8rem;">classify</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box"><div class="value" style="font-size:0.7rem;">Cat 0.85<br>Dog 0.10<br>Bird 0.05</div></div>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;text-align:center;">Many classes</p>
+      </div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>GAN Discriminator</h4>
+        <div class="diagram" style="padding:0.5rem;gap:0.3rem;">
+          <div class="box"><div class="label">Image</div><div class="value" style="font-size:0.8rem;">&#127912;</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box disc"><div class="label">D</div><div class="value" style="font-size:0.8rem;">classify</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box"><div class="value" style="font-size:0.8rem;"><strong>0.15</strong><br>Fake</div></div>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;text-align:center;">Just <strong>two</strong> classes: Real or Fake</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Same architecture, simpler task</h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><th></th><th>Classifier</th><th>Discriminator</th></tr>
+          <tr><td><strong>Input</strong></td><td>Image features</td><td>Image features</td></tr>
+          <tr><td><strong>Output</strong></td><td>P(cat), P(dog)&hellip;</td><td>P(real)</td></tr>
+          <tr><td><strong>Classes</strong></td><td>Many (5, 10, 1000)</td><td><strong>Just 2</strong></td></tr>
+          <tr><td><strong>Loss</strong></td><td>Cross-entropy</td><td>BCE (binary CE)</td></tr>
+          <tr><td><strong>Labels</strong></td><td>Cat, Dog, Bird&hellip;</td><td>Real = 1, Fake = 0</td></tr>
+        </table>
+        <p class="mt-1 text-muted" style="font-size:0.85rem;">D&rsquo;s probability output becomes the <strong>feedback signal</strong> for G.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── WHAT IS RANDOM NOISE? ─── -->
+<div class="slide"
+     data-say="Demystify noise. It is just a list of random numbers — like rolling dice. The Generator turns meaningless numbers into meaningful images. Different noise equals different output. Without noise, G would make the same image every time."
+     data-ask="If the noise is random, how does G know what to create?"
+     data-time="2 min">
+  <h2>🎲 What Is &ldquo;Random Noise&rdquo;?</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>Just a vector of random numbers. No meaning. No pattern.</p>
+      <div class="formula mt-1" style="font-size:0.95rem;">noise = torch.randn(1, 5)<br>[-0.42, 1.31, -0.87, 0.15, 2.01]</div>
+      <p class="mt-1" style="font-weight:600;">Like rolling 5 dice. That&rsquo;s it.</p>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>How many random numbers?</h4>
+        <ul>
+          <li>Simple GAN: <strong>1 to 64</strong></li>
+          <li>Image GAN: <strong>100</strong> (typical)</li>
+          <li>More numbers = more variety</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <p style="font-weight:600;margin-bottom:0.5rem;">Different noise = different output:</p>
+      <div class="diagram" style="padding:0.5rem;gap:0.4rem;">
+        <div class="box"><div class="label">Noise A</div><div class="value">z&#8321;</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box gen"><div class="value">G</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box"><div class="value" style="font-size:1.5rem;">3</div></div>
+      </div>
+      <div class="diagram" style="padding:0.5rem;gap:0.4rem;margin-top:0.5rem;">
+        <div class="box"><div class="label">Noise B</div><div class="value">z&#8322;</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box gen"><div class="value">G</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box"><div class="value" style="font-size:1.5rem;">7</div></div>
+      </div>
+      <p class="text-muted mt-1" style="font-size:0.85rem;text-align:center;">Noise is the <strong>trigger</strong> for variety.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── GAN ARCHITECTURE SVG ─── -->
+<div class="slide"
+     data-say="This is THE diagram. The most important visual in the whole training. Trace each arrow slowly: noise enters G, G produces a fake. Both the fake and real images go to D. D gives a verdict. The blue arc at the bottom is the gradient feedback — the learning signal that flows back into both networks."
+     data-ask="Where does real data come from? Does G ever see it directly?"
+     data-time="3 min">
+  <h2>🔄 How It Works &mdash; The Full Data Flow</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 720 300" style="width:100%;max-width:720px;max-height:52vh;">
+      <defs>
+        <marker id="arrowDark" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4a5068"/></marker>
+        <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3b6df0"/></marker>
+        <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#10b981"/></marker>
+      </defs>
+      <!-- Noise box -->
+      <rect x="12" y="70" width="95" height="58" rx="10" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+      <text x="59" y="93" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="600">RANDOM</text>
+      <text x="59" y="118" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" font-weight="700" fill="#1a1d2e">Noise z</text>
+      <!-- Arrow: Noise -> G -->
+      <line x1="112" y1="99" x2="160" y2="99" stroke="#4a5068" stroke-width="2" marker-end="url(#arrowDark)"/>
+      <!-- Generator -->
+      <rect x="165" y="60" width="125" height="78" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+      <text x="227" y="87" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#10b981" font-weight="700">GENERATOR</text>
+      <text x="227" y="123" text-anchor="middle" font-family="Inter,sans-serif" font-size="30" fill="#10b981" font-weight="900">G</text>
+      <!-- Arrow: G -> Fake -->
+      <line x1="294" y1="99" x2="342" y2="99" stroke="#4a5068" stroke-width="2" marker-end="url(#arrowDark)"/>
+      <!-- Fake image -->
+      <rect x="347" y="73" width="88" height="52" rx="10" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+      <text x="391" y="94" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="600">FAKE</text>
+      <text x="391" y="115" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" fill="#1a1d2e" font-weight="700">G(z)</text>
+      <!-- Arrow: Fake -> D (diagonal down) -->
+      <line x1="435" y1="99" x2="488" y2="140" stroke="#4a5068" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrowDark)"/>
+      <!-- Real image -->
+      <rect x="347" y="188" width="88" height="52" rx="10" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+      <text x="391" y="208" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="600">REAL</text>
+      <text x="391" y="229" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" fill="#1a1d2e" font-weight="700">x</text>
+      <!-- Arrow: Real -> D (diagonal up) -->
+      <line x1="435" y1="214" x2="488" y2="175" stroke="#4a5068" stroke-width="2" marker-end="url(#arrowDark)"/>
+      <!-- Discriminator -->
+      <rect x="493" y="118" width="128" height="78" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="557" y="147" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#ef4444" font-weight="700">DISCRIMINATOR</text>
+      <text x="557" y="183" text-anchor="middle" font-family="Inter,sans-serif" font-size="30" fill="#ef4444" font-weight="900">D</text>
+      <!-- Arrow: D -> Verdict -->
+      <line x1="626" y1="157" x2="660" y2="157" stroke="#4a5068" stroke-width="2" marker-end="url(#arrowDark)"/>
+      <!-- Verdict circle -->
+      <circle cx="685" cy="157" r="24" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+      <text x="685" y="154" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#8b90a5" font-weight="600">0&ndash;1</text>
+      <text x="685" y="170" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1a1d2e" font-weight="700">?</text>
+      <!-- Feedback loop (animated, blue) -->
+      <path d="M557,201 L557,270 L227,270 L227,143" fill="none" stroke="#3b6df0" stroke-width="2.2" class="flow-arrow" marker-end="url(#arrowBlue)"/>
+      <text x="390" y="263" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#3b6df0" font-weight="700">gradient feedback (learning signal)</text>
+      <!-- Step labels -->
+      <text x="59" y="148" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#3b6df0" font-weight="600">&#9312; noise</text>
+      <text x="195" y="152" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#10b981" font-weight="600">&#9313; creates fake</text>
+      <text x="475" y="108" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" font-weight="600">fake</text>
+      <text x="475" y="242" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#8b90a5" font-weight="600">real</text>
+      <text x="650" y="130" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#ef4444" font-weight="600">&#9314; verdict</text>
+    </svg>
+  </div>
+  <div style="display:flex;justify-content:center;gap:2rem;margin-top:0.4rem;flex-wrap:wrap;">
+    <p style="font-size:0.88rem;"><strong>1.</strong> G takes noise, creates fake</p>
+    <p style="font-size:0.88rem;"><strong>2.</strong> D sees real + fake images</p>
+    <p style="font-size:0.88rem;"><strong>3.</strong> D says &ldquo;real or fake?&rdquo;</p>
+    <p style="font-size:0.88rem;"><strong>4.</strong> Both learn from the verdict</p>
+  </div>
+</div>
+
+<!-- 7 ─── TRAINING LOOP: TWO STEPS ─── -->
+<div class="slide"
+     data-say="Every training round has exactly two steps. Step A trains D as a binary classifier: show it real and fake, update its weights. Step B trains G as a fooler: make fakes, get D's judgment, update G. They take turns. Neither runs at the same time."
+     data-ask="Why do we train D first, before training G?"
+     data-time="2 min">
+  <h2>🔁 The Training Loop &mdash; Two Steps, Repeated</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Step A &mdash; Train D</h4>
+      <ul>
+        <li>Real image &rarr; D should say <strong>1</strong></li>
+        <li>Fake image &rarr; D should say <strong>0</strong></li>
+        <li>Update D&rsquo;s weights only</li>
+      </ul>
+      <p class="text-muted mt-1" style="font-size:0.85rem;">D is a <strong>binary classifier</strong>. G is frozen.</p>
+    </div>
+    <div class="vs">then</div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Step B &mdash; Train G</h4>
+      <ul>
+        <li>G creates a fake from noise</li>
+        <li>D judges the fake</li>
+        <li>G wants D to say <strong>1</strong> (fooled!)</li>
+        <li>Update G&rsquo;s weights only</li>
+      </ul>
+      <p class="text-muted mt-1" style="font-size:0.85rem;">G <strong>never sees real images</strong>. D is frozen.</p>
+    </div>
+  </div>
+  <div class="formula mt-2" style="font-size:1rem;">Repeat Step A + Step B thousands of times &rarr; both improve &rarr; fakes get realistic</div>
+</div>
+
+<!-- 8 ─── OPPOSITE GOALS ─── -->
+<div class="slide"
+     data-say="The magic is in the disagreement. D and G want opposite things for fake images. This tension IS the learning signal. The end goal: D reaches 0.5 on everything, meaning it can no longer tell real from fake."
+     data-ask="What does it mean when D outputs 0.5 for everything?"
+     data-time="2 min">
+  <h2>Why This Works &mdash; Opposite Goals</h2>
+  <table class="compare-table" style="max-width:560px;margin:0 auto;">
+    <tr><th></th><th>D wants&hellip;</th><th>G wants&hellip;</th></tr>
+    <tr><td><strong>Real images</strong></td><td>D(real) = 1</td><td>(doesn&rsquo;t care)</td></tr>
+    <tr class="highlight-row"><td><strong>Fake images</strong></td><td>D(fake) = 0</td><td>D(fake) = 1</td></tr>
+  </table>
+  <div style="display:flex;justify-content:center;margin-top:1.5rem;">
+    <div class="card" style="background:#f8f9fb;max-width:560px;text-align:center;">
+      <p style="font-size:1.1rem;font-weight:600;">They <strong>disagree</strong> on fake images. This tension drives all learning.</p>
+      <p class="mt-1"><strong>End goal:</strong> G gets so good that D outputs <strong>0.5</strong> for everything &mdash; &ldquo;I have no idea if this is real or fake.&rdquo;</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── WHAT DOES G LEARN? ─── -->
+<div class="slide"
+     data-say="G never copies. It learns abstract patterns: smooth curves, centered shapes, consistent thickness. Every output is a NEW image that never existed before. This is why GANs are genuinely useful — they generate novel data, not copies."
+     data-ask="If G never sees real images, how does it learn what a digit looks like?"
+     data-time="2 min">
+  <h2>🧬 What Does G Actually Learn?</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>G never sees real images. It only hears <strong>&ldquo;good&rdquo;</strong> or <strong>&ldquo;bad&rdquo;</strong> from D. Over time, G picks up <strong>patterns</strong>:</p>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <ul>
+          <li>White strokes on dark background</li>
+          <li>Smooth curves and straight edges</li>
+          <li>Consistent stroke thickness</li>
+          <li>Centered in frame</li>
+        </ul>
+      </div>
+      <p class="mt-1" style="font-weight:600;">G creates <strong>new</strong> images that never existed before.</p>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Not copying</h4>
+        <p>G does NOT memorize training images. It learns the <strong>statistical patterns</strong> and synthesizes new examples that match those patterns.</p>
+      </div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Why this matters</h4>
+        <p>GANs generate <strong>brand new data</strong>. New faces, new molecules, new medical scans, new training samples for other models.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── AFTER TRAINING ─── -->
+<div class="slide"
+     data-say="After training, D is thrown away. Its job as teacher is done. Only G is deployed. Generation is a single forward pass through one network — that is why GANs are so fast at inference time."
+     data-ask="Why don't we keep D after training? Could it be useful?"
+     data-time="2 min">
+  <h2>🎓 After Training &mdash; What Happens?</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>During training</h4>
+        <div class="diagram" style="padding:0.5rem;gap:0.4rem;">
+          <div class="box" style="min-width:50px;"><div class="label">Noise</div><div class="value" style="font-size:0.9rem;">z</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box gen" style="min-width:50px;"><div class="value" style="font-size:0.9rem;">G</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box disc" style="min-width:50px;"><div class="value" style="font-size:0.9rem;">D</div></div>
+        </div>
+        <p class="text-muted" style="font-size:0.85rem;text-align:center;">Both required</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>After training</h4>
+        <div class="diagram" style="padding:0.5rem;gap:0.4rem;">
+          <div class="box" style="min-width:50px;"><div class="label">Noise</div><div class="value" style="font-size:0.9rem;">z</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box gen" style="min-width:50px;"><div class="value" style="font-size:0.9rem;">G</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box" style="min-width:50px;"><div class="label">New!</div><div class="value" style="font-size:0.8rem;">Image</div></div>
+        </div>
+        <p class="text-muted" style="font-size:0.85rem;text-align:center;">D thrown away &mdash; job done</p>
+      </div>
+    </div>
+    <div>
+      <table class="compare-table">
+        <tr><th></th><th>During</th><th>After</th></tr>
+        <tr><td><strong>Generator</strong></td><td>Learning</td><td><strong>Deployed</strong></td></tr>
+        <tr><td><strong>Discriminator</strong></td><td>Teaching G</td><td><strong>Discarded</strong></td></tr>
+        <tr><td><strong>Noise</strong></td><td>Input to G</td><td>Still needed</td></tr>
+      </table>
+      <div class="formula mt-1" style="font-size:0.85rem;">noise = torch.randn(1, 100)<br>new_image = generator(noise)</div>
+      <p class="text-muted mt-1" style="font-size:0.85rem;text-align:center;">One forward pass = one image. That&rsquo;s why GANs are <strong>fast</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── MID-SESSION RECAP ─── -->
+<div class="slide"
+     data-say="Quick checkpoint before we get into the math. We have covered the story, the two players, noise, data flow, training loop, opposite goals, what G learns, and what happens after training. Make sure everyone is with you."
+     data-ask="Which part was most surprising so far?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:710px;">
+    <tr><th>#</th><th>Concept</th><th>One-liner</th></tr>
+    <tr><td><strong>1</strong></td><td>The Story</td><td>Forger vs detective &mdash; competition drives improvement</td></tr>
+    <tr><td><strong>2</strong></td><td>Two Players</td><td>G creates fakes, D catches them &mdash; both neural nets</td></tr>
+    <tr><td><strong>3</strong></td><td>Noise</td><td>Random numbers = the trigger for variety</td></tr>
+    <tr><td><strong>4</strong></td><td>Data Flow</td><td>Noise &rarr; G &rarr; Fake + Real &rarr; D &rarr; Verdict</td></tr>
+    <tr><td><strong>5</strong></td><td>Training Loop</td><td>Step A: train D. Step B: train G. Repeat.</td></tr>
+    <tr><td><strong>6</strong></td><td>Opposite Goals</td><td>D wants D(fake)=0, G wants D(fake)=1</td></tr>
+    <tr><td><strong>7</strong></td><td>G Learns Patterns</td><td>Not copies &mdash; new data from learned patterns</td></tr>
+    <tr><td><strong>8</strong></td><td>After Training</td><td>Keep G, throw away D. One pass = one image.</td></tr>
+  </table>
+</div>
+
+<!-- 12 ─── BCE LOSS ─── -->
+<div class="slide"
+     data-say="Now the math. Both networks use Binary Cross-Entropy loss — the same loss function from binary classification. Walk through the formula. When y=1, BCE pushes the prediction toward 1. When y=0, it pushes toward 0. It harshly punishes confident mistakes."
+     data-ask="Why does BCE work well for a real-vs-fake decision?"
+     data-time="3 min">
+  <h2>📉 The Loss Function &mdash; BCE</h2>
+  <div class="two-col align-center">
+    <div>
+      <p>Both networks use <strong>Binary Cross-Entropy</strong> &mdash; the same loss from classification.</p>
+      <div class="formula mt-1" style="font-size:1rem;">BCE(p, y) = &minus;[y &middot; log(p) + (1&minus;y) &middot; log(1&minus;p)]</div>
+      <table class="compare-table mt-1">
+        <tr><th>Symbol</th><th>Meaning</th></tr>
+        <tr><td><strong>p</strong></td><td>D&rsquo;s prediction (0 to 1)</td></tr>
+        <tr><td><strong>y</strong></td><td>Target label (1 = real, 0 = fake)</td></tr>
+        <tr><td><strong>log</strong></td><td>Natural logarithm</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>When y = 1 (real image)</h4>
+        <div class="formula" style="font-size:0.9rem;">BCE = &minus;log(p)</div>
+        <p>Pushes p toward <strong>1</strong></p>
+      </div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>When y = 0 (fake image)</h4>
+        <div class="formula" style="font-size:0.9rem;">BCE = &minus;log(1&minus;p)</div>
+        <p>Pushes p toward <strong>0</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── BCE CURVES VISUAL (from deeplearning.ai C1W1) ─── -->
+<div class="slide"
+     data-say="Visualize the BCE curves. The left curve shows -log(p): when D predicts correctly for a real image (p near 1), loss is tiny. When D is wrong (p near 0), loss shoots to infinity. The right curve is the mirror: -log(1-p) for fake images. The key insight: BCE harshly punishes confident wrong answers. That's what drives fast learning."
+     data-ask="What happens to the loss when D says 0.99 for a fake image?"
+     data-time="2 min">
+  <h2>📊 BCE Loss &mdash; <span class="accent">Visualized</span></h2>
+  <div class="two-col align-center">
+    <div style="text-align:center;">
+      <p style="font-weight:700;margin-bottom:0.5rem;">When target = 1 (real image)</p>
+      <svg viewBox="0 0 280 200" style="width:100%;max-width:280px;">
+        <!-- Axes -->
+        <line x1="40" y1="170" x2="265" y2="170" stroke="#1a1d2e" stroke-width="1.5"/>
+        <line x1="40" y1="10" x2="40" y2="175" stroke="#1a1d2e" stroke-width="1.5"/>
+        <!-- Y label -->
+        <text x="12" y="90" font-family="Inter" font-size="10" fill="#8b90a5" transform="rotate(-90,12,90)">Loss</text>
+        <!-- X labels -->
+        <text x="45" y="185" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">0</text>
+        <text x="145" y="185" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">0.5</text>
+        <text x="245" y="185" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">1.0</text>
+        <text x="155" y="198" font-family="Inter" font-size="9" fill="#8b90a5">p (prediction)</text>
+        <!-- -log(p) curve: 20 computed points -->
+        <polyline points="45,14 51,50 63,78 74,94 85,106 96,115 108,122 119,128 130,133 141,138 153,142 164,146 175,150 186,153 198,156 209,159 220,161 231,164 243,166 254,168 265,170" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Label -->
+        <text x="70" y="45" font-family="JetBrains Mono" font-size="10" fill="#10b981" font-weight="600">&minus;log(p)</text>
+        <!-- Annotations -->
+        <circle cx="255" cy="165" r="4" fill="#10b981"/>
+        <text x="230" y="160" font-family="Inter" font-size="8" fill="#10b981" font-weight="600">low loss</text>
+        <circle cx="50" cy="15" r="4" fill="#ef4444"/>
+        <text x="60" y="18" font-family="Inter" font-size="8" fill="#ef4444" font-weight="600">&rarr; &infin;</text>
+      </svg>
+      <div class="formula" style="font-size:0.8rem;padding:0.4rem 0.8rem;">p near 1 &rarr; tiny loss &nbsp;|&nbsp; p near 0 &rarr; &infin;</div>
+    </div>
+    <div style="text-align:center;">
+      <p style="font-weight:700;margin-bottom:0.5rem;">When target = 0 (fake image)</p>
+      <svg viewBox="0 0 280 200" style="width:100%;max-width:280px;">
+        <!-- Axes -->
+        <line x1="40" y1="170" x2="265" y2="170" stroke="#1a1d2e" stroke-width="1.5"/>
+        <line x1="40" y1="10" x2="40" y2="175" stroke="#1a1d2e" stroke-width="1.5"/>
+        <!-- Y label -->
+        <text x="12" y="90" font-family="Inter" font-size="10" fill="#8b90a5" transform="rotate(-90,12,90)">Loss</text>
+        <!-- X labels -->
+        <text x="45" y="185" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">0</text>
+        <text x="145" y="185" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">0.5</text>
+        <text x="245" y="185" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">1.0</text>
+        <text x="155" y="198" font-family="Inter" font-size="9" fill="#8b90a5">p (prediction)</text>
+        <!-- -log(1-p) curve: 20 computed points -->
+        <polyline points="40,170 51,168 63,166 74,164 85,161 96,159 108,156 119,153 130,150 141,146 153,142 164,138 175,133 186,128 198,122 209,115 220,106 231,94 243,78 254,50 260,14" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Label -->
+        <text x="170" y="45" font-family="JetBrains Mono" font-size="10" fill="#ef4444" font-weight="600">&minus;log(1&minus;p)</text>
+        <!-- Annotations -->
+        <circle cx="50" cy="165" r="4" fill="#10b981"/>
+        <text x="60" y="160" font-family="Inter" font-size="8" fill="#10b981" font-weight="600">low loss</text>
+        <circle cx="250" cy="15" r="4" fill="#ef4444"/>
+        <text x="215" y="18" font-family="Inter" font-size="8" fill="#ef4444" font-weight="600">&rarr; &infin;</text>
+      </svg>
+      <div class="formula" style="font-size:0.8rem;padding:0.4rem 0.8rem;">p near 0 &rarr; tiny loss &nbsp;|&nbsp; p near 1 &rarr; &infin;</div>
+    </div>
+  </div>
+  <div class="card mt-1" style="background:#f8f9fb;text-align:center;max-width:620px;margin:0 auto;">
+    <p style="font-weight:600;">BCE <strong>harshly punishes</strong> confident wrong answers &mdash; that&rsquo;s what drives fast learning.</p>
+  </div>
+</div>
+
+<!-- 14 ─── D LOSS VS G LOSS ─── -->
+<div class="slide"
+     data-say="Separate the losses clearly. D has two terms: get real images right AND get fake images right. G has one term: fool D into saying 1 for fakes. The key insight: G uses label=1 for fakes because G's goal is deception."
+     data-ask="Why does G's loss function use label 1 for fake images?"
+     data-time="2 min">
+  <h2>Discriminator Loss vs Generator Loss</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#fef2f2;">
+      <h4>D Loss</h4>
+      <div class="formula" style="font-size:0.85rem;text-align:left;background:transparent;border:none;padding:0.3rem 0;">
+        L<sub>D</sub> = &minus;[log D(x) + log(1 &minus; D(G(z)))]
+      </div>
+      <p class="mt-1"><strong>D(x)</strong> &rarr; should be 1 (real)</p>
+      <p><strong>D(G(z))</strong> &rarr; should be 0 (fake)</p>
+      <div class="formula mt-1" style="font-size:0.8rem;">d_loss = BCE(D(real), 1) + BCE(D(fake), 0)</div>
+    </div>
+    <div class="vs"></div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>G Loss</h4>
+      <div class="formula" style="font-size:0.85rem;text-align:left;background:transparent;border:none;padding:0.3rem 0;">
+        L<sub>G</sub> = &minus;log D(G(z))
+      </div>
+      <p class="mt-1">G wants <strong>D(G(z)) &rarr; 1</strong></p>
+      <p>Loss is low when D is fooled</p>
+      <div class="formula mt-1" style="font-size:0.8rem;">g_loss = BCE(D(fake), 1)</div>
+      <p class="text-muted" style="font-size:0.75rem;margin-top:0.3rem;">The <strong>non-saturating</strong> G loss (Goodfellow 2014). The minimax form would minimize log(1&minus;D(G(z))), which saturates when D is confident.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── MIN-MAX GAME ─── -->
+<div class="slide"
+     data-say="The original GAN paper writes both losses as a single min-max formula. D maximizes — it wants big log values. G minimizes — it wants the expression to drop. You will see this in every GAN paper. Read it left to right: G minimizes, D maximizes."
+     data-ask="What happens if D gets too strong too fast?"
+     data-time="2 min">
+  <h2>The Full GAN Objective &mdash; Min-Max Game</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;flex:1;justify-content:center;">
+    <div class="formula" style="font-size:clamp(0.9rem,1.8vw,1.2rem);max-width:660px;">
+      min<sub>G</sub> max<sub>D</sub> &nbsp; E[log D(x)] + E[log(1 &minus; D(G(z)))]
+    </div>
+    <div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;">
+      <div class="card" style="background:#fef2f2;max-width:280px;">
+        <h4>D wants to <em>maximize</em></h4>
+        <ul>
+          <li>D(x) close to <strong>1</strong></li>
+          <li>D(G(z)) close to <strong>0</strong></li>
+          <li>Both log terms &rarr; high</li>
+        </ul>
+      </div>
+      <div class="card" style="background:#ecfdf5;max-width:280px;">
+        <h4>G wants to <em>minimize</em></h4>
+        <ul>
+          <li>D(G(z)) close to <strong>1</strong></li>
+          <li>Fool D so the expression drops</li>
+          <li>Only controls second term</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-weight:600;font-size:1.05rem;">They play this game until balance &mdash; the <strong>Nash equilibrium</strong>.</p>
+  </div>
+</div>
+
+<!-- 15 ─── THE .detach() TRICK ─── -->
+<div class="slide"
+     data-say="The most important PyTorch trick in GAN training. When training D, we use G to make fakes but we don't want G to learn yet — .detach() cuts the gradient graph at that point. When training G, we do NOT detach because we need gradients to flow back into G. This controls who learns when."
+     data-ask="What would happen if we forgot to detach when training D?"
+     data-time="2 min">
+  <h2>The Key Trick: <code style="font-size:1.4rem;">.detach()</code></h2>
+  <div class="two-col">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Training D &mdash; with .detach()</h4>
+      <div class="formula" style="font-size:0.85rem;text-align:left;">fake = generator(noise)<strong>.detach()</strong></div>
+      <p class="mt-1">Gradient stops at fake &mdash; <strong>only D learns</strong>.</p>
+      <p class="text-muted mt-1" style="font-size:0.85rem;">We need G to produce fakes, but D is the student right now. G just provides the output and sits still.</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Training G &mdash; no .detach()</h4>
+      <div class="formula" style="font-size:0.85rem;text-align:left;">fake = generator(noise)</div>
+      <p class="mt-1">Gradients flow back through D into G &mdash; <strong>G learns from D&rsquo;s feedback</strong>.</p>
+      <p class="text-muted mt-1" style="font-size:0.85rem;">Now G is the student. D&rsquo;s judgment becomes the teaching signal for G.</p>
+    </div>
+  </div>
+  <div class="card mt-2" style="background:#f8f9fb;text-align:center;max-width:620px;margin-left:auto;margin-right:auto;">
+    <p style="font-weight:600;"><code>.detach()</code> = &ldquo;use this value but stop gradients from flowing through it&rdquo;</p>
+    <p class="text-muted" style="font-size:0.85rem;">Controls <strong>who learns when</strong>. The simplest yet most important trick in GAN training.</p>
+  </div>
+</div>
+
+<!-- 16 ─── FULL TRAINING STEP IN CODE ─── -->
+<div class="slide"
+     data-say="Here is the complete GAN training step in PyTorch. Seven lines for D, six lines for G - including zero_grad() so old gradients do not accumulate. Walk through each line. Trace where .detach() appears and why. This is the engine that powers every GAN variant we build in this training."
+     data-ask="Can you spot where .detach() appears and explain exactly what it prevents?"
+     data-time="3 min">
+  <h2>The Full Training Step in Code</h2>
+  <div class="two-col">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Step A: Train Discriminator</h4>
+      <div class="formula" style="font-size:0.76rem;text-align:left;line-height:1.9;">
+        real_pred = D(real_images)<br>
+        fake_imgs = G(noise)<strong>.detach()</strong><br>
+        fake_pred = D(fake_imgs)<br>
+        d_loss = BCE(real_pred, 1) + BCE(fake_pred, 0)<br>
+        d_optimizer.zero_grad()<br>
+        d_loss.backward()<br>
+        d_optimizer.step()
+      </div>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Step B: Train Generator</h4>
+      <div class="formula" style="font-size:0.76rem;text-align:left;line-height:1.9;">
+        fake_imgs = G(noise)<br>
+        fake_pred = D(fake_imgs)<br>
+        g_loss = BCE(fake_pred, <strong>1</strong>)<br>
+        g_optimizer.zero_grad()<br>
+        g_loss.backward()<br>
+        g_optimizer.step()
+      </div>
+    </div>
+  </div>
+  <div class="card mt-2" style="background:#f8f9fb;text-align:center;max-width:600px;margin-left:auto;margin-right:auto;">
+    <p style="font-weight:600;">That&rsquo;s the <strong>complete GAN training loop</strong>. Everything else in this course builds on this.</p>
+  </div>
+</div>
+
+<!-- 17 ─── CHALLENGES PREVIEW ─── -->
+<div class="slide"
+     data-say="GANs are powerful but notoriously tricky to train. Preview the four classic failure modes. Don't go deep here — just plant the seeds so they know what is coming later in the training."
+     data-ask="Which of these problems sounds most dangerous to you?"
+     data-time="2 min">
+  <h2>The Challenges (Preview)</h2>
+  <p>GANs are powerful but tricky. We&rsquo;ll fix each problem as we encounter it:</p>
+  <table class="compare-table mt-1" style="max-width:710px;">
+    <tr><th>Problem</th><th>What happens</th><th>When we fix it</th></tr>
+    <tr><td><strong>Mode collapse</strong></td><td>G makes the same output every time</td><td>Build GANs · Unit 2</td></tr>
+    <tr><td><strong>D wins too easily</strong></td><td>G gets no useful gradient, stops learning</td><td>Build GANs · Unit 2</td></tr>
+    <tr><td><strong>Training oscillates</strong></td><td>Both networks swing up and down, no convergence</td><td>Unit 2 (WGAN)</td></tr>
+    <tr><td><strong>BCE gradient vanishing</strong></td><td>Loss flattens, learning halts</td><td>Unit 2 (WGAN)</td></tr>
+  </table>
+  <p class="text-muted mt-2" style="font-size:0.95rem;">Don&rsquo;t worry about these yet. First, let&rsquo;s <strong>build one</strong> and watch it work.</p>
+</div>
+
+<!-- 18 ─── THE BALANCE PROBLEM (from deeplearning.ai C1W1) ─── -->
+<div class="slide"
+     data-say="Critical insight from the deeplearning.ai course: if D becomes too strong too fast, it classifies every fake as 100% fake with total confidence. When that happens, the original minimax G loss log(1 - D(G(z))) saturates - its gradient goes to zero. The non-saturating loss we actually train (-log D(G(z))) still gives a strong gradient, but a near-perfect D gives G a poorly directed signal. Either way G gets stuck. The two models must stay at a SIMILAR skill level throughout training. This is why GAN training is famously tricky."
+     data-ask="How could you keep D and G at similar skill levels?"
+     data-time="2 min">
+  <h2>⚖️ The <span class="accent">Balance</span> Problem</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Superior Discriminator</h4>
+        <div style="text-align:center;margin:0.8rem 0;">
+          <svg viewBox="0 0 260 120" style="width:100%;max-width:260px;">
+            <rect x="10" y="20" width="80" height="40" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+            <text x="50" y="45" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#10b981">G</text>
+            <line x1="95" y1="40" x2="130" y2="40" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arrowDark)"/>
+            <rect x="135" y="15" width="50" height="50" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+            <text x="160" y="35" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">FAKE</text>
+            <text x="160" y="52" text-anchor="middle" font-family="Inter" font-size="10" fill="#1a1d2e" font-weight="700">G(z)</text>
+            <line x1="190" y1="40" x2="210" y2="40" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arrowDark)"/>
+            <rect x="215" y="20" width="35" height="40" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+            <text x="232" y="45" text-anchor="middle" font-family="Inter" font-size="14" font-weight="900" fill="#ef4444">D</text>
+            <!-- Output: 0% -->
+            <text x="160" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="18" font-weight="900" fill="#ef4444">0% Real</text>
+            <text x="160" y="112" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">&ldquo;100% fake, every time&rdquo;</text>
+          </svg>
+        </div>
+        <p style="font-size:0.9rem;">D is <strong>too confident</strong>. Feedback = useless.</p>
+        <p style="font-size:0.9rem;font-weight:700;color:var(--accent-red);">G has no way to improve!</p>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Why this happens</h4>
+        <ul style="font-size:0.9rem;">
+          <li>D trains faster than G (classifying is easier than creating)</li>
+          <li>D becomes perfect &rarr; all fakes score 0</li>
+          <li>Minimax G loss log(1&minus;D(G(z))) <strong>saturates</strong>; even the non-saturating loss gets a <strong>poorly directed</strong> signal</li>
+          <li>G receives little useful feedback</li>
+        </ul>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>The rule</h4>
+        <div class="formula" style="font-size:0.9rem;">D and G must stay at similar skill levels</div>
+        <p class="mt-1" style="font-size:0.85rem;">Fixes: label smoothing, lower D learning rate, train D fewer steps. We cover these in Build GANs (L06) and in Unit 2.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── BASIC GAN = ENGINE ─── -->
+<div class="slide"
+     data-say="The basic GAN is the engine. Every variant adds exactly one idea on top. Show the table: each variant solves one specific problem. Understand the engine first and the cars become trivial."
+     data-ask="If every variant has the same engine inside, what happens when you don't understand the engine?"
+     data-time="2 min">
+  <h2>🔧 Basic GAN = The Engine</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>The engine analogy</h4>
+        <p><strong>Basic GAN = the engine</strong>. G creates, D judges, they compete.</p>
+        <p class="mt-1">Every variant is a different <strong>car</strong> built around that same engine.</p>
+      </div>
+      <table class="compare-table mt-1">
+        <tr><th>Problem</th><th>Variant</th></tr>
+        <tr><td>Training crashes</td><td><strong>WGAN</strong> (better loss)</td></tr>
+        <tr><td>&ldquo;Generate a cat&rdquo;</td><td><strong>Conditional GAN</strong></td></tr>
+        <tr><td>Blurry images</td><td><strong>DCGAN</strong> (convolutions)</td></tr>
+        <tr><td>Photorealistic faces</td><td><strong>StyleGAN</strong></td></tr>
+        <tr><td>Sketch &rarr; photo</td><td><strong>Pix2Pix</strong></td></tr>
+        <tr><td>Horse &rarr; zebra</td><td><strong>CycleGAN</strong></td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Every variant = Basic GAN + one idea</h4>
+        <div class="formula" style="font-size:0.8rem;text-align:left;line-height:2.1;">
+          DCGAN &nbsp;&nbsp;&nbsp;= Basic GAN + convolutions<br>
+          WGAN &nbsp;&nbsp;&nbsp;&nbsp;= Basic GAN + better loss<br>
+          cGAN &nbsp;&nbsp;&nbsp;&nbsp;= Basic GAN + label input<br>
+          Pix2Pix &nbsp;= Basic GAN + image input<br>
+          CycleGAN = Basic GAN + cycle trick<br>
+          StyleGAN = Basic GAN + style arch
+        </div>
+      </div>
+      <p class="mt-1" style="font-weight:600;text-align:center;">Understand the engine. Then the cars are easy.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── STUDENT/TEACHER ANALOGY ─── -->
+<div class="slide"
+     data-say="Bring it all together with the student-and-teacher analogy. Map each story element to its GAN counterpart. Crucially: the teacher never shows the paintings directly. After graduation, the teacher goes home. The student paints forever."
+     data-ask="In this analogy, what is 'graduation'?"
+     data-time="2 min">
+  <h2>📖 The Whole GAN in One Simple Story</h2>
+  <div class="two-col">
+    <div>
+      <p style="font-weight:600;">A teacher has 1,000 real paintings. A student wants to learn to paint. But the teacher <strong>never shows</strong> the paintings directly.</p>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <p><strong>Lesson 1:</strong> Student picks a random number, paints something. Teacher: <strong>&ldquo;Terrible.&rdquo;</strong></p>
+        <p class="mt-1"><strong>Lesson 100:</strong> Teacher: <strong>&ldquo;Almost can&rsquo;t tell.&rdquo;</strong></p>
+        <p class="mt-1"><strong>Lesson 1000:</strong> Teacher: <strong>&ldquo;I cannot tell the difference.&rdquo;</strong></p>
+      </div>
+      <p class="mt-1" style="font-weight:600;">After graduation: teacher goes home. Student paints on their own forever.</p>
+    </div>
+    <div>
+      <table class="compare-table">
+        <tr><th>Story element</th><th>GAN equivalent</th></tr>
+        <tr><td>Student</td><td><strong>Generator (G)</strong></td></tr>
+        <tr><td>Teacher</td><td><strong>Discriminator (D)</strong></td></tr>
+        <tr><td>Random number</td><td><strong>Noise z</strong></td></tr>
+        <tr><td>Student&rsquo;s painting</td><td><strong>Fake image G(z)</strong></td></tr>
+        <tr><td>Real paintings</td><td><strong>Training dataset</strong></td></tr>
+        <tr><td>&ldquo;Good&rdquo;/&ldquo;Bad&rdquo; feedback</td><td><strong>BCE loss</strong></td></tr>
+        <tr><td>Student adjusts brush</td><td><strong>Backpropagation</strong></td></tr>
+        <tr><td>Graduation</td><td><strong>Nash equilibrium</strong></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 20 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Five key takeaways about what a GAN is. Read each card. These five ideas are the foundation for everything that follows in this training."
+     data-ask="Which of these five feels most important to you personally?"
+     data-time="1.5 min">
+  <h2>✅ What Is a GAN? Summary</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;font-weight:900;color:var(--accent);">1</p>
+      <h4>Two Networks Compete</h4>
+      <p>G creates fakes, D catches them. Competition drives both to improve.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;font-weight:900;color:var(--accent);">2</p>
+      <h4>Noise = Variety</h4>
+      <p>Random numbers give G a different starting point every time.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;font-weight:900;color:var(--accent);">3</p>
+      <h4>BCE Loss</h4>
+      <p>Same classification loss for both. D labels real=1/fake=0; G flips the fake label to 1.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;font-weight:900;color:var(--accent);">4</p>
+      <h4>.detach() Controls Learning</h4>
+      <p>Stops gradient flow so only the right network updates at each step.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;font-weight:900;color:var(--accent);">5</p>
+      <h4>Keep G, Toss D</h4>
+      <p>After training only G is deployed. One forward pass = one new image.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 21 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Four analysis questions — not recall, not definition lookups. Give the group two minutes to think before revealing. These are the deep questions that expose whether someone truly understood."
+     data-ask="Try all four before revealing any answers."
+     data-time="4 min">
+  <h2>🧠 Knowledge Check</h2>
+  <div class="flex-col gap-1" style="max-width:860px;font-size:0.92em;">
+    <div class="revealable card">
+      <h4>G never sees real images. So how can it possibly learn to make realistic ones?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Through D&rsquo;s gradient feedback. D has seen real data and learned what &ldquo;real&rdquo; looks like. When D says &ldquo;this fake scored 0.2&rdquo;, the gradient encodes <strong>which direction</strong> to adjust G&rsquo;s weights. G doesn&rsquo;t need the target directly — it just needs a critic who keeps raising the bar and whose judgment carries a precise gradient signal.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>What would break if you removed .detach() from the D training step?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Less than you&rsquo;d think. G&rsquo;s .grad fills with D&rsquo;s gradients, but only d_optimizer steps and g_optimizer.zero_grad() clears them before G&rsquo;s update &mdash; so G isn&rsquo;t corrupted. We detach because Step A should update <strong>only D</strong>, to skip wasted backprop through G, and so stale grads can&rsquo;t leak if zero_grad moves.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>If D always outputs 0.5 from the very start (random guessing), would G still learn?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">No. If D can&rsquo;t distinguish real from fake, its gradient feedback is meaningless noise. G needs a <strong>competent critic</strong>. That&rsquo;s why we train D first each step — D must be slightly ahead of G so its feedback points G in a useful direction. A teacher who doesn&rsquo;t know the subject cannot teach.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>GANs use the same BCE loss as a simple classifier. Why does the same loss create new images instead of just labeling them?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Because of <strong>who</strong> receives the update. In a classifier, the model adjusts weights to output correct labels for fixed inputs. In a GAN, G&rsquo;s weights adjust to make D output the <strong>wrong</strong> label for its generated pixels. The loss is identical, but it&rsquo;s applied to a network whose outputs are images, not labels. Same engine &mdash; completely different car.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 22 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="They now understand what a GAN is and how it works mathematically. The Neural networks topic is a fast-track through the mechanics they need — backprop, activations, optimizers — before we actually build one in Build GANs."
+     data-ask=""
+     data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>Neural Networks Fast-Track</h1>
+  <p class="subtitle">The mechanics behind the magic &mdash; backprop, activations, and optimizers</p>
+</div>
+
+</div><!-- /deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

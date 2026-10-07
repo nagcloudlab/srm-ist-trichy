@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L03 — GAN for Images (MNIST)</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L03">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L02.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L02</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L03 &bull; S4</a><a href="L04.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L04 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Build GANs</a> &bull; L03</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="We built a GAN for one number. Now the same recipe scales to real images — 784 pixels. Same mechanics, bigger data."
+     data-ask="What do you think changes when we go from 1 number to 784 pixels?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 03</div>
+  <h1>GAN for Images</h1>
+  <p class="subtitle">Same recipe, 784 pixels &mdash; generating handwritten digits from MNIST</p>
+</div>
+
+<!-- 2 ─── HOOK: WHAT CHANGES FROM L02 ─── -->
+<div class="slide"
+     data-say="The GAN mechanics are exactly the same. Step A, Step B, .detach(), BCE. Nothing new there. The only difference: instead of 1 number, we work with 784 numbers. Walk through the comparison table row by row."
+     data-ask="Which of these changes surprises you most?"
+     data-time="2 min">
+  <h2>What Changes from L02?</h2>
+  <div style="max-width:700px;">
+    <table class="compare-table">
+      <tr><th></th><th>L02 (numbers)</th><th>L03 (images)</th></tr>
+      <tr><td><strong>Real data</strong></td><td>1 number (7.0)</td><td><strong>784 numbers</strong> (28&times;28 pixels)</td></tr>
+      <tr><td><strong>G output</strong></td><td>1 number</td><td><strong>784 numbers</strong> (a whole image)</td></tr>
+      <tr><td><strong>D input</strong></td><td>1 number</td><td><strong>784 numbers</strong></td></tr>
+      <tr><td><strong>Noise size</strong></td><td>1</td><td><strong>64</strong> (more variety needed)</td></tr>
+      <tr><td><strong>Hidden layers</strong></td><td>16</td><td><strong>256, 512</strong> (bigger)</td></tr>
+      <tr><td><strong>G output activation</strong></td><td>none</td><td><strong>Tanh</strong> (pixels in [&minus;1, 1])</td></tr>
+      <tr><td><strong>D hidden activation</strong></td><td>ReLU</td><td><strong>LeakyReLU</strong> (keeps gradients alive)</td></tr>
+    </table>
+    <blockquote style="margin-top:1.2rem;padding:0.8rem 1.2rem;border-left:5px solid #1a1d2e;background:#f8f9fb;border-radius:0 12px 12px 0;">
+      <p style="font-size:clamp(1rem,1.8vw,1.2rem);font-weight:600;font-style:italic;">Same idea. Just bigger inputs and outputs.</p>
+    </blockquote>
+  </div>
+</div>
+
+<!-- 3 ─── MNIST DATASET ─── -->
+<div class="slide"
+     data-say="MNIST: 60,000 handwritten digit images. Each is 28x28 pixels, grayscale. We flatten each image into a list of 784 numbers because our Linear layers expect 1D input, not a 2D grid."
+     data-ask="Why 784? Where does that number come from?"
+     data-time="2 min">
+  <h2>The MNIST Dataset</h2>
+  <div class="two-col align-center">
+    <div>
+      <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;">
+        <div class="card" style="text-align:center;padding:0.8rem 1.2rem;">
+          <p style="font-size:2rem;font-weight:700;">0</p>
+          <p class="text-muted" style="font-size:0.8rem;">28&times;28</p>
+        </div>
+        <div class="card" style="text-align:center;padding:0.8rem 1.2rem;">
+          <p style="font-size:2rem;font-weight:700;">1</p>
+          <p class="text-muted" style="font-size:0.8rem;">28&times;28</p>
+        </div>
+        <div class="card" style="text-align:center;padding:0.8rem 1.2rem;">
+          <p style="font-size:2rem;font-weight:700;">3</p>
+          <p class="text-muted" style="font-size:0.8rem;">28&times;28</p>
+        </div>
+        <div class="card" style="text-align:center;padding:0.8rem 1.2rem;">
+          <p style="font-size:2rem;font-weight:700;">7</p>
+          <p class="text-muted" style="font-size:0.8rem;">28&times;28</p>
+        </div>
+      </div>
+      <div class="big-stat mt-2">
+        <div class="number" style="font-size:clamp(2rem,5vw,3.5rem);">60,000</div>
+        <div class="label">training images, grayscale, digits 0&ndash;9</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Flatten 28&times;28 &rarr; 784</h4>
+        <svg viewBox="0 0 280 90" style="width:100%;max-width:280px;">
+          <rect x="10" y="15" width="60" height="60" rx="6" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+          <text x="40" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">28&times;28</text>
+          <text x="40" y="56" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">grid</text>
+          <text x="90" y="50" font-family="Inter" font-size="16" fill="#4a5068">&rarr;</text>
+          <rect x="110" y="30" width="160" height="30" rx="6" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+          <text x="190" y="50" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">[p1, p2, p3 ... p784]</text>
+          <text x="190" y="75" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">flat vector for nn.Linear</text>
+        </svg>
+      </div>
+      <p class="mt-1" style="font-size:0.9rem;">Each pixel = a number between <strong>&minus;1</strong> and <strong>+1</strong></p>
+      <p class="text-muted" style="font-size:0.85rem;">We flatten because nn.Linear expects a 1D input, not a 2D grid.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── PIXEL NORMALIZATION ─── -->
+<div class="slide"
+     data-say="Pixels start as 0-255. ToTensor makes them 0-1. Then Normalize shifts them to -1 to 1. Why? Because G uses Tanh which outputs -1 to 1. Data must match G's output range."
+     data-ask="What would happen if data was 0-255 but G outputs -1 to 1?"
+     data-time="2 min">
+  <h2>Pixel Normalization</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="formula" style="font-size:0.9rem;">
+        pixel &rarr; ToTensor [0,1] &rarr; Normalize [&minus;1,&thinsp;1]
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Example: pixel value 178</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;color:var(--text-primary);">ToTensor:   178 / 255 = 0.698
+Normalize:  (0.698 - 0.5) / 0.5 = <strong>0.396</strong>
+
+Original: 178 (out of 255)
+Final:    0.396 (in [-1, 1])</pre>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Code</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.7;color:var(--text-primary);">transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize([0.5], [0.5])
+])</pre>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Why [&minus;1, 1]?</h4>
+        <p>G uses <strong>Tanh</strong> which outputs [&minus;1, 1].</p>
+        <p class="mt-1">Data must match G's output range &mdash; otherwise D is comparing apples to oranges.</p>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>DataLoader</h4>
+        <ul>
+          <li><strong>Batches of 64</strong> (not one at a time)</li>
+          <li><strong>Shuffles</strong> every epoch</li>
+          <li>60,000 / 64 = <strong>938 batches</strong> per epoch</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── GENERATOR ARCHITECTURE (expanding) ─── -->
+<div class="slide"
+     data-say="G takes 64 noise numbers and expands them into 784 pixel values. Like starting with a rough sketch and adding detail at each layer. The shape doubles at each step — small to big. Tanh at the end clamps every pixel to -1 to 1."
+     data-ask="Why does G expand (small to big) instead of staying the same size?"
+     data-time="3 min">
+  <h2>Generator Architecture &mdash; Expanding</h2>
+  <div class="two-col align-center">
+    <div>
+      <svg viewBox="0 0 440 140" style="width:100%;max-width:440px;">
+        <defs><marker id="aG3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4a5068"/></marker></defs>
+        <!-- Noise -->
+        <rect x="5" y="45" width="60" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="35" y="63" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#8b90a5">NOISE</text>
+        <text x="35" y="80" text-anchor="middle" font-family="JetBrains Mono" font-size="12" font-weight="700" fill="#1a1d2e">64</text>
+        <line x1="70" y1="67" x2="95" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aG3)"/>
+        <!-- Layer 1 -->
+        <rect x="100" y="38" width="70" height="56" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="135" y="58" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">256</text>
+        <text x="135" y="75" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">+ ReLU</text>
+        <line x1="175" y1="67" x2="198" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aG3)"/>
+        <!-- Layer 2 -->
+        <rect x="203" y="33" width="70" height="66" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="238" y="58" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">512</text>
+        <text x="238" y="75" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">+ ReLU</text>
+        <line x1="278" y1="67" x2="301" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aG3)"/>
+        <!-- Layer 3 -->
+        <rect x="306" y="26" width="75" height="80" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="343" y="58" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">784</text>
+        <text x="343" y="75" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">+ Tanh</text>
+        <line x1="386" y1="67" x2="410" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aG3)"/>
+        <!-- Output label -->
+        <text x="427" y="63" font-family="Inter" font-size="9" font-weight="700" fill="#8b90a5">FAKE</text>
+        <text x="427" y="76" font-family="Inter" font-size="9" font-weight="700" fill="#8b90a5">IMAGE</text>
+        <!-- Expanding arrow label -->
+        <text x="220" y="125" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#10b981">G EXPANDS: small &rarr; big</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>PyTorch Code</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.7;color:var(--text-primary);">generator = nn.Sequential(
+    nn.Linear(64, 256),    # 64 &rarr; 256
+    nn.ReLU(),
+    nn.Linear(256, 512),   # 256 &rarr; 512
+    nn.ReLU(),
+    nn.Linear(512, 784),   # 512 &rarr; 784
+    nn.Tanh()              # [-1, 1]
+)</pre>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Parameters: 550,416</h4>
+        <p class="text-muted" style="font-size:0.85rem;">Compare with L02's Generator: 49 params. 784 pixels need <strong>much more</strong> capacity.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── DISCRIMINATOR ARCHITECTURE (compressing) ─── -->
+<div class="slide"
+     data-say="D is the mirror of G. It takes 784 pixels and compresses them down to a single probability. LeakyReLU instead of ReLU to keep gradients alive. Sigmoid at the end for the real/fake probability."
+     data-ask="Why does D compress (big to small)?"
+     data-time="2 min">
+  <h2>Discriminator Architecture &mdash; Compressing</h2>
+  <div class="two-col align-center">
+    <div>
+      <svg viewBox="0 0 440 140" style="width:100%;max-width:440px;">
+        <defs><marker id="aD3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4a5068"/></marker></defs>
+        <!-- Input -->
+        <rect x="5" y="26" width="75" height="80" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+        <text x="42" y="52" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#8b90a5">IMAGE</text>
+        <text x="42" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="12" font-weight="700" fill="#1a1d2e">784</text>
+        <line x1="85" y1="67" x2="108" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aD3)"/>
+        <!-- Layer 1 -->
+        <rect x="113" y="33" width="70" height="66" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+        <text x="148" y="58" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">512</text>
+        <text x="148" y="75" text-anchor="middle" font-family="Inter" font-size="7.5" fill="#8b90a5">+ LeakyReLU</text>
+        <line x1="188" y1="67" x2="211" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aD3)"/>
+        <!-- Layer 2 -->
+        <rect x="216" y="38" width="70" height="56" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+        <text x="251" y="58" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">256</text>
+        <text x="251" y="75" text-anchor="middle" font-family="Inter" font-size="7.5" fill="#8b90a5">+ LeakyReLU</text>
+        <line x1="291" y1="67" x2="314" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aD3)"/>
+        <!-- Layer 3 -->
+        <rect x="319" y="45" width="60" height="42" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+        <text x="349" y="63" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#1a1d2e">1</text>
+        <text x="349" y="76" text-anchor="middle" font-family="Inter" font-size="7.5" fill="#8b90a5">+ Sigmoid</text>
+        <line x1="384" y1="67" x2="408" y2="67" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aD3)"/>
+        <!-- Output -->
+        <text x="425" y="63" font-family="Inter" font-size="9" font-weight="700" fill="#8b90a5">REAL</text>
+        <text x="425" y="76" font-family="Inter" font-size="9" font-weight="700" fill="#8b90a5">or FAKE</text>
+        <!-- Compressing arrow label -->
+        <text x="220" y="125" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#ef4444">D COMPRESSES: big &rarr; small</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>PyTorch Code</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.7;color:var(--text-primary);">discriminator = nn.Sequential(
+    nn.Linear(784, 512),   # 784 &rarr; 512
+    nn.LeakyReLU(0.2),
+    nn.Linear(512, 256),   # 512 &rarr; 256
+    nn.LeakyReLU(0.2),
+    nn.Linear(256, 1),     # 256 &rarr; 1
+    nn.Sigmoid()            # [0, 1]
+)</pre>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Parameters: 533,505</h4>
+        <p class="text-muted" style="font-size:0.85rem;">Similar size to G. Both networks are roughly balanced.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── TANH vs SIGMOID ─── -->
+<div class="slide"
+     data-say="Two activations, two different jobs. Tanh outputs -1 to 1 — perfect for pixel values. Sigmoid outputs 0 to 1 — perfect for probabilities. G ends with Tanh because data is in [-1,1]. D ends with Sigmoid because it outputs a probability."
+     data-ask="Could G use Sigmoid instead of Tanh? What would go wrong?"
+     data-time="2 min">
+  <h2>Tanh vs Sigmoid</h2>
+  <div class="two-col align-center">
+    <div>
+      <table class="compare-table">
+        <tr><th>Property</th><th>Tanh</th><th>Sigmoid</th></tr>
+        <tr><td><strong>Output range</strong></td><td><strong>&minus;1 to +1</strong></td><td><strong>0 to 1</strong></td></tr>
+        <tr><td><strong>Used in</strong></td><td>G's output (pixels)</td><td>D's output (probability)</td></tr>
+        <tr><td><strong>At x=0</strong></td><td>0</td><td>0.5</td></tr>
+        <tr><td><strong>Formula</strong></td><td>(e<sup>x</sup>&minus;e<sup>&minus;x</sup>)/(e<sup>x</sup>+e<sup>&minus;x</sup>)</td><td>1/(1+e<sup>&minus;x</sup>)</td></tr>
+      </table>
+      <div class="formula mt-1" style="font-size:0.9rem;">
+        Data is [&minus;1, 1] &harr; Tanh outputs [&minus;1, 1] &mdash; perfect match
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Tanh &mdash; G's output</h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><th>Input</th><th>Tanh</th><th>Meaning</th></tr>
+          <tr><td>&minus;5</td><td>&minus;1.00</td><td>Black pixel</td></tr>
+          <tr><td>0</td><td>0.00</td><td>Gray pixel</td></tr>
+          <tr><td>+5</td><td>+1.00</td><td>White pixel</td></tr>
+        </table>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Sigmoid &mdash; D's output</h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><th>Input</th><th>Sigmoid</th><th>Meaning</th></tr>
+          <tr><td>&minus;5</td><td>0.01</td><td>"fake"</td></tr>
+          <tr><td>0</td><td>0.50</td><td>"no idea"</td></tr>
+          <tr><td>+5</td><td>0.99</td><td>"real"</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── ReLU vs LeakyReLU (SVG curves) ─── -->
+<div class="slide"
+     data-say="ReLU kills all negative values — gradient becomes 0, the neuron 'dies'. LeakyReLU lets 20% of negatives through, keeping the gradient alive. D needs every neuron alive to judge well. If D's neurons die, G gets no feedback."
+     data-ask="Why is a 'dead neuron' more dangerous in D than in G?"
+     data-time="3 min">
+  <h2>ReLU vs LeakyReLU</h2>
+  <div class="two-col align-center">
+    <div style="text-align:center;">
+      <p style="font-weight:700;margin-bottom:0.5rem;">ReLU (used in G)</p>
+      <svg viewBox="0 0 200 160" style="width:100%;max-width:200px;">
+        <!-- Axes -->
+        <line x1="20" y1="130" x2="185" y2="130" stroke="#1a1d2e" stroke-width="1.5"/>
+        <line x1="100" y1="15" x2="100" y2="140" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Labels -->
+        <text x="100" y="152" font-family="JetBrains Mono" font-size="9" fill="#8b90a5" text-anchor="middle">0</text>
+        <!-- ReLU line -->
+        <line x1="30" y1="130" x2="100" y2="130" stroke="#ef4444" stroke-width="2.5"/>
+        <line x1="100" y1="130" x2="175" y2="55" stroke="#10b981" stroke-width="2.5"/>
+        <!-- Dead zone label -->
+        <text x="60" y="120" font-family="Inter" font-size="9" font-weight="600" fill="#ef4444" text-anchor="middle">DEAD</text>
+        <text x="60" y="110" font-family="Inter" font-size="8" fill="#8b90a5" text-anchor="middle">gradient = 0</text>
+        <text x="145" y="80" font-family="Inter" font-size="9" font-weight="600" fill="#10b981" text-anchor="middle">alive</text>
+      </svg>
+      <p class="text-muted" style="font-size:0.8rem;">max(0, x) &mdash; negatives become 0</p>
+    </div>
+    <div style="text-align:center;">
+      <p style="font-weight:700;margin-bottom:0.5rem;">LeakyReLU (used in D)</p>
+      <svg viewBox="0 0 200 160" style="width:100%;max-width:200px;">
+        <!-- Axes -->
+        <line x1="20" y1="130" x2="185" y2="130" stroke="#1a1d2e" stroke-width="1.5"/>
+        <line x1="100" y1="15" x2="100" y2="140" stroke="#e2e5ef" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Labels -->
+        <text x="100" y="152" font-family="JetBrains Mono" font-size="9" fill="#8b90a5" text-anchor="middle">0</text>
+        <!-- LeakyReLU line -->
+        <line x1="30" y1="144" x2="100" y2="130" stroke="#10b981" stroke-width="2.5"/>
+        <line x1="100" y1="130" x2="175" y2="55" stroke="#10b981" stroke-width="2.5"/>
+        <!-- Labels -->
+        <text x="60" y="120" font-family="Inter" font-size="9" font-weight="600" fill="#10b981" text-anchor="middle">ALIVE</text>
+        <text x="60" y="108" font-family="Inter" font-size="8" fill="#8b90a5" text-anchor="middle">gradient = 0.2</text>
+        <text x="145" y="80" font-family="Inter" font-size="9" font-weight="600" fill="#10b981" text-anchor="middle">alive</text>
+        <!-- Slope indicator -->
+        <text x="45" y="148" font-family="JetBrains Mono" font-size="8" fill="#8b90a5" text-anchor="middle">slope 0.2</text>
+      </svg>
+      <p class="text-muted" style="font-size:0.8rem;">x if x&gt;0, else 0.2x &mdash; 20% leaks through</p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Comparison Table</h4>
+      <table class="compare-table" style="font-size:0.85rem;">
+        <tr><th>Input</th><th>ReLU</th><th>LeakyReLU(0.2)</th></tr>
+        <tr><td>+5</td><td>5</td><td>5</td></tr>
+        <tr><td>+2</td><td>2</td><td>2</td></tr>
+        <tr class="highlight-row"><td>&minus;3</td><td><strong>0 (dead!)</strong></td><td><strong>&minus;0.6 (alive!)</strong></td></tr>
+        <tr class="highlight-row"><td>&minus;5</td><td><strong>0 (dead!)</strong></td><td><strong>&minus;1.0 (alive!)</strong></td></tr>
+      </table>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Why D needs LeakyReLU</h4>
+      <p>If D's neurons die, D <strong>loses ability to detect fakes</strong> &rarr; G gets no feedback &rarr; G stops learning.</p>
+      <p class="mt-1 text-muted" style="font-size:0.85rem;">G uses ReLU and it works fine &mdash; the DCGAN paper confirmed this.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── SO FAR (mid-lesson recap) ─── -->
+<div class="slide"
+     data-say="Quick recap. Same GAN loop, new sizes and activations. Make sure everyone is following before we look at training."
+     data-ask="What is the one thing about each activation you should remember?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Component</th><th>L02</th><th>L03</th></tr>
+    <tr><td><strong>Data</strong></td><td>1 number (7.0)</td><td>784 pixels (28&times;28 MNIST)</td></tr>
+    <tr><td><strong>Normalization</strong></td><td>None</td><td>[&minus;1, 1] to match Tanh</td></tr>
+    <tr><td><strong>G shape</strong></td><td>1&rarr;16&rarr;1</td><td>64&rarr;256&rarr;512&rarr;784</td></tr>
+    <tr><td><strong>D shape</strong></td><td>1&rarr;16&rarr;1</td><td>784&rarr;512&rarr;256&rarr;1</td></tr>
+    <tr><td><strong>G output</strong></td><td>none</td><td>Tanh [&minus;1, 1]</td></tr>
+    <tr><td><strong>D hidden</strong></td><td>ReLU</td><td>LeakyReLU(0.2)</td></tr>
+    <tr class="highlight-row"><td><strong>Training loop</strong></td><td colspan="2" style="text-align:center;"><strong>Exactly the same: Step A, Step B, .detach(), BCE</strong></td></tr>
+  </table>
+</div>
+
+<!-- 10 ─── G AND D MIRROR ─── -->
+<div class="slide"
+     data-say="Look at G and D side by side. They're mirrors. G builds up from noise, D breaks down to a decision. G expands, D compresses. G ends with Tanh, D ends with Sigmoid. Nearly the same number of parameters."
+     data-ask="Why do G and D need to be roughly the same size?"
+     data-time="2 min">
+  <h2>G and D &mdash; The Mirror</h2>
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1.5rem;align-items:center;max-width:750px;">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Generator (CREATES)</h4>
+      <table class="compare-table" style="font-size:0.85rem;">
+        <tr><td><strong>Input</strong></td><td>64 (noise)</td></tr>
+        <tr><td><strong>Layer 1</strong></td><td>64 &rarr; 256 + ReLU</td></tr>
+        <tr><td><strong>Layer 2</strong></td><td>256 &rarr; 512 + ReLU</td></tr>
+        <tr><td><strong>Layer 3</strong></td><td>512 &rarr; 784 + Tanh</td></tr>
+        <tr><td><strong>Output</strong></td><td>784 (fake image)</td></tr>
+        <tr><td><strong>Params</strong></td><td>550,416</td></tr>
+      </table>
+      <p style="font-weight:600;margin-top:0.5rem;text-align:center;">EXPANDS (small &rarr; big)</p>
+    </div>
+    <div style="font-size:2rem;font-weight:900;color:var(--text-light);">VS</div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Discriminator (JUDGES)</h4>
+      <table class="compare-table" style="font-size:0.85rem;">
+        <tr><td><strong>Input</strong></td><td>784 (image)</td></tr>
+        <tr><td><strong>Layer 1</strong></td><td>784 &rarr; 512 + LeakyReLU</td></tr>
+        <tr><td><strong>Layer 2</strong></td><td>512 &rarr; 256 + LeakyReLU</td></tr>
+        <tr><td><strong>Layer 3</strong></td><td>256 &rarr; 1 + Sigmoid</td></tr>
+        <tr><td><strong>Output</strong></td><td>1 (probability)</td></tr>
+        <tr><td><strong>Params</strong></td><td>533,505</td></tr>
+      </table>
+      <p style="font-weight:600;margin-top:0.5rem;text-align:center;">COMPRESSES (big &rarr; small)</p>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── TRAINING LOOP + COMPARE ─── -->
+<div class="slide"
+     data-say="The training loop is the same as L02. Only two changes: flatten images from 28x28 to 784, and train on batches of 64. The core logic — Step A, Step B, .detach(), BCE — is identical."
+     data-ask="Why do we use batches of 64 instead of 1 image at a time?"
+     data-time="2 min">
+  <h2>Training Loop</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>What's different from L02</h4>
+        <ul>
+          <li><strong>Flatten</strong>: 28&times;28 &rarr; 784 with .view(batch, -1)</li>
+          <li><strong>Batches</strong>: 64 images at a time (not 1)</li>
+          <li><strong>lr = 0.0002</strong> (smaller for stability)</li>
+          <li><strong>50 epochs</strong> &times; 938 batches each</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>What's identical</h4>
+        <ul>
+          <li>Step A: train D on real + fake</li>
+          <li>Step B: train G to fool D</li>
+          <li>.detach() in Step A</li>
+          <li>BCE loss, two optimizers</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <table class="compare-table">
+        <tr><th>Detail</th><th>L02</th><th>L03</th></tr>
+        <tr><td><strong>Real data</strong></td><td>tensor([[7.0]])</td><td>.view(batch, -1)</td></tr>
+        <tr><td><strong>Noise</strong></td><td>randn(1, 1)</td><td>randn(64, 64)</td></tr>
+        <tr><td><strong>Samples/step</strong></td><td>1</td><td>64 (batch)</td></tr>
+        <tr><td><strong>Epochs</strong></td><td>2000</td><td>50</td></tr>
+        <tr><td><strong>Learning rate</strong></td><td>0.001</td><td>0.0002</td></tr>
+        <tr class="highlight-row"><td><strong>Core logic</strong></td><td colspan="2" style="text-align:center;"><strong>Identical</strong></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── TRAINING PROGRESS ─── -->
+<div class="slide"
+     data-say="Over 50 epochs, watch G's output go from random noise to recognizable digits. At epoch 1, garbage. At epoch 10, blurry blobs. By epoch 50, readable digits. But they're blurry — and we'll explain why."
+     data-ask="What do you notice about the quality of the generated digits?"
+     data-time="2 min">
+  <h2>Training Progress</h2>
+  <div style="max-width:650px;">
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:0.8rem 1.2rem;align-items:center;">
+      <div class="card" style="text-align:center;padding:0.8rem 1.5rem;background:#f8f9fb;">
+        <p style="font-weight:700;">Epoch 1</p>
+      </div>
+      <div>
+        <div style="display:flex;gap:0.3rem;">
+          <div style="width:32px;height:32px;background:#ccc;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">noise</div>
+          <div style="width:32px;height:32px;background:#bbb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">noise</div>
+          <div style="width:32px;height:32px;background:#c5c5c5;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">noise</div>
+          <div style="width:32px;height:32px;background:#b8b8b8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888;">noise</div>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin-top:0.2rem;">Random garbage pixels</p>
+      </div>
+
+      <div class="card" style="text-align:center;padding:0.8rem 1.5rem;background:#f8f9fb;">
+        <p style="font-weight:700;">Epoch 10</p>
+      </div>
+      <div>
+        <div style="display:flex;gap:0.3rem;">
+          <div style="width:32px;height:32px;background:radial-gradient(circle, #666, #ccc);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(circle, #777, #bbb);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(circle, #555, #aaa);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(circle, #888, #ccc);border-radius:4px;"></div>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin-top:0.2rem;">Blurry blobs with some structure</p>
+      </div>
+
+      <div class="card" style="text-align:center;padding:0.8rem 1.5rem;background:#f8f9fb;">
+        <p style="font-weight:700;">Epoch 30</p>
+      </div>
+      <div>
+        <div style="display:flex;gap:0.3rem;">
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 50% 40%, #333, #aaa);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 45% 50%, #444, #999);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 55% 45%, #222, #888);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 50% 55%, #333, #999);border-radius:4px;"></div>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin-top:0.2rem;">Recognizable digit-like shapes</p>
+      </div>
+
+      <div class="card" style="text-align:center;padding:0.8rem 1.5rem;background:#ecfdf5;">
+        <p style="font-weight:700;">Epoch 50</p>
+      </div>
+      <div>
+        <div style="display:flex;gap:0.3rem;">
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 50% 40%, #111, #777);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 45% 50%, #222, #666);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 55% 45%, #111, #888);border-radius:4px;"></div>
+          <div style="width:32px;height:32px;background:radial-gradient(ellipse at 50% 55%, #222, #777);border-radius:4px;"></div>
+        </div>
+        <p style="font-size:0.8rem;margin-top:0.2rem;font-weight:600;">Readable handwritten digits! (but blurry)</p>
+      </div>
+    </div>
+    <blockquote style="margin-top:1.2rem;padding:0.8rem 1.2rem;border-left:5px solid #1a1d2e;background:#f8f9fb;border-radius:0 12px 12px 0;">
+      <p style="font-size:1rem;font-weight:600;font-style:italic;">The images will be <strong>blurry</strong>. That's expected with Linear layers. DCGAN fixes this.</p>
+    </blockquote>
+  </div>
+</div>
+
+<!-- 13 ─── WHY BLURRY ─── -->
+<div class="slide"
+     data-say="Our Generator uses nn.Linear — every output pixel gets its own separate weights, and the layer has no notion of which pixels are neighbours. Pixel (5,5) is not treated as 'next to' pixel (5,6). Real images have spatial structure: neighbors are related, edges are continuous. Linear layers can't see that."
+     data-ask="How would you teach a network that nearby pixels are related?"
+     data-time="2 min">
+  <h2>Why Are the Images Blurry?</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>nn.Linear thinks:</h4>
+        <ul>
+          <li>Pixel (5,5) is not &ldquo;next to&rdquo; pixel (5,6) &mdash; <strong>no notion of neighbours</strong></li>
+          <li>Separate weights per pixel &mdash; <strong>no weight sharing</strong></li>
+          <li>No concept of neighbors, edges, or shapes</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Real images need:</h4>
+        <ul>
+          <li>Nearby pixels are <strong>related</strong></li>
+          <li>Edges are <strong>continuous</strong></li>
+          <li>Strokes are <strong>smooth</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center;">
+        <div>
+          <svg viewBox="0 0 100 100" style="width:80px;height:80px;">
+            <rect width="100" height="100" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="2"/>
+            <text x="50" y="45" text-anchor="middle" font-family="Inter" font-size="30" font-weight="700" fill="#1a1d2e">3</text>
+            <text x="50" y="65" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">smooth curves</text>
+            <text x="50" y="78" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">clean edges</text>
+          </svg>
+          <p style="font-weight:600;font-size:0.85rem;margin-top:0.3rem;">Real digit</p>
+        </div>
+        <div>
+          <svg viewBox="0 0 100 100" style="width:80px;height:80px;">
+            <rect width="100" height="100" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="2"/>
+            <!-- Noisy representation -->
+            <text x="50" y="45" text-anchor="middle" font-family="Inter" font-size="30" font-weight="700" fill="#aaa" style="filter:url(#blur3)">3</text>
+            <text x="50" y="65" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">pixel soup</text>
+            <text x="50" y="78" text-anchor="middle" font-family="Inter" font-size="8" fill="#8b90a5">blurry mess</text>
+            <defs><filter id="blur3"><feGaussianBlur in="SourceGraphic" stdDeviation="2"/></filter></defs>
+          </svg>
+          <p style="font-weight:600;font-size:0.85rem;margin-top:0.3rem;">Linear GAN</p>
+        </div>
+      </div>
+      <div class="card mt-2" style="background:#f8f9fb;text-align:center;">
+        <p style="font-weight:600;">The fix: <strong>Convolutional layers</strong> (Conv2d)</p>
+        <p class="text-muted" style="font-size:0.85rem;">They look at patches of nearby pixels together.<br>That's DCGAN &mdash; coming in L05.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Three key takeaways."
+     data-ask="Which concept from L03 is most important to remember?"
+     data-time="1.5 min">
+  <h2>Lesson 03 <span class="accent">Summary</span></h2>
+  <div class="three-col">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>Same Loop, Bigger Data</h4>
+      <p>Step A/B, .detach(), BCE &mdash; identical to L02. Only sizes changed (1 &rarr; 784).</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>New Activations</h4>
+      <p>Tanh in G (pixels [&minus;1,1]). LeakyReLU in D (keeps gradients alive).</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Blurry but Working</h4>
+      <p>Linear layers can't see spatial structure. Convolutions (DCGAN) will fix this.</p>
+    </div>
+  </div>
+  <table class="compare-table mt-2" style="max-width:700px;">
+    <tr><th>Concept</th><th>Key Point</th></tr>
+    <tr><td><strong>28&times;28 = 784</strong></td><td>Flatten images for Linear layers</td></tr>
+    <tr><td><strong>Normalize to [&minus;1, 1]</strong></td><td>Match Tanh output range</td></tr>
+    <tr><td><strong>Mirror shape</strong></td><td>G expands (64&rarr;784), D compresses (784&rarr;1)</td></tr>
+    <tr><td><strong>Batches of 64</strong></td><td>Faster, smoother training</td></tr>
+    <tr><td><strong>550K parameters</strong></td><td>Much bigger than L02 because 784 pixels need capacity</td></tr>
+  </table>
+</div>
+
+<!-- 15 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Give 2 minutes to think. Then reveal."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>G uses Tanh, D uses Sigmoid. What would break if you swapped them?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">If G used Sigmoid, it would output [0,1] but the data is normalized to [&minus;1,1]. D would instantly detect fakes because all G's pixels are positive while real data includes negatives. If D used Tanh, it would output [&minus;1,1] which isn't a valid probability &mdash; BCE loss would break.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>D uses LeakyReLU but G uses plain ReLU. What happens if you give D plain ReLU too?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">D's neurons can <strong>die</strong> (gradient = 0 for negative inputs). When D loses neurons, it becomes a weaker critic. Weaker, sparser gradients then flow back to G, so G's feedback gets worse. The result: lower quality outputs and less stable training. The DCGAN paper reported that LeakyReLU in D worked well, especially at higher resolution.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>We flatten 28&times;28 into 784. What information is lost by flattening?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1"><strong>Spatial relationships.</strong> In a 28&times;28 grid, pixel (5,5) is next to pixel (5,6). After flattening to 784, those pixels are still adjacent in the vector, but the network has no way to know they were neighbors. It treats pixel 1 and pixel 784 the same as pixel 5 and pixel 6. That's why the images are blurry &mdash; and why convolutions (which preserve spatial structure) fix this.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Our images are blurry because Linear layers don't understand space. Next lesson: convolutions — filters that look at patches of nearby pixels. This leads to DCGAN and sharp images."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>Convolutions Crash Course</h1>
+  <p class="subtitle">Lesson 04: Filters that see neighbors &mdash; the key to sharp images and DCGAN</p>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="L04.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L04 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

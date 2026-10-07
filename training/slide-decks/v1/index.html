@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide decks v1 · lesson pages</title>
+<style>
+:root{--ink:#111827;--paper:#f7f4ed;--line:rgba(17,24,39,.13);--muted:#68707c;--blue:#3157d5;--blue-soft:#e8edff;--coral:#eb5a46;--coral-soft:#fff0ed;--mint:#277a59;--mint-soft:#e3f5ed;--violet:#7353bd;--violet-soft:#f0ebff;
+--display:"Segoe UI Variable Display","Aptos Display","Segoe UI",sans-serif;--body:"Segoe UI Variable Text","Aptos","Segoe UI",sans-serif;--mono:"Cascadia Code","SFMono-Regular",Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+body:before{content:"";position:fixed;inset:0;background-image:radial-gradient(rgba(49,87,213,.12) .65px,transparent .65px);background-size:22px 22px;opacity:.34;pointer-events:none}
+main{position:relative;max-width:1240px;margin:0 auto;padding:clamp(24px,4vw,56px) clamp(16px,4vw,48px) 64px}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:clamp(28px,5vh,56px)}
+.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--ink);color:#fff;font:850 12px var(--display);text-decoration:none}
+.crumbs{font-size:10px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:#6d7176}.crumbs a{color:var(--blue);text-decoration:none}
+.kicker{margin:0 0 14px;color:var(--blue);font:800 13px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+h1{margin:0;font-family:var(--display);font-size:clamp(40px,6vw,84px);font-weight:740;line-height:.97;letter-spacing:-.055em}
+.lede{max-width:760px;margin:20px 0 0;color:#525b6a;font-size:clamp(17px,1.5vw,22px);line-height:1.45}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 8px}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.72);font:800 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#525b6a}
+.tag i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+h2{margin:48px 0 16px;font-family:var(--display);font-size:clamp(24px,2.6vw,36px);letter-spacing:-.035em}
+.topic{display:grid;grid-template-columns:minmax(200px,.85fr) repeat(4,minmax(0,1fr));gap:10px;margin:0 0 12px;padding:12px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.55)}
+.topic-head{padding:10px 12px}.topic-head small{display:block;color:var(--muted);font:850 9px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.topic-head strong{display:block;margin-top:6px;font:740 clamp(18px,1.6vw,24px)/1.15 var(--display);letter-spacing:-.025em}
+.topic-head p{margin:8px 0 0;color:#5c6470;font-size:13px;line-height:1.4}
+.col{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:16px;background:var(--soft);min-width:0}
+.col>small{color:var(--c);font:850 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+.col a{display:block;padding:8px 10px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:13px;font-weight:650;line-height:1.3;overflow-wrap:anywhere}
+.col a span{display:block;margin-top:2px;color:var(--muted);font:600 11px var(--mono)}
+.col a:hover{border-color:var(--c);transform:translateY(-1px)}
+.col .none{color:var(--muted);font-size:12px;font-style:italic;padding:6px 2px}
+.adv{--c:var(--blue);--soft:var(--blue-soft)}.simple{--c:var(--ink);--soft:#efeadf}.labs{--c:var(--coral);--soft:var(--coral-soft)}.docs{--c:var(--mint);--soft:var(--mint-soft)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:28px}
+.card{display:flex;flex-direction:column;gap:10px;padding:26px;border:1px solid var(--line);border-radius:22px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 20px 60px rgba(17,24,39,.06)}
+.card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.card small{color:var(--blue);font:850 10px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.card strong{font:740 clamp(24px,2.4vw,34px)/1.05 var(--display);letter-spacing:-.04em}
+.card p{margin:0;color:#5c6470;font-size:14px;line-height:1.45}
+.card ul{margin:4px 0 0;padding-left:18px;color:#525b6a;font-size:13px;line-height:1.5}
+.card.planned{opacity:.5;pointer-events:none;box-shadow:none}
+.foot{margin-top:40px;color:var(--muted);font-size:12px;line-height:1.6}.foot code{font-family:var(--mono)}
+@media(max-width:980px){.topic{grid-template-columns:1fr 1fr}.topic-head{grid-column:1/-1}}
+@media(max-width:560px){.topic{grid-template-columns:1fr}}
+
+.path{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;margin:28px 0 4px}
+.path a{flex:1 1 150px;display:block;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.72);color:var(--ink);text-decoration:none}
+.path a small{display:block;color:var(--blue);font:850 9px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.path a strong{display:block;margin-top:4px;font-size:13px;line-height:1.3}
+.path a.here{background:var(--ink);color:#fff;border-color:var(--ink)}.path a.here small{color:#9ce1c4}
+.path b{align-self:center;color:var(--muted);font-weight:700}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 0;max-width:980px}
+.outcomes div{padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.outcomes small{color:var(--mint);font:850 9px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.outcomes p{margin:6px 0 0;font-size:14px;line-height:1.45;color:#3f4652}
+.needs{font-size:12px!important;color:#68707c!important}.needs b{color:var(--coral);font:850 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-right:4px}
+.naming{margin-top:28px;padding:14px 16px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:12px;line-height:1.6;max-width:980px}
+@media(max-width:700px){.outcomes{grid-template-columns:1fr}.path b{display:none}}
+
+.unit{margin-top:64px;padding-top:28px;border-top:2px solid var(--ink)}
+.unit-title{margin:0;font-family:var(--display);font-size:clamp(30px,4vw,54px);font-weight:740;line-height:1;letter-spacing:-.045em}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 0}
+</style>
+</head>
+<body><main>
+<div class="top"><a class="mark" href="../../index.html">GM</a><div class="crumbs"><a href="../../index.html">GAN Mastery</a> · Slide decks v1</div></div>
+<p class="kicker">GAN Mastery · slide decks v1</p>
+<h1>Slide decks v1 · lesson pages</h1>
+<p class="lede">One short HTML deck per lesson — quick to present, easy to edit. Units 1–5.</p>
+<h2>By unit</h2>
+<section class="topic" style="grid-template-columns:minmax(200px,.85fr) minmax(0,3fr)"><div class="topic-head"><small>Unit 1</small><strong>Generative AI, GANs, PyTorch and DCGAN</strong><p><a href="../../index.html#unit-1">Unit 1 · topics, labs and docs →</a></p></div><div class="col simple"><small>v1 lesson pages</small><a href="unit-1/S1-generative-ai.html">S1 — The World of Generative AI<span>18 slides</span></a><a href="unit-1/S2-what-is-a-gan.html">S2 — What Is a GAN?<span>25 slides</span></a><a href="unit-1/gan-lessons/L02.html">L02 — Build Your First GAN<span>18 slides</span></a><a href="unit-1/gan-lessons/L03.html">L03 — GAN for Images (MNIST)<span>17 slides</span></a><a href="unit-1/gan-lessons/L04.html">L04 — Convolutions Crash Course<span>22 slides</span></a><a href="unit-1/gan-lessons/L05.html">L05 — DCGAN: Deep Convolutional GAN<span>18 slides</span></a><a href="unit-1/gan-lessons/L06.html">L06 — When GANs Break (and How to Fix It)<span>19 slides</span></a><a href="unit-1/nn-lessons/NN-L00.html">NN-L00 — 🌍 Overview of Generative AI<span>28 slides</span></a><a href="unit-1/nn-lessons/NN-L01.html">NN-L01 — 🧠 What Is a Neuron?<span>16 slides</span></a><a href="unit-1/nn-lessons/NN-L02.html">NN-L02 — 📏 How Wrong Is the Prediction?<span>19 slides</span></a><a href="unit-1/nn-lessons/NN-L03.html">NN-L03 — 🧭 Which Direction Should the Weight Move?<span>19 slides</span></a><a href="unit-1/nn-lessons/NN-L04.html">NN-L04 — 📐 How Far Should the Weight Move?<span>20 slides</span></a><a href="unit-1/nn-lessons/NN-L05.html">NN-L05 — 🔁 Make the Neuron Learn Repeatedly<span>20 slides</span></a><a href="unit-1/nn-lessons/NN-L06.html">NN-L06 — 🎯 Calculate the Gradient Directly<span>21 slides</span></a><a href="unit-1/nn-lessons/NN-L07.html">NN-L07 — ⚖️ Learn Both Weight and Bias<span>24 slides</span></a><a href="unit-1/nn-lessons/NN-L08.html">NN-L08 — 🔀 A Neuron with Multiple Inputs<span>24 slides</span></a><a href="unit-1/nn-lessons/NN-L09.html">NN-L09 — 💥 Why One Neuron Is Not Enough<span>26 slides</span></a><a href="unit-1/nn-lessons/NN-L10.html">NN-L10 — 🏗️ Your First Hidden Layer<span>25 slides</span></a><a href="unit-1/nn-lessons/NN-L11.html">NN-L11 — ⬅️ Backpropagation<span>26 slides</span></a><a href="unit-1/nn-lessons/NN-L12.html">NN-L12 — 📊 Sigmoid and Binary Cross-Entropy<span>25 slides</span></a><a href="unit-1/nn-lessons/NN-L13.html">NN-L13 — 🔨 Build a Classifier<span>29 slides</span></a><a href="unit-1/nn-lessons/NN-L14.html">NN-L14 — 🔥 Introduction to PyTorch<span>30 slides</span></a></div></section><section class="topic" style="grid-template-columns:minmax(200px,.85fr) minmax(0,3fr)"><div class="topic-head"><small>Unit 2</small><strong>Better loss, stable training, control</strong><p><a href="../../index.html#unit-2">Unit 2 · topics, labs and docs →</a></p></div><div class="col simple"><small>v1 lesson pages</small><a href="unit-2/L07.html">L07 — Why BCE Loss Fails<span>22 slides</span></a><a href="unit-2/L08.html">L08 — WGAN: Wasserstein Distance<span>29 slides</span></a><a href="unit-2/L09.html">L09 — WGAN-GP: Gradient Penalty<span>28 slides</span></a><a href="unit-2/L10.html">L10 — Conditional GAN<span>22 slides</span></a><a href="unit-2/L11.html">L11 — Controllable Generation<span>22 slides</span></a></div></section><section class="topic" style="grid-template-columns:minmax(200px,.85fr) minmax(0,3fr)"><div class="topic-head"><small>Unit 3</small><strong>Evaluate and scale</strong><p><a href="../../index.html#unit-3">Unit 3 · topics, labs and docs →</a></p></div><div class="col simple"><small>v1 lesson pages</small><a href="unit-3/L12.html">L12 — Evaluating GANs<span>24 slides</span></a><a href="unit-3/L13.html">L13 — FID Deep Dive<span>19 slides</span></a><a href="unit-3/L14.html">L14 — GAN Bias and Fairness<span>14 slides</span></a><a href="unit-3/L15.html">L15 — StyleGAN<span>19 slides</span></a></div></section><section class="topic" style="grid-template-columns:minmax(200px,.85fr) minmax(0,3fr)"><div class="topic-head"><small>Unit 4</small><strong>Image translation, augmentation and privacy</strong><p><a href="../../index.html#unit-4">Unit 4 · topics, labs and docs →</a></p></div><div class="col simple"><small>v1 lesson pages</small><a href="unit-4/L16.html">L16 — Image-to-Image Translation<span>18 slides</span></a><a href="unit-4/L17.html">L17 — Pix2Pix: U-Net + PatchGAN<span>18 slides</span></a><a href="unit-4/L18.html">L18 — Data Augmentation &amp; Privacy<span>19 slides</span></a></div></section><section class="topic" style="grid-template-columns:minmax(200px,.85fr) minmax(0,3fr)"><div class="topic-head"><small>Unit 5</small><strong>CycleGAN and the satellite-to-map capstone</strong><p><a href="../../index.html#unit-5">Unit 5 · topics, labs and docs →</a></p></div><div class="col simple"><small>v1 lesson pages</small><a href="unit-5/L19.html">L19 — CycleGAN: Unpaired Translation<span>20 slides</span></a><a href="unit-5/L20.html">L20 — Satellite to Map + Course Wrap-Up<span>17 slides</span></a></div></section>
+<p class="foot">Other set: <a href="../v2/index.html">slide decks v2</a> · <a href="../../index.html">All units</a></p>
+
+</main></body>
+</html>

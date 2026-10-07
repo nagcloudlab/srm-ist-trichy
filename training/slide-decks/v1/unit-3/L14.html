@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L14 — GAN Bias and Fairness</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L14">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L13.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L13</a><a href="../../../index.html#unit-3" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L14 &bull; Unit 3</a><a href="L15.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L15 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-3">Unit 3</a> &bull; L14</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Your GAN can produce sharp images with a great FID. But what if it only generates certain types of faces? This lesson is about what happens when a good GAN learns the wrong things."
+     data-ask="Have you ever noticed AI tools generating a particular kind of face more often?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 14</div>
+  <h1>GAN Bias and Fairness</h1>
+  <p class="subtitle">What happens when a "good" GAN learns the wrong things?</p>
+</div>
+
+<!-- 2 ─── HOOK ─── -->
+<div class="slide"
+     data-say="Imagine training a face GAN on CelebA. It gets FID = 15. Looks great! But look at what it actually generates. The bias is hidden behind a good number."
+     data-ask="What would per-group FID reveal that overall FID hides?"
+     data-time="2 min">
+  <h2>The Hidden Problem</h2>
+  <div class="two-col align-center">
+    <div style="text-align:center;">
+      <div class="big-stat">
+        <div class="number" style="font-size:clamp(3rem,7vw,4.5rem);">FID = 15</div>
+        <div class="label">"Great score!"</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>But look closer...</h4>
+        <ul>
+          <li>85% of outputs are light-skinned</li>
+          <li class="step">90% are young adults</li>
+          <li class="step">Dark-skinned faces are blurrier</li>
+          <li class="step">Older faces have more artifacts</li>
+        </ul>
+        <p class="step mt-1" style="font-weight:700;">The overall FID hid the problem.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── WHAT IS BIAS ─── -->
+<div class="slide"
+     data-say="Bias means the GAN outputs don't fairly represent diversity. There are three levels where bias enters."
+     data-ask="At which level do you think bias is hardest to fix?"
+     data-time="2.5 min">
+  <h2>What Is Bias in GANs?</h2>
+  <p style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;">Bias = outputs don't fairly represent the diversity of the real world</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Level 1: Data Bias</h4>
+      <p>Training data is unbalanced.</p>
+      <p class="mt-1" style="font-size:0.9rem;">Face dataset: 80% light skin, 20% dark skin. The GAN <strong>learns this imbalance</strong>.</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Level 2: Model Bias</h4>
+      <p>The GAN <strong>amplifies</strong> the imbalance.</p>
+      <p class="mt-1" style="font-size:0.9rem;">Data: 80/20 split. GAN output can drift to e.g. <strong>95/5</strong> (illustrative). Minority gets even less.</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Level 3: Evaluation Bias</h4>
+      <p>FID doesn't catch the problem.</p>
+      <p class="mt-1" style="font-size:0.9rem;">Majority group looks great, minority's poor quality is <strong>averaged away</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── HOW BIAS ENTERS THROUGH DATA ─── -->
+<div class="slide"
+     data-say="CelebA, the most-used face dataset, is heavily biased. GANs trained on it inherit and amplify those biases."
+     data-ask="What would happen if you trained a GAN on only one country's photos?"
+     data-time="2.5 min">
+  <h2>How Bias Enters Through Data</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>CelebA Dataset (most-used)</h4>
+        <ul>
+          <li>≈ 58% labelled “female”</li>
+          <li>Majority light-skinned (no skin-tone labels)</li>
+          <li>≈ 77% labelled “young”</li>
+          <li>Posed, made-up celebrity photos</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>GANs trained on CelebA</h4>
+        <ul>
+          <li>Skew toward light-skinned, young faces</li>
+          <li>Dark-skinned faces are less detailed</li>
+          <li>Older faces are rare and blurry</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The Amplification Effect <span style="font-weight:500;color:var(--text-muted);">(illustrative)</span></h4>
+        <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+          Data: 70% A, 30% B<br>
+          GAN:  <strong>85% A, 15% B</strong>
+        </p>
+        <p class="mt-1">G gets MORE gradient signal from group A &rarr; gets better at A &rarr; focuses even more on A. Reported for face GANs: Jain et al., 2020.</p>
+        <p class="mt-1" style="font-weight:700;">Vicious cycle.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── MODE COLLAPSE AS BIAS ─── -->
+<div class="slide"
+     data-say="Mode collapse isn't just a technical problem. It's a fairness problem. The modes that survive are the majority. The modes that collapse are minorities."
+     data-ask="In MNIST, which digits do you think collapse first? Why?"
+     data-time="2 min">
+  <h2>Mode Collapse = Bias</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Face Dataset</h4>
+        <p>GAN collapses to 5 face types out of 50.</p>
+        <p class="mt-1"><strong>Which 5 survive?</strong> The majority groups.</p>
+        <p><strong>Which 45 disappear?</strong> The minority groups.</p>
+        <p class="mt-1" style="font-weight:700;">Mode collapse disproportionately erases underrepresented groups.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>In MNIST Terms</h4>
+        <p>If 3 digits collapse (a plausible pattern, not a rule):</p>
+        <p class="mt-1"><strong>Survive:</strong> "easy" ones (1, 0, 7)</p>
+        <p><strong>Collapse:</strong> "hard" ones (8, 9, 4)</p>
+        <p class="mt-1">Not random &mdash; <strong>structural bias</strong> in which modes survive.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── REAL-WORLD HARMS ─── -->
+<div class="slide"
+     data-say="This isn't just academic. Biased GANs cause real harm. Walk through each scenario."
+     data-ask="Can you think of another scenario where biased synthetic data could cause harm?"
+     data-time="3 min">
+  <h2>Why This Matters</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#fef2f2;">
+      <h4>1. Synthetic Training Data</h4>
+      <p>GAN generates training images for face detector &rarr; mostly light-skinned &rarr; detector <strong>fails on dark-skinned faces</strong> &rarr; real-world discrimination</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>2. Medical Augmentation</h4>
+      <p>GAN generates synthetic X-rays from one hospital population &rarr; model <strong>works poorly on other populations</strong></p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>3. Creative Tools</h4>
+      <p>AI art trained on Western art &rarr; default output reflects Western aesthetics &rarr; <strong>other styles stereotyped</strong></p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>4. Deepfakes</h4>
+      <p>Biased face GANs create better fakes of majority faces &rarr; detection tools can be <strong>worse at catching fakes of minorities</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Quick recap. We've identified the problem. Now let's talk about detecting and fixing it."
+     data-ask="Are you starting to see bias in GANs you've already built?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Concept</th><th>Key Insight</th></tr>
+    <tr><td><strong>Data bias</strong></td><td>Imbalanced data &rarr; imbalanced output</td></tr>
+    <tr><td><strong>Amplification</strong></td><td>GANs make imbalances WORSE, not just copy them</td></tr>
+    <tr><td><strong>Mode collapse</strong></td><td>Collapsed modes are disproportionately minorities</td></tr>
+    <tr><td><strong>Real-world harm</strong></td><td>Biased synthetic data &rarr; biased downstream models</td></tr>
+    <tr class="highlight-row"><td><strong>FID hides it</strong></td><td>Overall FID averages away minority problems</td></tr>
+  </table>
+  <p style="text-align:center;margin-top:1rem;font-weight:600;">Next: how to detect and fix it.</p>
+</div>
+
+<!-- 8 ─── DETECTING BIAS ─── -->
+<div class="slide"
+     data-say="Three steps to detect bias. Check your data, compute per-group FID, and visually inspect each group separately."
+     data-ask="Which step is most likely to be skipped in practice?"
+     data-time="3 min">
+  <h2>Detecting Bias</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Step 1: Check Your Data</h4>
+      <p>Count examples per group.</p>
+      <p style="font-family:var(--font-mono);font-size:0.8rem;margin-top:0.5rem;line-height:1.7;">
+        Class 0: 5,923 ( 9.9%)<br>
+        Class 1: 6,742 (11.2%)<br>
+        Class 8: 5,851 ( 9.8%)<br>
+        ...
+      </p>
+      <p class="mt-1">For faces: check age, gender, skin tone distributions.</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Step 2: Per-Group FID</h4>
+      <p>Compute FID per group &mdash; with the <strong>same N per group</strong> (small N biases FID up, L13).</p>
+      <p style="font-family:var(--font-mono);font-size:0.8rem;margin-top:0.5rem;line-height:1.7;">
+        Class 0: FID = 15.2<br>
+        Class 1: FID = 12.8<br>
+        Class 7: FID = 14.1<br>
+        <strong>Class 8: FID = 45.3</strong><br>
+        <strong>Class 9: FID = 38.7</strong>
+      </p>
+      <p class="mt-1"><strong>Classes 8, 9 are much worse!</strong> (illustrative)</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Step 3: Visual Inspection</h4>
+      <p>Generate 100 images per group. Ask:</p>
+      <ul style="font-size:0.85rem;">
+        <li>Some groups blurrier?</li>
+        <li>Some less diverse?</li>
+        <li>Some have artifacts?</li>
+        <li>Stereotypical patterns?</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── MITIGATION STRATEGIES ─── -->
+<div class="slide"
+     data-say="Five strategies, from simple to comprehensive. Balance data, use cGAN, weight losses, evaluate per-group, and collect better data."
+     data-ask="Which strategy would you try first?"
+     data-time="3.5 min">
+  <h2>Mitigation Strategies</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>1. Balance the Data</h4>
+      <p>Oversample minority groups or undersample majority.</p>
+      <p class="mt-1" style="font-size:0.85rem;">Pros: simple. Cons: oversampling can overfit.</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>2. Conditional Training (cGAN)</h4>
+      <p>Give each group its own label. G learns each separately.</p>
+      <p class="mt-1" style="font-size:0.85rem;">Each group gets dedicated gradient signal.</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>3. Loss Weighting</h4>
+      <p>Give minority groups higher loss weight.</p>
+      <p style="font-family:var(--font-mono);font-size:0.8rem;margin-top:0.3rem;">young: weight=0.2 (80% data)<br>old: weight=0.8 (20% data)</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>4. Per-Group Evaluation</h4>
+      <p>Don't just compute one FID. Compute per group.</p>
+      <p class="mt-1" style="font-size:0.85rem;">Overall FID = 22 (great!) but Group C FID = 52 (terrible!).</p>
+    </div>
+  </div>
+  <div class="card mt-1" style="background:#ecfdf5;text-align:center;">
+    <h4>5. Diverse Data Collection</h4>
+    <p>The best mitigation is prevention. Collect data that represents the population. <strong>No algorithm can fully fix biased data.</strong></p>
+  </div>
+</div>
+
+<!-- 10 ─── FAIRNESS METRICS ─── -->
+<div class="slide"
+     data-say="Beyond FID: fairness-specific metrics. Demographic parity and quality parity. The key insight: a fair GAN may have a HIGHER FID."
+     data-ask="Why would making a GAN fairer make its FID worse?"
+     data-time="2.5 min">
+  <h2>Fairness Metrics</h2>
+  <div class="two-col">
+    <div>
+      <table class="compare-table">
+        <tr><th>Metric</th><th>What It Checks</th></tr>
+        <tr><td><strong>Per-Group FID</strong></td><td>All groups should have similar FIDs</td></tr>
+        <tr><td><strong>Demographic Parity</strong></td><td>GAN generates each group equally often</td></tr>
+        <tr><td><strong>Quality Parity</strong></td><td>Each group's images are equally realistic</td></tr>
+        <tr><td><strong>Coverage</strong></td><td>All subgroups within each group are covered</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The Tension</h4>
+        <p>Rebalance data to 50/50 &rarr; FID goes <strong>UP</strong></p>
+        <p class="mt-1">Why? Real data was 80/20, fake is now 50/50. Distributions don't match!</p>
+        <p class="mt-1" style="font-weight:700;">The "best" FID comes from copying biases exactly.</p>
+        <p class="mt-1">A fair GAN may have a higher FID. <strong>That's OK.</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── PRACTICAL CHECKLIST ─── -->
+<div class="slide"
+     data-say="Before deploying any GAN, run through this checklist. It's your responsibility."
+     data-ask="Which of these do you think most teams skip?"
+     data-time="2 min">
+  <h2>Deployment Checklist</h2>
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="card" style="background:#f8f9fb;">
+      <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:1rem;">
+        <p><strong>1.</strong> What groups exist in my data?</p>
+        <p><strong>2.</strong> How balanced is the representation?</p>
+        <p><strong>3.</strong> Have I computed per-group FID?</p>
+        <p><strong>4.</strong> Are some groups blurrier or less diverse?</p>
+        <p><strong>5.</strong> What will this GAN be used for?</p>
+        <p><strong>6.</strong> Who could be harmed by biased outputs?</p>
+        <p><strong>7.</strong> Have I documented the known biases?</p>
+        <p><strong>8.</strong> Have I tried mitigation strategies?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Three big takeaways from this lesson."
+     data-ask="Which takeaway changes how you'll build GANs going forward?"
+     data-time="1.5 min">
+  <h2>Lesson 14 Summary</h2>
+  <div class="three-col">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>GANs Amplify Bias</h4>
+      <p>They don't just copy data imbalances &mdash; they make them worse.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>FID Hides Bias</h4>
+      <p>Overall FID looks great while minority groups suffer. Always check per-group.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Prevention &gt; Cure</h4>
+      <p>Diverse data collection beats any algorithmic fix. Document known limitations.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions about the ethics and mechanics of bias."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>Your GAN has FID = 12 (excellent). But when you compute per-group FID, Group C scores 52. How is this possible, and what does it tell you?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Overall FID is computed on the pooled features of all groups. If Group C is a small minority (say 5% of data), its poor quality barely moves the pooled mean and covariance. The majority groups' low FIDs dominate the average. This is exactly why per-group FID is essential &mdash; overall FID is blind to minority-group problems.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>You rebalance your dataset to 50/50 between two groups. FID goes from 15 to 25. Your manager says "you made the GAN worse!" How do you respond?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">FID measures how well fake matches real distributions. The real data is 80/20, but now fakes are 50/50 &mdash; so they don't match the real distribution, causing higher FID. But the GAN is actually FAIRER. Show per-group FID: both groups now score similarly, whereas before Group B scored much worse. A higher overall FID for a fairer model is a feature, not a bug.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Someone says "bias is a data problem, not a model problem." Why is this only half right?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">The data IS biased, but GANs can AMPLIFY the bias (e.g. 80/20 drifting toward 95/5). The Generator gets more gradient signal from majority groups, gets better at them, focuses even more on them &mdash; a vicious cycle that makes the model bias WORSE than the data bias. Plus, evaluation bias (using overall FID) hides the problem. It's a pipeline problem: data + model + evaluation all contribute.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="We now know how to evaluate GANs and spot bias. Next: the most influential GAN architecture ever. StyleGAN generates photorealistic faces and introduced ideas that changed all of generative AI."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>StyleGAN</h1>
+  <p class="subtitle">L15: The architecture that changed everything &mdash; mapping networks, AdaIN, and photorealistic faces</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

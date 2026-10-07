@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L16 — Image-to-Image Translation</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L16">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="../unit-3/L15.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L15</a><a href="../../../index.html#unit-4" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L16 &bull; Unit 4</a><a href="L17.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L17 &rarr;</a></div>
+
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-4">Unit 4</a> &bull; L16</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Welcome to Unit 4. Unit 3 ended with StyleGAN — the best generator from noise — and with FID to measure it. Now the input changes: instead of noise, the generator receives a whole image and must transform it into another image."
+     data-ask="What if a GAN could turn a sketch into a photo?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 16</div>
+  <h1>Image-to-Image Translation</h1>
+  <p class="subtitle">A new game: transform one image into another</p>
+</div>
+
+<!-- 2 ─── HOOK ─── -->
+<div class="slide"
+     data-say="Look at this shift. Everything before: noise in, image out. Now: image in, different image out. This opens up a whole new world of applications."
+     data-ask="Can you think of a real-world task where you'd want to transform one image into another?"
+     data-time="2 min">
+  <h2>The Big Shift</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Units 1&ndash;3</h4>
+      <div class="diagram">
+        <div class="box"><div class="label">Noise</div><div class="value">z</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box gen"><div class="label">Generator</div><div class="value">G</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box"><div class="label">Output</div><div class="value">Face</div></div>
+      </div>
+      <p style="text-align:center;font-weight:600;">Generate from nothing</p>
+    </div>
+    <div class="vs">VS</div>
+    <div class="card step" style="background:#ecfdf5;">
+      <h4>Unit 4</h4>
+      <div class="diagram">
+        <div class="box"><div class="label">Input</div><div class="value">Sketch</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box gen"><div class="label">Generator</div><div class="value">G</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box"><div class="label">Output</div><div class="value">Photo</div></div>
+      </div>
+      <p style="text-align:center;font-weight:600;">Transform an existing image</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── WHAT IS I2I ─── -->
+<div class="slide"
+     data-say="Image-to-image translation: you have TWO versions of the same scene. The generator learns to convert one into the other. Walk through the examples slowly."
+     data-ask="Which of these examples interests you most?"
+     data-time="2 min">
+  <h2>What Is Image-to-Image Translation?</h2>
+  <table class="compare-table">
+    <tr><th>Input</th><th>Output</th><th>Application</th></tr>
+    <tr><td><strong>Black &amp; white photo</strong></td><td>Colorized photo</td><td>Photo restoration</td></tr>
+    <tr><td><strong>Daytime scene</strong></td><td>Nighttime scene</td><td>Autonomous driving</td></tr>
+    <tr><td><strong>Sketch of a face</strong></td><td>Realistic face</td><td>Forensics</td></tr>
+    <tr><td><strong>Segmentation map</strong></td><td>Street photo</td><td>Scene synthesis</td></tr>
+    <tr class="highlight-row"><td><strong>Satellite image</strong></td><td>Map</td><td>Cartography</td></tr>
+    <tr><td><strong>Edge map</strong></td><td>Shoe photo</td><td>Product design</td></tr>
+    <tr><td><strong>Horse</strong></td><td>Zebra</td><td>Style transfer</td></tr>
+  </table>
+  <div class="formula mt-2">Input image &rarr; Generator &rarr; Transformed image</div>
+</div>
+
+<!-- 4 ─── PAIRED VS UNPAIRED ─── -->
+<div class="slide"
+     data-say="This is the MOST important distinction. Paired means matching pairs exist. Unpaired means just two piles of images. This determines which architecture you use."
+     data-ask="Is horse-to-zebra paired or unpaired? Why?"
+     data-time="3 min">
+  <h2>Paired vs Unpaired Translation</h2>
+  <div class="two-col">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Paired Translation</h4>
+      <p>Every input has an <strong>exact matching</strong> output.</p>
+      <ul class="mt-1">
+        <li>Edge drawing of shoe #1 &harr; Photo of shoe #1</li>
+        <li>Edge drawing of shoe #2 &harr; Photo of shoe #2</li>
+        <li class="step">Same scene, two representations</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;">Hard to collect, easier to train</p>
+      <p class="text-muted" style="font-size:0.85rem;">Solved by <strong>Pix2Pix</strong> (L17)</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Unpaired Translation</h4>
+      <p>Two <strong>separate collections</strong>, no matching pairs.</p>
+      <ul class="mt-1">
+        <li>100 horse photos (various)</li>
+        <li>100 zebra photos (different zebras)</li>
+        <li class="step">No horse matches any specific zebra</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;">Easy to collect, harder to train</p>
+      <p class="text-muted" style="font-size:0.85rem;">Solved by <strong>CycleGAN</strong> (L19)</p>
+    </div>
+  </div>
+</div>
+
+<!-- NOTATION ─── x, y IN UNITS 4–5 ─── -->
+<div class="slide"
+     data-say="Before any formula: the symbols change meaning. In L10, y was a class label like 7. From now on, x is the input image and y is the TARGET image — the photo that matches the sketch. There is no noise vector z: the input image itself is the source of content. Pix2Pix is exactly L10's conditional GAN, conditioned on an image instead of a label."
+     data-ask="In L10, what did G receive besides noise? What does it receive now?"
+     data-time="2 min">
+  <h2>New Meaning for x and y: Image In, Target Image Out</h2>
+  <table class="compare-table">
+    <tr><th>Symbol</th><th>Units 1&ndash;3</th><th>Units 4&ndash;5</th></tr>
+    <tr><td><strong>x</strong></td><td>a real image</td><td>the <strong>input image</strong> (sketch, edges, satellite)</td></tr>
+    <tr><td><strong>y</strong></td><td>a class label (L10: &ldquo;7&rdquo;)</td><td>the <strong>target image</strong> that matches x</td></tr>
+    <tr><td><strong>z</strong></td><td>random noise (64 or 100 numbers)</td><td>none &mdash; dropout adds the randomness</td></tr>
+    <tr><td><strong>G</strong></td><td>G(z) or G(z, y)</td><td>G(x) &asymp; y</td></tr>
+    <tr class="highlight-row"><td><strong>D</strong></td><td>D(image) or D(image, label)</td><td>D(x, y) &mdash; judges the <strong>pair</strong></td></tr>
+  </table>
+  <p class="mt-1" style="text-align:center;font-weight:600;">Pix2Pix = L10&rsquo;s conditional GAN, conditioned on an <em>image</em> instead of a label.</p>
+</div>
+
+<!-- 5 ─── SECTION DIVIDER ─── -->
+<div class="slide section-divider"
+     data-say="Now let's look at how to build a generator that takes an image in and puts a different image out."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">2</div>
+  <h2>The Encoder-Decoder Architecture</h2>
+</div>
+
+<!-- 6 ─── ENCODER-DECODER ─── -->
+<div class="slide"
+     data-say="The foundation: compress the image down, then expand it back up. The encoder is like a discriminator. The decoder is like a generator. We connect them."
+     data-ask="What information might get lost during compression?"
+     data-time="2 min">
+  <h2>Encoder-Decoder: Compress &amp; Expand</h2>
+  <div class="two-col align-center">
+    <div>
+      <svg viewBox="0 0 300 340" style="width:100%;max-width:300px;">
+        <!-- Encoder -->
+        <rect x="10" y="10" width="120" height="30" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="70" y="30" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" fill="#1a1d2e">256x256x3</text>
+        <line x1="70" y1="40" x2="70" y2="55" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arrowhead16)"/>
+        <rect x="25" y="55" width="90" height="25" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="70" y="72" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">128x128x64</text>
+        <line x1="70" y1="80" x2="70" y2="95" stroke="#4a5068" stroke-width="1.5"/>
+        <rect x="35" y="95" width="70" height="25" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="70" y="112" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">64x64x128</text>
+        <line x1="70" y1="120" x2="70" y2="135" stroke="#4a5068" stroke-width="1.5"/>
+        <rect x="45" y="135" width="50" height="25" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="70" y="152" text-anchor="middle" font-size="9" font-family="JetBrains Mono,monospace" fill="#1a1d2e">...</text>
+        <line x1="70" y1="160" x2="70" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Bottleneck -->
+        <rect x="50" y="175" width="40" height="25" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+        <text x="70" y="192" text-anchor="middle" font-size="9" font-family="JetBrains Mono,monospace" font-weight="700" fill="#3b6df0">1x1x512</text>
+        <line x1="70" y1="200" x2="70" y2="215" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Decoder -->
+        <rect x="45" y="215" width="50" height="25" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="70" y="232" text-anchor="middle" font-size="9" font-family="JetBrains Mono,monospace" fill="#1a1d2e">...</text>
+        <line x1="70" y1="240" x2="70" y2="255" stroke="#4a5068" stroke-width="1.5"/>
+        <rect x="25" y="255" width="90" height="25" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="70" y="272" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#1a1d2e">128x128x64</text>
+        <line x1="70" y1="280" x2="70" y2="295" stroke="#4a5068" stroke-width="1.5"/>
+        <rect x="10" y="295" width="120" height="30" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+        <text x="70" y="315" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" fill="#1a1d2e">256x256x3</text>
+        <!-- Labels -->
+        <text x="160" y="55" font-size="11" font-family="Inter,sans-serif" font-weight="600" fill="#4a5068">Encoder</text>
+        <text x="160" y="70" font-size="10" font-family="Inter,sans-serif" fill="#8b90a5">(compress)</text>
+        <text x="160" y="190" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#3b6df0">Bottleneck</text>
+        <text x="160" y="255" font-size="11" font-family="Inter,sans-serif" font-weight="600" fill="#4a5068">Decoder</text>
+        <text x="160" y="270" font-size="10" font-family="Inter,sans-serif" fill="#8b90a5">(expand)</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Encoder (like a Discriminator)</h4>
+        <p>Conv + stride 2 &rarr; shrink spatial size<br>256 &rarr; 128 &rarr; 64 &rarr; ... &rarr; <strong>1x1x512</strong></p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Decoder (like a Generator)</h4>
+        <p>ConvTranspose2d + stride 2 &rarr; expand back<br>1x1x512 &rarr; ... &rarr; 64 &rarr; 128 &rarr; <strong>256x256x3</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── BOTTLENECK PROBLEM ─── -->
+<div class="slide"
+     data-say="Here's the tragedy: the bottleneck is TINY. 512 numbers must represent an entire scene. Fine details like edges and window positions are lost. The output is blurry."
+     data-ask="If you had to describe a city street in only 512 numbers, what would you lose?"
+     data-time="2 min">
+  <h2>The Bottleneck Problem</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Everything must squeeze through 512 numbers</h4>
+        <p>Input: a street scene with 50 buildings, 12 cars, 200 windows</p>
+        <p class="mt-1">Bottleneck: <strong>512 numbers</strong> &mdash; computed <em>from the input</em>, not a random z like the 64/100-d noise of Units 1&ndash;2</p>
+        <p class="mt-1">The encoder KNOWS where everything is at the early layers. But by the bottleneck, those precise positions are <strong>compressed away</strong>.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Result: Blurry Output</h4>
+        <p>The decoder knows the general layout but <strong>lost all fine details</strong>:</p>
+        <ul>
+          <li>Where every building edge is</li>
+          <li>The exact color of every pixel</li>
+          <li>The position of every window</li>
+        </ul>
+        <p class="mt-1" style="font-weight:600;">The fix? Skip connections (L17)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── WHY GAN LOSS ─── -->
+<div class="slide"
+     data-say="You might think: just use a pixel loss between output and target. It works partially — but when several answers are plausible, L2 picks their mean and L1 their median. A car that could be red or blue comes out a compromise colour that is neither. That is why pixel losses alone are blurry."
+     data-ask="If a model is unsure whether a car is red or blue, what does L1 loss encourage?"
+     data-time="3 min">
+  <h2>Why Use a GAN for This?</h2>
+  <div class="two-col">
+    <div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>L1/L2 Loss Alone</h4>
+        <p>"Minimize average pixel difference"</p>
+        <p class="mt-1">When several colours are plausible: <strong>L2 picks the mean</strong>, <strong>L1 the median</strong>.</p>
+        <p class="mt-1" style="font-style:italic;">Red or blue car &rarr; a compromise colour that is neither</p>
+        <p class="mt-1" style="font-weight:600;">Result: blurry, washed out</p>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>GAN Loss Added</h4>
+        <p>"Be indistinguishable from real"</p>
+        <p class="mt-1">The Discriminator catches blurry outputs. Forces G to <strong>commit to one answer</strong>.</p>
+        <p class="mt-1" style="font-style:italic;">Pick red OR blue &mdash; not the average!</p>
+        <p class="mt-1" style="font-weight:600;">Result: sharp and realistic</p>
+      </div>
+    </div>
+  </div>
+  <div class="step" style="display:flex;justify-content:center;gap:2rem;margin-top:1rem;">
+    <div class="card" style="text-align:center;padding:0.8rem 1.2rem;background:#f8f9fb;"><strong>L1 only</strong><br>Blurry but correct</div>
+    <div class="card" style="text-align:center;padding:0.8rem 1.2rem;background:#f8f9fb;"><strong>GAN only</strong><br>Sharp but may hallucinate</div>
+    <div class="card" style="text-align:center;padding:0.8rem 1.2rem;background:#ecfdf5;"><strong>L1 + GAN</strong><br>Sharp AND correct</div>
+  </div>
+</div>
+
+<!-- 9 ─── D's NEW JOB ─── -->
+<div class="slide"
+     data-say="The Discriminator's job is different now — and you have seen it before. In L10 the conditional GAN gave D the class label so it could ask 'is this a real 7?'. Here the condition is a whole image: D sees input and output concatenated and asks 'does this output MATCH this input?'. If D only saw the output, G could produce ANY realistic shoe regardless of the input edges."
+     data-ask="What would go wrong if D only saw the output image?"
+     data-time="2 min">
+  <h2>The Discriminator's New Job</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Regular GAN Discriminator</h4>
+        <p>"Is this image real or fake?"</p>
+        <p>Input: <strong>one image</strong></p>
+        <p>Output: real / fake</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Image-to-Image Discriminator</h4>
+        <p>"Does this OUTPUT match this INPUT?"</p>
+        <p>Input: <strong>input + output concatenated</strong> (6 channels)</p>
+        <p>Output: real / fake</p>
+      </div>
+    </div>
+    <div>
+      <svg viewBox="0 0 280 200" style="width:100%;max-width:280px;">
+        <!-- Input image -->
+        <rect x="10" y="10" width="70" height="50" rx="6" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="45" y="30" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#1a1d2e" font-weight="600">Input</text>
+        <text x="45" y="48" text-anchor="middle" font-size="8" font-family="JetBrains Mono,monospace" fill="#8b90a5">edges</text>
+        <!-- Output image -->
+        <rect x="10" y="70" width="70" height="50" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+        <text x="45" y="90" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#1a1d2e" font-weight="600">Output</text>
+        <text x="45" y="108" text-anchor="middle" font-size="8" font-family="JetBrains Mono,monospace" fill="#8b90a5">shoe</text>
+        <!-- Concat arrow -->
+        <text x="95" y="70" font-size="10" font-family="Inter,sans-serif" fill="#8b90a5">concat</text>
+        <line x1="80" y1="35" x2="120" y2="70" stroke="#4a5068" stroke-width="1"/>
+        <line x1="80" y1="95" x2="120" y2="80" stroke="#4a5068" stroke-width="1"/>
+        <!-- Concat box -->
+        <rect x="120" y="55" width="50" height="40" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="145" y="75" text-anchor="middle" font-size="8" font-family="JetBrains Mono,monospace" fill="#3b6df0" font-weight="600">6ch</text>
+        <!-- Arrow to D -->
+        <line x1="170" y1="75" x2="195" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="182" y="68" font-size="11" fill="#4a5068">&rarr;</text>
+        <!-- D box -->
+        <rect x="195" y="55" width="60" height="40" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="225" y="80" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" fill="#1a1d2e" font-weight="700">D</text>
+        <!-- Result -->
+        <text x="225" y="115" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#4a5068" font-weight="600">Match?</text>
+        <!-- Labels -->
+        <text x="140" y="160" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" fill="#1a1d2e" font-weight="600">D sees both images together</text>
+        <text x="140" y="175" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">"Do the edges match the shoe?"</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Quick recap before we look at PatchGAN. Make sure everyone is with you on these core concepts."
+     data-ask="Which concept feels new compared to Units 1–3?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Concept</th><th>What It Means</th><th>Why It Matters</th></tr>
+    <tr><td><strong>Image-to-image</strong></td><td>Input is an image, not noise</td><td>Enables transformation tasks</td></tr>
+    <tr><td><strong>Paired data</strong></td><td>Matching input-output pairs</td><td>Pix2Pix (easier to train)</td></tr>
+    <tr><td><strong>Unpaired data</strong></td><td>Two collections, no matching</td><td>CycleGAN (harder to train)</td></tr>
+    <tr><td><strong>Encoder-decoder</strong></td><td>Compress &rarr; bottleneck &rarr; expand</td><td>Loses fine details</td></tr>
+    <tr><td><strong>L1 + GAN loss</strong></td><td>Pixel accuracy + realism</td><td>Sharp AND correct output</td></tr>
+    <tr><td><strong>Conditional D</strong></td><td>D sees input + output together</td><td>Forces output to match input</td></tr>
+  </table>
+</div>
+
+<!-- 11 ─── PATCHGAN ─── -->
+<div class="slide"
+     data-say="A regular D gives ONE score for the whole image — too coarse. PatchGAN outputs a GRID of scores. Each cell judges a local patch. This forces G to get textures right everywhere, not just on average."
+     data-ask="Why is a single score for the whole image not enough?"
+     data-time="3 min">
+  <h2>PatchGAN: A Smarter Discriminator</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>Regular D: One Score</h4>
+        <p>256x256 image &rarr; <strong>one number</strong> (0.73)</p>
+        <p class="mt-1 text-muted">"Overall 73% real" &mdash; but WHERE is it fake?</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>PatchGAN: Grid of Scores</h4>
+        <p>256x256 image &rarr; <strong>30x30 grid</strong></p>
+        <p class="mt-1">Each cell = "Is this <strong>local patch</strong> real or fake?"</p>
+      </div>
+    </div>
+    <div>
+      <svg viewBox="0 0 240 200" style="width:100%;max-width:240px;">
+        <!-- Grid -->
+        <text x="120" y="15" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">PatchGAN output (30x30)</text>
+        <rect x="30" y="25" width="180" height="160" rx="4" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+        <!-- Grid cells with scores -->
+        <rect x="35" y="30" width="40" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="55" y="52" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.9</text>
+        <rect x="80" y="30" width="40" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="100" y="52" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.8</text>
+        <rect x="125" y="30" width="40" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="145" y="52" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.9</text>
+        <rect x="170" y="30" width="35" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="187" y="52" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.7</text>
+        <!-- Row 2 - fake area -->
+        <rect x="35" y="70" width="40" height="35" rx="3" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+        <text x="55" y="92" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#ef4444">0.3</text>
+        <rect x="80" y="70" width="40" height="35" rx="3" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+        <text x="100" y="92" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#ef4444">0.2</text>
+        <rect x="125" y="70" width="40" height="35" rx="3" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+        <text x="145" y="92" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#ef4444">0.1</text>
+        <rect x="170" y="70" width="35" height="35" rx="3" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+        <text x="187" y="92" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#ef4444">0.4</text>
+        <!-- Row 3 -->
+        <rect x="35" y="110" width="40" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="55" y="132" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.8</text>
+        <rect x="80" y="110" width="40" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="100" y="132" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.7</text>
+        <rect x="125" y="110" width="40" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="145" y="132" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.9</text>
+        <rect x="170" y="110" width="35" height="35" rx="3" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+        <text x="187" y="132" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">0.8</text>
+        <!-- Labels -->
+        <text x="120" y="165" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">Each cell: "Is this 70x70 patch real?"</text>
+        <text x="120" y="180" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#ef4444" font-weight="600">Middle row: fake patches detected!</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── FULL FRAMEWORK ─── -->
+<div class="slide"
+     data-say="Here's the full image-to-image framework. Generator gets input image, produces output. D sees input+output concatenated. G has two losses: GAN loss for sharpness, L1 loss for accuracy. Lambda=100 because we REALLY want accuracy."
+     data-ask="Why is lambda so high (100)? What happens if it's 0?"
+     data-time="3 min">
+  <h2>The Full Image-to-Image Framework</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 700 280" style="width:100%;max-width:700px;">
+      <!-- Input image -->
+      <rect x="10" y="100" width="80" height="50" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="50" y="120" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Input</text>
+      <text x="50" y="138" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">image</text>
+      <!-- Arrow to G -->
+      <line x1="90" y1="125" x2="140" y2="125" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="137,121 143,125 137,129" fill="#4a5068"/>
+      <!-- Generator -->
+      <rect x="143" y="100" width="90" height="50" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="188" y="120" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">Generator</text>
+      <text x="188" y="138" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">enc-dec</text>
+      <!-- Arrow to fake -->
+      <line x1="233" y1="125" x2="280" y2="125" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="277,121 283,125 277,129" fill="#4a5068"/>
+      <!-- Fake output -->
+      <rect x="283" y="100" width="80" height="50" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="323" y="120" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Fake</text>
+      <text x="323" y="138" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">output</text>
+      <!-- L1 loss -->
+      <rect x="283" y="20" width="80" height="45" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="323" y="38" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Target</text>
+      <text x="323" y="55" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">(ground truth)</text>
+      <line x1="323" y1="65" x2="323" y2="100" stroke="#3b6df0" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="350" y="85" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#3b6df0">L1 loss</text>
+      <!-- Concat arrows to D -->
+      <line x1="50" y1="150" x2="50" y2="210" stroke="#4a5068" stroke-width="1"/>
+      <line x1="50" y1="210" x2="440" y2="210" stroke="#4a5068" stroke-width="1"/>
+      <line x1="363" y1="125" x2="410" y2="125" stroke="#4a5068" stroke-width="1"/>
+      <line x1="410" y1="125" x2="410" y2="210" stroke="#4a5068" stroke-width="1"/>
+      <line x1="410" y1="210" x2="440" y2="210" stroke="#4a5068" stroke-width="1"/>
+      <text x="430" y="200" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">concat</text>
+      <!-- Discriminator -->
+      <rect x="450" y="185" width="90" height="50" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+      <text x="495" y="207" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">PatchGAN</text>
+      <text x="495" y="225" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">D(input, output)</text>
+      <!-- Arrow to result -->
+      <line x1="540" y1="210" x2="580" y2="210" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="577,206 583,210 577,214" fill="#4a5068"/>
+      <text x="615" y="207" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Real</text>
+      <text x="615" y="222" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">pair?</text>
+      <!-- Loss formula -->
+      <rect x="200" y="245" width="350" height="30" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+      <text x="375" y="265" text-anchor="middle" font-size="12" font-family="JetBrains Mono,monospace" font-weight="600" fill="#1a1d2e">loss_G = GAN_loss + 100 * L1_loss</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 13 ─── LAMBDA = 100 ─── -->
+<div class="slide"
+     data-say="Why 100? Without L1, G produces sharp but WRONG images. With too much L1, blurry but correct. Lambda=100 balances both. The Pix2Pix authors found this empirically."
+     data-ask="What would happen with lambda=0? With lambda=10000?"
+     data-time="2 min">
+  <h2>Why <strong>&lambda; = 100</strong>?</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#fef2f2;">
+      <h4>&lambda; = 0 (no L1)</h4>
+      <p>Sharp but <strong>wrong</strong> images.</p>
+      <p class="mt-1 text-muted">"Here's a beautiful shoe that doesn't match your edges"</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>&lambda; = 100 (Pix2Pix)</h4>
+      <p>Sharp <strong>AND</strong> correct images.</p>
+      <p class="mt-1 text-muted">GAN keeps it sharp, L1 keeps it faithful</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>&lambda; = 10000 (too much L1)</h4>
+      <p>Blurry but <strong>correct</strong> images.</p>
+      <p class="mt-1 text-muted">"Here's the right shoe but it looks like watercolor"</p>
+    </div>
+  </div>
+  <div class="formula mt-2">The 100:1 ratio was found empirically by the Pix2Pix authors. It works across many tasks.</div>
+</div>
+
+<!-- 14 ─── APPLICATIONS ─── -->
+<div class="slide"
+     data-say="Here's the full gallery. Left side: paired. Right side: unpaired. Notice that paired tasks have an exact 'right answer' while unpaired just have two domains."
+     data-ask="Which application would be most useful in your work?"
+     data-time="2 min">
+  <h2>Applications Gallery</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Paired Translation (Pix2Pix)</h4>
+        <table class="compare-table">
+          <tr><th>Input</th><th>Output</th></tr>
+          <tr><td>Edge map</td><td>Photo (shoes, bags)</td></tr>
+          <tr><td>Segmentation</td><td>Street photo</td></tr>
+          <tr><td>Facade labels</td><td>Building photo</td></tr>
+          <tr><td>BW photo</td><td>Color photo</td></tr>
+          <tr class="highlight-row"><td>Satellite</td><td>Map</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Unpaired Translation (CycleGAN)</h4>
+        <table class="compare-table">
+          <tr><th>Domain A</th><th>Domain B</th></tr>
+          <tr><td>Horse</td><td>Zebra</td></tr>
+          <tr><td>Summer</td><td>Winter</td></tr>
+          <tr><td>Photo</td><td>Monet painting</td></tr>
+          <tr><td>Real face</td><td>Cartoon face</td></tr>
+          <tr><td>Apple</td><td>Orange</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Recap the four key takeaways from this lesson."
+     data-ask="Which concept changed your view of GANs the most?"
+     data-time="1.5 min">
+  <h2>Lesson 16 Summary</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>Image In, Image Out</h4>
+      <p>No more noise &mdash; the input is a real image with structure and meaning</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>Paired vs Unpaired</h4>
+      <p>The most important distinction &mdash; determines which architecture to use</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>L1 + GAN = Sharp + Correct</h4>
+      <p>L1 alone is blurry, GAN alone hallucinates &mdash; together they balance</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">4</p>
+      <h4>PatchGAN</h4>
+      <p>Grid of local scores forces the Generator to get textures right everywhere</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Let students think before revealing."
+     data-ask="Try all questions before clicking to reveal."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>If we already have paired data and L1 loss, why do we even need a GAN?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">L1 alone picks the <strong>median</strong> of the plausible answers (L2 the mean) &mdash; a blurry compromise. The GAN loss makes G <strong>commit to one sharp answer</strong>, because D catches blurry, averaged textures. L1 still matters: it keeps the low frequencies correct.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Why does D need to see the INPUT image too, not just the output?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">If D only judges "is this a realistic shoe?", the Generator can produce ANY realistic shoe regardless of the input edges. By showing D both input and output, D checks whether the output <strong>matches</strong> the input. G is forced to produce edges-consistent output.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>PatchGAN outputs 30x30 = 900 scores. How is that better than one score?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Each score focuses on a local 70x70 region. An image might have realistic buildings but blurry windows &mdash; one global score would average these, but PatchGAN catches the blurry region specifically. It acts like a local texture critic everywhere.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="We've built the framework. But the encoder-decoder has a fatal flaw: the bottleneck loses all fine details. Next lesson, we fix it with U-Net skip connections and build the full Pix2Pix system."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>Pix2Pix: U-Net + PatchGAN</h1>
+  <p class="subtitle">L17: Skip connections save the details &mdash; building the first general-purpose paired image translator</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

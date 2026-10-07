@@ -1,0 +1,7 @@
+/* Part GD — gradient descent (deep-dive deck). Part-scoped tweaks only. */
+.slide-gd-landscape .cards .card { padding-top: 14px; padding-bottom: 14px; }
+.slide-gd-schedules .table td { white-space: nowrap; }
+.gd-sched { display: flex; flex-direction: column; gap: 10px; }
+.gd-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; color: var(--ink-2); font: 700 clamp(12px, .95vw, 15px) var(--mono); }
+.gd-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.gd-legend i { display: inline-block; width: 22px; height: 4px; border-radius: 2px; }

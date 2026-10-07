@@ -1,0 +1,98 @@
+'use client';
+
+import { courseLessons } from '../course-data';
+import { InteractiveLab } from '../interactive-labs';
+import { PresentationShell, type LessonSection, type PresenterNote, type SlideMeta } from '../presentation-shell';
+
+const slides = [
+  { kicker: 'PHASE 2 · DEEP NEURAL NETWORKS', title: 'A Neuron with Multiple Inputs', subtitle: 'More evidence enters—one neuron combines it', kind: 'multi-cover' },
+  { kicker: 'LEARNING OUTCOMES', title: 'Scale one neuron from one input to many', kind: 'multi-objectives' },
+  { kicker: 'PHASE MAP', title: 'The learning loop is ready for more powerful models', kind: 'phase-two-map' },
+  { kicker: 'WHY MULTIPLE INPUTS?', title: 'Real predictions depend on more than one thing', kind: 'multi-why' },
+  { kicker: 'DELIVERY DATA', title: 'Distance and packages both change delivery time', kind: 'multi-data' },
+  { kicker: 'THE NEW EQUATION', title: 'Every input receives its own weight', kind: 'multi-equation' },
+  { kicker: 'ONE NEURON', title: 'More connections do not mean more neurons', kind: 'one-neuron-many' },
+  { kicker: 'WORKED PREDICTION', title: 'Combine 4 km and 2 packages', kind: 'multi-example' },
+  { kicker: 'CONTRIBUTIONS', title: 'Multiply separately, then add', kind: 'contribution-sum' },
+  { kicker: 'LIVE CALCULATOR', title: 'Change each influence independently', kind: 'multi-live' },
+  { kicker: 'SEPARATE JOBS', title: 'Each parameter controls one part of the rule', kind: 'separate-jobs' },
+  { kicker: 'FOUR DELIVERIES', title: 'The same rule explains every row', kind: 'batch-arithmetic' },
+  { kicker: 'THREE GRADIENTS', title: 'Each parameter follows the input it touches', kind: 'three-gradients' },
+  { kicker: 'GENERAL PRINCIPLE', title: 'Multiply error by the parameter’s direct influence', kind: 'touch-principle' },
+  { kicker: 'TRAIN ALL THREE', title: 'Calculate every gradient, then update every parameter', kind: 'three-training-cycle' },
+  { kicker: 'FIRST EPOCH', title: 'Zero knowledge produces three strong first updates', kind: 'first-three-update' },
+  { kicker: 'TRAINING RECORD', title: 'All three values converge from zero', kind: 'multi-training-record' },
+  { kicker: 'DISCOVERED RULE', title: 'The neuron recovers every hidden value', kind: 'discovered-values' },
+  { kicker: 'NEW PREDICTION', title: 'Use the learned rule on 4 km and 3 packages', kind: 'unseen-prediction' },
+  { kicker: 'COMPACT NOTATION', title: 'Group inputs and weights into vectors', kind: 'vector-notation' },
+  { kicker: 'DOT PRODUCT', title: 'Match, multiply, and add', kind: 'dot-product' },
+  { kicker: 'SCALE', title: 'The same notation handles thousands of inputs', kind: 'vector-scale' },
+  { kicker: 'COMPARE', title: 'More inputs change capacity—not the learning loop', kind: 'changed-unchanged' },
+  { kicker: 'KNOWLEDGE CHECK', title: 'Can you reason about a multi-input neuron?', kind: 'multi-check', reveal: true },
+  { kicker: 'NEXT LIMIT', title: 'Multiple inputs still produce a straight-line model', kind: 'activation-bridge' },
+] satisfies SlideMeta[];
+
+const sections: LessonSection[] = [
+  { label: 'Orient', at: 0 }, { label: 'Model', at: 3 }, { label: 'Calculate', at: 7 },
+  { label: 'Learn', at: 12 }, { label: 'Vectors', at: 19 }, { label: 'Check', at: 23 },
+];
+
+const notes: Record<string, PresenterNote> = {
+  'multi-cover': { time: '1 min', say: 'Phase 2 adds capacity while preserving the learning loop from Phase 1.', ask: 'What real prediction depends on only one thing?' },
+  'multi-objectives': { time: '1 min', say: 'Promise one multi-input calculation, three gradients, and compact vector notation.', ask: 'What might each new input require?' },
+  'phase-two-map': { time: '2 min', say: 'Locate this lesson at the start of deep neural networks.', ask: 'Which ideas follow multiple inputs in Phase 2?' },
+  'multi-why': { time: '2 min', say: 'Delivery time depends on distance and workload together.', ask: 'Name another factor that could affect delivery time.' },
+  'multi-data': { time: '3 min', say: 'Compare rows that hold one feature steady while the other changes.', ask: 'What happens from one package to two at one kilometre?' },
+  'multi-equation': { time: '3 min', say: 'Match each input to its own weight, then add one shared bias.', ask: 'Which symbol represents minutes per package?' },
+  'one-neuron-many': { time: '2 min', say: 'Count incoming connections, but keep the single output neuron clear.', ask: 'How many neurons are shown?' },
+  'multi-example': { time: '2 min', say: 'Substitute distance four, packages two, and the known parameters.', ask: 'Which multiplication contributes more?' },
+  'contribution-sum': { time: '3 min', say: 'Keep the three contributions separate before adding to nineteen.', ask: 'What does the five-minute contribution represent?' },
+  'multi-live': { time: '5 min', say: 'Change one slider at a time and watch only its contribution respond.', ask: 'Which control changes the fixed base time?' },
+  'separate-jobs': { time: '3 min', say: 'Each parameter owns one independent influence.', ask: 'Would changing w1 alter the packages contribution?' },
+  'batch-arithmetic': { time: '3 min', say: 'Translate the source program into four visible arithmetic rows.', ask: 'Which row totals seventeen minutes?' },
+  'three-gradients': { time: '4 min', say: 'Compare the three formulas and identify the direct influence paired with error.', ask: 'Why does the bias gradient contain neither input?' },
+  'touch-principle': { time: '2 min', say: 'Generalize Lessons 6 and 7: multiply error by what the parameter touches.', ask: 'What does w2 touch directly?' },
+  'three-training-cycle': { time: '3 min', say: 'Accumulate all three gradients before making one simultaneous update.', ask: 'Which step preserves a fair shared starting point?' },
+  'first-three-update': { time: '4 min', say: 'Show how the first averaged gradients create the exact source updates.', ask: 'Which parameter receives the largest first move?' },
+  'multi-training-record': { time: '4 min', say: 'Trace all three parameters and loss across the five checkpoints.', ask: 'At which epoch is the learner effectively exact?' },
+  'discovered-values': { time: '2 min', say: 'All parameters began at zero and recovered the hidden rule from examples.', ask: 'What did we tell the neuron besides data and learning procedure?' },
+  'unseen-prediction': { time: '2 min', say: 'Apply the learned rule to a new combination: four kilometres and three packages.', ask: 'What total should the learner predict?' },
+  'vector-notation': { time: '3 min', say: 'Vectors package many related values without changing the arithmetic.', ask: 'Which entries must line up with each other?' },
+  'dot-product': { time: '3 min', say: 'Correct the source typo explicitly: four kilometres and two packages gives fourteen before bias, not seventeen.', ask: 'What changes if packages becomes three?' },
+  'vector-scale': { time: '2 min', say: 'Dot products work identically for two, one hundred, or ten thousand inputs.', ask: 'How many weights accompany ten thousand inputs?' },
+  'changed-unchanged': { time: '3 min', say: 'Separate model capacity changes from the learning ideas that stay intact.', ask: 'Which simultaneous-update rule survives unchanged?' },
+  'multi-check': { time: '4 min', say: 'Ask all four questions before revealing the answers.', ask: 'What is the dot product in question four?' },
+  'activation-bridge': { time: '1 min', say: 'Multiple inputs still combine linearly, so curved patterns remain out of reach.', ask: 'What new mechanism might bend a straight-line model?' },
+};
+
+export default function LessonEight() {
+  return <PresentationShell courseLessons={courseLessons} lessonNumber="08" notes={notes} sections={sections} slides={slides}>
+    {({ slide, revealed }) => <>
+      {slide.kind === 'multi-cover' && <div className="cover-layout"><div><p className="chapter">08 · PHASE 2</p><h1>{slide.title}</h1><p className="subtitle">{slide.subtitle}</p></div><div className="multi-mark" aria-hidden="true"><span>x₁</span><span>x₂</span><b>Σ</b><strong>ŷ</strong></div></div>}
+      {slide.kind === 'multi-objectives' && <div className="content-layout objectives-layout"><div className="objectives-copy"><h1>{slide.title}</h1><p>By the end, you should combine independent inputs, assign their gradients, and read dot-product notation.</p></div><ul className="objective-list"><li><span>01</span><div><strong>Combine evidence</strong><p>One weighted contribution per input.</p></div></li><li><span>02</span><div><strong>Learn every influence</strong><p>One gradient per parameter.</p></div></li><li><span>03</span><div><strong>Think in vectors</strong><p>Scale the same idea to many inputs.</p></div></li></ul></div>}
+      {slide.kind === 'phase-two-map' && <div className="content-layout"><h1>{slide.title}</h1><div className="course-phase-map" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}><article><small>PHASE 1 · DONE</small><strong>One input + learning loop</strong></article><article className="active"><small>PHASE 2 · NOW</small><strong>Inputs → layers → activations → backprop</strong></article><article><small>PHASE 3</small><strong>Classification + PyTorch</strong></article></div></div>}
+      {slide.kind === 'multi-why' && <div className="content-layout"><h1>{slide.title}</h1><div className="delivery-factors"><article><span>01</span><strong>Distance</strong><p>More kilometres usually require more time.</p></article><b>+</b><article><span>02</span><strong>Packages</strong><p>More packages require more handling.</p></article><b>→</b><article><span>ŷ</span><strong>Delivery time</strong><p>Both factors act together.</p></article></div></div>}
+      {slide.kind === 'multi-data' && <div className="content-layout"><h1>{slide.title}</h1><div className="multi-data-table"><div><span>Distance</span><span>Packages</span><span>Delivery time</span></div>{[['1 km','1','10 min'],['2 km','1','12 min'],['1 km','2','13 min'],['3 km','2','17 min']].map(row=><div key={`${row[0]}-${row[1]}`}>{row.map(cell=><span key={cell}>{cell}</span>)}</div>)}</div><p className="rule-chip">time = 2 × distance + 3 × packages + 5</p></div>}
+      {slide.kind === 'multi-equation' && <div className="content-layout"><h1>{slide.title}</h1><div className="multi-formula"><span>ŷ =</span><strong>w₁x₁</strong><b>+</b><strong>w₂x₂</strong><b>+</b><strong>b</strong></div><div className="symbol-row">{[['x₁','distance','varies'],['x₂','packages','varies'],['w₁','minutes per km','2'],['w₂','minutes per package','3'],['b','preparation time','5']].map(([symbol,label,value])=><article key={symbol}><b>{symbol}</b><span>{label}</span><strong>{value}</strong></article>)}</div></div>}
+      {slide.kind === 'one-neuron-many' && <div className="content-layout"><h1>{slide.title}</h1><div className="connection-diagram"><div><span>x₁</span><small>distance</small></div><div><span>x₂</span><small>packages</small></div><i></i><article><strong>Σ</strong><small>one neuron</small></article><i></i><div><span>ŷ</span><small>time</small></div></div><p className="takeaway">Adding inputs creates more <b>incoming connections</b>, not more neurons.</p></div>}
+      {slide.kind === 'multi-example' && <div className="content-layout"><h1>{slide.title}</h1><div className="example-values">{[['x₁','4','distance km'],['x₂','2','packages'],['w₁','2','min per km'],['w₂','3','min per package'],['b','5','base min']].map(([symbol,value,label])=><article key={symbol}><small>{label}</small><strong>{symbol} = {value}</strong></article>)}</div></div>}
+      {slide.kind === 'contribution-sum' && <div className="content-layout"><h1>{slide.title}</h1><div className="contribution-equation"><article><small>DISTANCE</small><strong>2 × 4</strong><b>8 min</b></article><span>+</span><article><small>PACKAGES</small><strong>3 × 2</strong><b>6 min</b></article><span>+</span><article><small>BIAS</small><strong>base</strong><b>5 min</b></article><span>=</span><article className="total"><small>TOTAL</small><strong>8 + 6 + 5</strong><b>19 min</b></article></div></div>}
+      {slide.kind === 'multi-live' && <div className="generated-slide interactive-slide"><h1>{slide.title}</h1><InteractiveLab lab="multi-input" /></div>}
+      {slide.kind === 'separate-jobs' && <div className="content-layout"><h1>{slide.title}</h1><div className="parameter-jobs"><article><strong>w₁ = 2</strong><p>How much <b>distance</b> affects time</p></article><article><strong>w₂ = 3</strong><p>How much <b>packages</b> affect time</p></article><article><strong>b = 5</strong><p>Fixed base time for <b>every delivery</b></p></article></div><p className="takeaway">Changing one weight changes only how its matching input is used.</p></div>}
+      {slide.kind === 'batch-arithmetic' && <div className="content-layout"><h1>{slide.title}</h1><div className="batch-calculations">{[['1 km · 1 package','2 + 3 + 5','10 min'],['2 km · 1 package','4 + 3 + 5','12 min'],['1 km · 2 packages','2 + 6 + 5','13 min'],['3 km · 2 packages','6 + 6 + 5','17 min']].map(([inputs,calculation,total])=><article key={inputs}><small>{inputs}</small><strong>{calculation}</strong><b>{total}</b></article>)}</div></div>}
+      {slide.kind === 'three-gradients' && <div className="content-layout"><h1>{slide.title}</h1><div className="three-gradient-cards"><article><small>DISTANCE WEIGHT</small><strong>∂L/∂w₁</strong><b>mean(2ex₁)</b><p>w₁ touches x₁.</p></article><article><small>PACKAGE WEIGHT</small><strong>∂L/∂w₂</strong><b>mean(2ex₂)</b><p>w₂ touches x₂.</p></article><article><small>BIAS</small><strong>∂L/∂b</strong><b>mean(2e)</b><p>b is added directly.</p></article></div></div>}
+      {slide.kind === 'touch-principle' && <div className="content-layout"><h1>{slide.title}</h1><div className="touch-equation"><span>gradient contribution</span><b>=</b><strong>2 × error</strong><b>×</b><strong>what the parameter touches</strong></div><div className="touch-examples"><span>w₁ → x₁</span><span>w₂ → x₂</span><span>b → 1</span></div></div>}
+      {slide.kind === 'three-training-cycle' && <div className="content-layout"><h1>{slide.title}</h1><div className="multi-training-cycle">{[['01','Predict','w₁x₁ + w₂x₂ + b'],['02','Find error','ŷ − y'],['03','Accumulate','three gradient sums'],['04','Average','divide each by n'],['05','Update together','w₁, w₂, and b'],['06','Repeat','next epoch']].map(([number,title,detail])=><article key={number}><span>{number}</span><strong>{title}</strong><p>{detail}</p></article>)}</div></div>}
+      {slide.kind === 'first-three-update' && <div className="content-layout"><h1>{slide.title}</h1><div className="first-gradient-row"><article><small>WEIGHT 1</small><strong>g₁ = −49</strong><span>0 − .05(−49)</span><b>w₁ = 2.45</b></article><article><small>WEIGHT 2</small><strong>g₂ = −41</strong><span>0 − .05(−41)</span><b>w₂ = 2.05</b></article><article><small>BIAS</small><strong>gᵦ = −26</strong><span>0 − .05(−26)</span><b>b = 1.30</b></article></div><p className="takeaway">All three gradients were calculated at <b>(0, 0, 0)</b> before any update.</p></div>}
+      {slide.kind === 'multi-training-record' && <div className="content-layout"><h1>{slide.title}</h1><div className="multi-training-record"><div><span>Epoch</span><span>w₁</span><span>w₂</span><span>b</span><span>Loss</span></div>{[['1','2.4500','2.0500','1.3000','19.071875'],['10','3.2300','3.2426','2.1808','1.221104'],['100','2.1692','3.6094','3.6939','0.147507'],['1000','2.0002','3.0012','4.9976','0.000001'],['5000','2.0000','3.0000','5.0000','0.000000']].map(row=><div key={row[0]}>{row.map((cell,index)=><span className={index===4?'loss-cell':''} key={`${index}-${cell}`}>{cell}</span>)}</div>)}</div></div>}
+      {slide.kind === 'discovered-values' && <div className="content-layout"><h1>{slide.title}</h1><div className="discovered-table"><div><span>Parameter</span><span>Started</span><span>Learned</span><span>Actual</span></div>{[['w₁ · distance','0','2.0000','2'],['w₂ · packages','0','3.0000','3'],['b · bias','0','5.0000','5']].map(row=><div key={row[0]}>{row.map((cell,index)=><span className={index===2?'learned-cell':''} key={`${index}-${cell}`}>{cell}</span>)}</div>)}</div><p className="rule-chip learned-rule">ŷ = 2x₁ + 3x₂ + 5 · learned from data alone</p></div>}
+      {slide.kind === 'unseen-prediction' && <div className="content-layout"><h1>{slide.title}</h1><div className="unseen-equation"><span>2(4)</span><b>+</b><span>3(3)</span><b>+</b><span>5</span><b>=</b><strong>22 min</strong></div><div className="input-caption"><span>4 km</span><span>3 packages</span><span>base time</span><span>new prediction</span></div></div>}
+      {slide.kind === 'vector-notation' && <div className="content-layout"><h1>{slide.title}</h1><div className="vector-pair"><article><small>INPUT VECTOR</small><strong>x = [x₁, x₂]</strong><p>[distance, packages]</p></article><article><small>WEIGHT VECTOR</small><strong>w = [w₁, w₂]</strong><p>[minutes/km, minutes/package]</p></article></div><div className="vector-neuron">ŷ = <b>w · x</b> + b</div></div>}
+      {slide.kind === 'dot-product' && <div className="content-layout"><h1>{slide.title}</h1><div className="dot-product-steps"><article><small>MATCH</small><strong>[2, 3] · [4, 2]</strong></article><span>→</span><article><small>MULTIPLY</small><strong>2(4) + 3(2)</strong></article><span>→</span><article><small>ADD</small><strong>8 + 6 = 14</strong></article><span>→</span><article className="total"><small>ADD BIAS</small><strong>14 + 5 = 19</strong></article></div><p className="correction-note">For 4 km and <b>3 packages</b>: 8 + 9 + 5 = <b>22</b>.</p></div>}
+      {slide.kind === 'vector-scale' && <div className="content-layout"><h1>{slide.title}</h1><div className="vector-scale"><article><strong>2</strong><span>inputs</span></article><b>→</b><article><strong>100</strong><span>inputs</span></article><b>→</b><article><strong>10,000</strong><span>inputs</span></article></div><p className="takeaway">One matching weight per input. The dot-product operation stays the same.</p></div>}
+      {slide.kind === 'changed-unchanged' && <div className="content-layout"><h1>{slide.title}</h1><div className="change-table"><article><h2>Changed</h2><p>Multiple inputs</p><p>One weight per input</p><p>Dot-product notation</p><p>More parameters to learn</p></article><article><h2>Hasn’t changed</h2><p>Still one neuron</p><p>Same learning loop</p><p>Same gradient descent</p><p>Calculate all, then update all</p></article></div></div>}
+      {slide.kind === 'multi-check' && <div className="content-layout"><h1>{slide.title}</h1><div className="quiz-grid">{[['01','Does a second input create a second neuron?','No. It creates another incoming connection.'],['02','How many weights for five inputs?','Five—one matching weight per input.'],['03','Why does w₁’s gradient contain x₁, not x₂?','w₁ directly multiplies x₁.'],['04','What is [1, 2] · [3, 4]?','1×3 + 2×4 = 11.']].map(([number,question,answer])=><article className={revealed?'answered':''} key={number}><span>{number}</span><p>{question}</p><strong>{revealed?answer:'Explain first…'}</strong></article>)}</div></div>}
+      {slide.kind === 'activation-bridge' && <div className="bridge-layout"><h1>{slide.title}</h1><div className="bridge-compare"><div><small>NOW</small><strong>Many inputs</strong><p>more evidence, still linear</p></div><span>→</span><div><small>NEXT NEED</small><strong>Activation</strong><p>the ability to model curves</p></div></div><p className="next-question">How can a neuron bend beyond a straight line?</p><span className="next-lesson">NEXT · LESSON 09</span></div>}
+    </>}
+  </PresentationShell>;
+}

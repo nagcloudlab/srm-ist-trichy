@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L13 — FID Deep Dive</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L13">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L12.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L12</a><a href="../../../index.html#unit-3" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L13 &bull; Unit 3</a><a href="L14.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L14 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-3">Unit 3</a> &bull; L13</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="L12 gave us the theory. Now we build FID from scratch. By the end, you'll know exactly what happens inside every FID computation."
+     data-ask="Can you recall the FID pipeline from last lesson?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 13</div>
+  <h1>FID Deep Dive</h1>
+  <p class="subtitle">Build FID from scratch &mdash; Inception features, statistics, and code</p>
+</div>
+
+<!-- 2 ─── HOOK: PIPELINE RECAP ─── -->
+<div class="slide"
+     data-say="Quick recap of the full pipeline. In this lesson we build each box in this diagram."
+     data-ask="Which step do you think is the trickiest to implement?"
+     data-time="2 min">
+  <h2>The FID Pipeline</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 740 120" style="width:100%;max-width:740px;">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5068"/></marker></defs>
+      <!-- Real path -->
+      <rect x="5" y="10" width="100" height="40" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="55" y="35" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">Real imgs</text>
+      <line x1="105" y1="30" x2="150" y2="55" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Fake path -->
+      <rect x="5" y="70" width="100" height="40" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="55" y="95" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">Fake imgs</text>
+      <line x1="105" y1="90" x2="150" y2="65" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Inception -->
+      <rect x="150" y="35" width="110" height="50" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+      <text x="205" y="55" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">Inception v3</text>
+      <text x="205" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">pool3 layer</text>
+      <line x1="260" y1="60" x2="305" y2="60" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Features -->
+      <rect x="305" y="35" width="100" height="50" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="355" y="55" text-anchor="middle" font-family="Inter" font-size="11" font-weight="600" fill="#1a1d2e">Features</text>
+      <text x="355" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">2048-dim</text>
+      <line x1="405" y1="60" x2="450" y2="60" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Stats -->
+      <rect x="450" y="35" width="100" height="50" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="500" y="53" text-anchor="middle" font-family="Inter" font-size="11" font-weight="600" fill="#1a1d2e">mu + Sigma</text>
+      <text x="500" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">per set</text>
+      <line x1="550" y1="60" x2="595" y2="60" stroke="#4a5068" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- FID -->
+      <rect x="595" y="30" width="130" height="60" rx="10" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="660" y="55" text-anchor="middle" font-family="Inter" font-size="14" font-weight="800" fill="#1a1d2e">FID Score</text>
+      <text x="660" y="75" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#3b6df0">lower = better</text>
+    </svg>
+  </div>
+  <p style="text-align:center;font-weight:600;margin-top:1rem;">This lesson builds each piece.</p>
+</div>
+
+<!-- 3 ─── INCEPTION FEATURE EXTRACTOR: WHAT LAYER ─── -->
+<div class="slide"
+     data-say="Inception v3 has many layers. We use pool3 - the last pooling before the classifier. Not too low-level, not too class-specific. Just right."
+     data-ask="Why would the final classifier layer be too specific?"
+     data-time="2.5 min">
+  <h2>Which Layer Do We Use?</h2>
+  <div class="two-col align-center">
+    <div>
+      <div style="max-width:250px;margin:0 auto;">
+        <svg viewBox="0 0 220 320" style="width:100%;">
+          <rect x="30" y="10" width="160" height="40" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+          <text x="110" y="25" text-anchor="middle" font-family="Inter" font-size="10" fill="#8b90a5">Input (3x299x299)</text>
+          <text x="110" y="40" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">image</text>
+          <line x1="110" y1="50" x2="110" y2="70" stroke="#e2e5ef" stroke-width="1.5"/>
+          <rect x="30" y="70" width="160" height="35" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+          <text x="110" y="92" text-anchor="middle" font-family="Inter" font-size="10" fill="#8b90a5">Conv layers...</text>
+          <line x1="110" y1="105" x2="110" y2="125" stroke="#e2e5ef" stroke-width="1.5"/>
+          <rect x="30" y="125" width="160" height="35" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+          <text x="110" y="147" text-anchor="middle" font-family="Inter" font-size="10" fill="#8b90a5">Inception blocks...</text>
+          <line x1="110" y1="160" x2="110" y2="180" stroke="#e2e5ef" stroke-width="1.5"/>
+          <!-- pool3 highlighted -->
+          <rect x="20" y="180" width="180" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+          <text x="110" y="200" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#1a1d2e">pool3 (avgpool)</text>
+          <text x="110" y="216" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#10b981">2048-dim vector</text>
+          <line x1="110" y1="225" x2="110" y2="245" stroke="#e2e5ef" stroke-width="1.5"/>
+          <rect x="30" y="245" width="160" height="40" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="110" y="262" text-anchor="middle" font-family="Inter" font-size="10" fill="#ef4444">Final classifier</text>
+          <text x="110" y="278" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">1000 classes (ignore)</text>
+          <!-- Arrow label -->
+          <text x="215" y="205" font-family="Inter" font-size="11" font-weight="700" fill="#10b981">WE GRAB THIS</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>Early layers</h4>
+        <p>Detect edges, textures &mdash; <strong>too low-level</strong></p>
+      </div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>Final layer</h4>
+        <p>Detect ImageNet classes &mdash; <strong>too specific</strong></p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Pool3 layer</h4>
+        <p>High-level features (shapes, objects, structures) without class specificity &mdash; <strong>just right</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── HOOKS IN PYTORCH ─── -->
+<div class="slide"
+     data-say="We use a forward hook to grab pool3 output. A hook is a function PyTorch calls automatically when a layer runs. Show the code."
+     data-ask="Why use a hook instead of modifying the model?"
+     data-time="2.5 min">
+  <h2>Grabbing Features with a Hook</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;white-space:pre;overflow-x:auto;">class InceptionFeatureExtractor:
+  def __init__(self, device):
+    self.model = inception_v3(
+      weights=Inception_V3_Weights.DEFAULT
+    )
+    self.model.eval().to(device)
+
+    <strong>self.model.avgpool</strong>
+      <strong>.register_forward_hook(</strong>
+        <strong>self._hook</strong>
+      <strong>)</strong>
+
+  def _hook(self, mod, inp, out):
+    self.features = out.flatten(1)
+
+  @torch.no_grad()
+  def extract(self, images):
+    self.model(images)
+    return self.features.cpu()</div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>What's a hook?</h4>
+        <p>A function PyTorch calls <strong>automatically</strong> when a specific layer runs.</p>
+        <p class="mt-1">"When avgpool runs during forward(), also call _hook()"</p>
+        <p class="mt-1">_hook grabs the output and saves it. We run the full model but only <strong>keep the pool3 features</strong>.</p>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Result</h4>
+        <p>Each image in &rarr; one <strong>2048-dim vector</strong> out</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── PREPROCESSING ─── -->
+<div class="slide"
+     data-say="Inception expects 3-channel, 299x299, ImageNet-normalized. For MNIST we need to resize, repeat channels, and normalize."
+     data-ask="What happens if you forget to normalize?"
+     data-time="2 min">
+  <h2>Preprocessing for Inception</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Inception Expects</h4>
+        <p><strong>3 channels</strong> (RGB)</p>
+        <p><strong>299 x 299</strong> pixels</p>
+        <p><strong>ImageNet normalization</strong></p>
+        <p style="font-family:var(--font-mono);font-size:0.8rem;margin-top:0.5rem;">mean=[0.485, 0.456, 0.406]<br>std=[0.229, 0.224, 0.225]</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>For MNIST (1x28x28)</h4>
+        <ol style="font-size:0.9rem;">
+          <li>Scale from [-1,1] to [0,1]</li>
+          <li>Repeat grayscale &rarr; 3 channels</li>
+          <li>Resize 28 &rarr; 299 (bilinear)</li>
+          <li>Apply ImageNet normalization</li>
+        </ol>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Critical Rule</h4>
+        <p><strong>Same preprocessing for real AND fake.</strong> Different resizing can shift FID by several points!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── COMPUTING STATISTICS ─── -->
+<div class="slide"
+     data-say="Once we have features, we compute mean and covariance. Mean = average image in feature space. Covariance = how features vary together."
+     data-ask="What does the covariance capture that the mean doesn't?"
+     data-time="2.5 min">
+  <h2>Computing Statistics</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#f8f9fb;font-family:var(--font-mono);font-size:0.9rem;line-height:1.8;white-space:pre;overflow-x:auto;">def compute_statistics(features):
+  # features: (N, 2048)
+  mu    = np.mean(features, axis=0)
+  sigma = np.cov(features, rowvar=False)
+  return mu, sigma
+
+# mu:    (2048,) vector
+# sigma: (2048 x 2048) matrix</div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Mean (mu)</h4>
+        <p>The "average image" in feature space. If fakes have different average features than reals &rarr; centers are far apart.</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Covariance (Sigma)</h4>
+        <p>How features vary <strong>together</strong>. "When eye-feature is high, is face-feature also high?" Captures the <strong>shape and spread</strong> of the distribution.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── VISUALIZING WHAT WE COMPARE ─── -->
+<div class="slide"
+     data-say="Simplified to 2D: we're comparing two clouds of points. Good GAN = clouds overlap. Bad GAN = clouds are far apart or shaped differently."
+     data-ask="Which is worse: different centers or different shapes?"
+     data-time="2 min">
+  <h2>Visualizing the Comparison</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 650 240" style="width:100%;max-width:650px;">
+      <!-- Good GAN -->
+      <text x="160" y="20" text-anchor="middle" font-family="Inter" font-size="14" font-weight="700" fill="#1a1d2e">Good GAN (low FID)</text>
+      <!-- Real cluster -->
+      <circle cx="130" cy="120" r="4" fill="#10b981"/><circle cx="145" cy="105" r="4" fill="#10b981"/>
+      <circle cx="155" cy="130" r="4" fill="#10b981"/><circle cx="140" cy="140" r="4" fill="#10b981"/>
+      <circle cx="160" cy="110" r="4" fill="#10b981"/><circle cx="125" cy="130" r="4" fill="#10b981"/>
+      <circle cx="150" cy="120" r="4" fill="#10b981"/><circle cx="135" cy="115" r="4" fill="#10b981"/>
+      <ellipse cx="142" cy="122" rx="30" ry="25" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+      <!-- Fake cluster overlapping -->
+      <circle cx="148" cy="118" r="4" fill="#3b6df0"/><circle cx="138" cy="128" r="4" fill="#3b6df0"/>
+      <circle cx="158" cy="122" r="4" fill="#3b6df0"/><circle cx="132" cy="112" r="4" fill="#3b6df0"/>
+      <circle cx="152" cy="135" r="4" fill="#3b6df0"/><circle cx="142" cy="108" r="4" fill="#3b6df0"/>
+      <ellipse cx="145" cy="120" rx="28" ry="22" fill="none" stroke="#3b6df0" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+      <!-- Labels -->
+      <circle cx="100" cy="180" r="5" fill="#10b981"/><text x="112" y="184" font-family="Inter" font-size="11" fill="#1a1d2e">Real</text>
+      <circle cx="155" cy="180" r="5" fill="#3b6df0"/><text x="167" y="184" font-family="Inter" font-size="11" fill="#1a1d2e">Fake</text>
+      <text x="160" y="210" text-anchor="middle" font-family="Inter" font-size="12" font-weight="600" fill="#10b981">Similar center + shape</text>
+
+      <!-- Divider -->
+      <line x1="320" y1="30" x2="320" y2="220" stroke="#e2e5ef" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <!-- Bad GAN -->
+      <text x="490" y="20" text-anchor="middle" font-family="Inter" font-size="14" font-weight="700" fill="#1a1d2e">Bad GAN (high FID)</text>
+      <!-- Real cluster -->
+      <circle cx="420" cy="100" r="4" fill="#10b981"/><circle cx="435" cy="85" r="4" fill="#10b981"/>
+      <circle cx="445" cy="110" r="4" fill="#10b981"/><circle cx="430" cy="120" r="4" fill="#10b981"/>
+      <circle cx="450" cy="90" r="4" fill="#10b981"/><circle cx="415" cy="110" r="4" fill="#10b981"/>
+      <ellipse cx="432" cy="102" rx="28" ry="25" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+      <!-- Fake cluster far away, different shape -->
+      <circle cx="530" cy="150" r="4" fill="#3b6df0"/><circle cx="550" cy="140" r="4" fill="#3b6df0"/>
+      <circle cx="560" cy="165" r="4" fill="#3b6df0"/><circle cx="540" cy="170" r="4" fill="#3b6df0"/>
+      <circle cx="570" cy="155" r="4" fill="#3b6df0"/><circle cx="520" cy="160" r="4" fill="#3b6df0"/>
+      <ellipse cx="545" cy="157" rx="35" ry="20" fill="none" stroke="#3b6df0" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+      <text x="490" y="210" text-anchor="middle" font-family="Inter" font-size="12" font-weight="600" fill="#ef4444">Different center + shape</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 8 ─── FID FORMULA IN CODE ─── -->
+<div class="slide"
+     data-say="The formula in code. Two terms: squared distance between means, and trace term comparing covariance shapes. sqrtm is the matrix square root."
+     data-ask="What is sqrtm and why can't we just use sqrt()?"
+     data-time="3 min">
+  <h2>The FID Formula in Code</h2>
+  <div class="formula" style="font-size:clamp(0.8rem,1.3vw,1rem);">
+    FID = ||mu_r - mu_f||^2 + Tr(Sigma_r + Sigma_f - 2 * sqrtm(Sigma_r @ Sigma_f))
+  </div>
+  <div class="two-col mt-2">
+    <div>
+      <div class="card" style="background:#f8f9fb;font-family:var(--font-mono);font-size:0.8rem;line-height:1.7;white-space:pre;overflow-x:auto;">from scipy.linalg import sqrtm
+
+def calculate_fid(mu_r, sig_r, mu_f, sig_f):
+  # Term 1: center distance
+  diff = mu_r - mu_f
+  mean_term = np.dot(diff, diff)
+
+  # Term 2: shape distance
+  covmean = sqrtm(sig_r @ sig_f)
+  if np.iscomplexobj(covmean):
+    covmean = covmean.real
+
+  trace_term = np.trace(
+    sig_r + sig_f - 2 * covmean
+  )
+
+  return mean_term + trace_term</div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>sqrtm = matrix square root</h4>
+        <p>For a number: sqrt(9) = 3 because 3 x 3 = 9</p>
+        <p>For a matrix: sqrtm(A) = B where B x B = A</p>
+        <p class="mt-1">Covariance is a matrix, not a number. We can't just use sqrt().</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Why iscomplexobj?</h4>
+        <p>Numerical precision can produce tiny imaginary parts. We discard them.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Do it on the board in 1-D: the matrix square root becomes an ordinary square root, and FID becomes squared gap of means plus squared gap of standard deviations."
+     data-ask="Which change lowers FID more: moving μ_g to 0, or shrinking σ_g to 1?"
+     data-time="3 min">
+  <h2>FID by hand in 1-D: 1.25 <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>real: μ<sub>r</sub> = 0, σ<sub>r</sub> = 1</li><li>fake: μ<sub>g</sub> = 0.5, σ<sub>g</sub> = 2</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">‖μ<sub>r</sub> − μ<sub>g</sub>‖² = (0 − 0.5)² = 0.25</span><span class="fx-note">centre distance</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">Σ = σ²: Σ<sub>r</sub> = 1, Σ<sub>g</sub> = 4</span><span class="fx-note">1-D covariance = variance</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">(Σ<sub>r</sub>Σ<sub>g</sub>)<sup>½</sup> = √4 = 2</span><span class="fx-note">matrix sqrt = ordinary sqrt</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">Tr(1 + 4 − 2·2) = 1</span><span class="fx-note">shape distance = (σ<sub>r</sub> − σ<sub>g</sub>)²</span></li>
+        <li><span class="fx-n">5</span><span class="fx-m">in 1-D: FID = (μ<sub>r</sub> − μ<sub>g</sub>)² + (σ<sub>r</sub> − σ<sub>g</sub>)²</span><span class="fx-note">both terms are squared gaps</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">FID = 0.25 + 1 = 1.25</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Fake too spread out (σ 2 vs 1) costs 1.0 — more than the shifted centre (0.25). FID punishes wrong variety.</div>
+  </div>
+</div>
+
+<!-- 9 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Mid-lesson recap. We've built all the pieces. Now let's put them together and use them."
+     data-ask="Can you trace the full pipeline without looking at notes?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Piece</th><th>What We Built</th><th>Output</th></tr>
+    <tr><td><strong>Feature extractor</strong></td><td>Hook on Inception pool3</td><td>2048-dim vector per image</td></tr>
+    <tr><td><strong>Preprocessing</strong></td><td>Resize, 3ch, ImageNet norm</td><td>Inception-ready tensors</td></tr>
+    <tr><td><strong>Statistics</strong></td><td>np.mean + np.cov</td><td>mu (2048), Sigma (2048x2048)</td></tr>
+    <tr class="highlight-row"><td><strong>FID formula</strong></td><td>center dist + shape dist</td><td>Single number (lower = better)</td></tr>
+  </table>
+  <p style="text-align:center;margin-top:1rem;font-weight:600;">Next: put it all together and interpret results.</p>
+</div>
+
+<!-- 10 ─── FULL PIPELINE CODE ─── -->
+<div class="slide"
+     data-say="The full compute_fid function. Extract features in batches for both sets, compute stats, compute FID. Usage: generate 10K images, compute FID."
+     data-ask="Why do we process in batches of 64?"
+     data-time="2.5 min">
+  <h2>Putting It All Together</h2>
+  <div class="card" style="background:#f8f9fb;font-family:var(--font-mono);font-size:0.78rem;line-height:1.7;white-space:pre;overflow-x:auto;max-width:700px;margin:0 auto;">def compute_fid(real_images, fake_images, extractor, batch_size=64):
+  # 1. Extract features for real images (in batches)
+  real_feats = []
+  for i in range(0, len(real_images), batch_size):
+      batch = preprocess_for_inception(real_images[i:i+batch_size])
+      real_feats.append(extractor.extract(batch))
+  real_feats = torch.cat(real_feats).numpy()
+
+  # 2. Same for fake images
+  fake_feats = []
+  for i in range(0, len(fake_images), batch_size):
+      batch = preprocess_for_inception(fake_images[i:i+batch_size])
+      fake_feats.append(extractor.extract(batch))
+  fake_feats = torch.cat(fake_feats).numpy()
+
+  # 3. Compute statistics
+  mu_r, sig_r = compute_statistics(real_feats)
+  mu_f, sig_f = compute_statistics(fake_feats)
+
+  # 4. Calculate FID
+  return calculate_fid(mu_r, sig_r, mu_f, sig_f)</div>
+  <p style="text-align:center;margin-top:1rem;font-size:0.95rem;font-weight:600;">Usage: <span style="font-family:var(--font-mono);">fid = compute_fid(real_imgs, fake_imgs, extractor)</span></p>
+</div>
+
+<!-- 11 ─── INTERPRETING RESULTS ─── -->
+<div class="slide"
+     data-say="What FID numbers to expect for MNIST. Show the training progression: FID going down means training is working."
+     data-ask="What does it mean when FID starts going UP during training?"
+     data-time="2.5 min">
+  <h2>Interpreting FID Results</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Expected FID for MNIST <span style="font-weight:500;color:var(--text-muted);">(illustrative)</span></h4>
+        <table class="compare-table" style="font-size:0.85rem;">
+          <tr><th>Stage</th><th>FID</th></tr>
+          <tr><td>Random noise</td><td>300-500</td></tr>
+          <tr><td>After 5 epochs</td><td>100-200</td></tr>
+          <tr><td>After 20 epochs</td><td>30-80</td></tr>
+          <tr><td>Well-trained DCGAN</td><td>10-30</td></tr>
+          <tr><td>Well-trained WGAN-GP</td><td>5-15</td></tr>
+          <tr class="highlight-row"><td>State-of-the-art</td><td>&lt;5</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>FID During Training <span style="font-weight:500;color:var(--text-muted);">(illustrative)</span></h4>
+        <p style="font-family:var(--font-mono);font-size:0.82rem;line-height:1.9;">
+          Epoch  5: FID = 180.3 &larr; learning<br>
+          Epoch 10: FID =  95.2 &larr; better<br>
+          Epoch 15: FID =  48.7 &larr; decent<br>
+          Epoch 20: FID =  31.1 &larr; good<br>
+          Epoch 25: FID =  28.5 &larr; converging<br>
+          Epoch 30: FID =  29.8 &larr; flat<br>
+          <strong>Epoch 35: FID =  45.2 &larr; STOP!</strong>
+        </p>
+      </div>
+      <div style="display:flex;gap:0.8rem;margin-top:0.8rem;">
+        <div class="card" style="background:#ecfdf5;flex:1;text-align:center;"><p style="font-size:0.85rem;"><strong>FID down</strong> = working</p></div>
+        <div class="card" style="background:#fef2f2;flex:1;text-align:center;"><p style="font-size:0.85rem;"><strong>FID up</strong> = something wrong</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── COMPARING MODELS ─── -->
+<div class="slide"
+     data-say="Use FID to compare different GAN architectures. More techniques generally = lower FID. This matches intuition."
+     data-ask="Why does cGAN + WGAN-GP score best?"
+     data-time="2 min">
+  <h2>Comparing Models</h2>
+  <div style="max-width:550px;margin:0 auto;">
+    <table class="compare-table">
+      <tr><th>Model</th><th>FID (illustrative)</th><th>Verdict</th></tr>
+      <tr><td><strong>DCGAN</strong></td><td>35.2</td><td>Baseline</td></tr>
+      <tr><td><strong>WGAN</strong></td><td>22.8</td><td>Better loss</td></tr>
+      <tr><td><strong>WGAN-GP</strong></td><td>18.4</td><td>Better constraints</td></tr>
+      <tr class="highlight-row"><td><strong>cGAN + WGAN-GP</strong></td><td>12.1</td><td>Best (labels help!)</td></tr>
+    </table>
+    <div class="card mt-2" style="background:#ecfdf5;text-align:center;">
+      <p>Same sample count, same preprocessing → each Unit 2 improvement becomes <strong>measurable</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── COMMON PITFALLS ─── -->
+<div class="slide"
+     data-say="Three common mistakes. Sample count, preprocessing mismatch, and misinterpreting FID=0."
+     data-ask="If you get FID = 0, should you celebrate?"
+     data-time="2.5 min">
+  <h2>Common Pitfalls</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Sample Count</h4>
+      <p style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.8;">
+        same distribution, 64-d sim:<br>
+        N = 100:    FID ≈ 21<br>
+        N = 500:    FID ≈ 4.4<br>
+        N = 2,000:  FID ≈ 1.1<br>
+        N = 10,000: FID ≈ 0.22
+      </p>
+      <p class="mt-1"><strong>Small N biases FID upward.</strong> Report N; compare only at the same N.</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Preprocessing Mismatch</h4>
+      <p>Real: bilinear resize<br>Fake: nearest-neighbor</p>
+      <p class="mt-1"><strong>Different preprocessing = wrong FID!</strong> Same method for both, always.</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>FID ≈ 0 Trap</h4>
+      <p>Could mean:</p>
+      <ul style="font-size:0.85rem;">
+        <li>Perfect generation (unlikely)</li>
+        <li><strong>Memorization!</strong> (likely)</li>
+        <li>Computed real vs real by mistake</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── PYTORCH-FID LIBRARY ─── -->
+<div class="slide"
+     data-say="In practice, use the pytorch-fid library. It handles everything correctly. But now you know what happens under the hood."
+     data-ask="When would you use your from-scratch FID vs the library?"
+     data-time="2 min">
+  <h2>The Easy Way: pytorch-fid</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#f8f9fb;font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;white-space:pre;overflow-x:auto;"># Install
+pip install pytorch-fid
+
+# Command line
+python -m pytorch_fid \
+  path/to/real \
+  path/to/fake
+
+# Python API
+from pytorch_fid import fid_score
+
+fid = fid_score.calculate_fid_given_paths(
+  ['path/to/real', 'path/to/fake'],
+  batch_size=50,
+  device=device,
+  dims=2048
+)</div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Use this for serious evaluation</h4>
+        <p>Uses the original TensorFlow Inception weights &rarr; numbers comparable to papers. Our torchvision weights give different values.</p>
+        <p class="mt-1">But now you know <strong>exactly what happens inside</strong>.</p>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>FID Variants</h4>
+        <p><strong>KID:</strong> unbiased &mdash; better for small samples</p>
+        <p><strong>Clean-FID:</strong> standardized, reproducible results</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- LAB DEMO -->
+<div class="slide"
+     data-say="Live demo of lab-13. Inception weights download on first run. Run the extractor and preprocessing cells, then Experiment 1 and read the three FIDs aloud. Start Experiment 2 and narrate the FID line each time it prints."
+     data-ask="Before running: what will real-vs-real FID be — exactly 0, or something else?"
+     data-time="3 min">
+  <h2>Lab Demo: <code>lab-13-fid-score.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> build FID from scratch and watch it rank noise, an untrained G and a training DCGAN.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>Inception Feature Extractor</strong> + <strong>Preprocessing</strong>: pool3 hook, 1×28×28 → 3×299×299</li>
+        <li><strong>FID Computation Functions</strong>: statistics + <code>calculate_fid</code></li>
+        <li><strong>Experiment 1 · Baseline FIDs</strong>: noise vs untrained G vs real-vs-real</li>
+        <li><strong>Experiment 2 · Track FID During Training</strong>, then the <strong>t-SNE</strong> view</li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>Real-vs-real is <strong>small but not 0</strong> &mdash; the small-sample bias</li>
+          <li>Noise and untrained G score <strong>far</strong> higher than real-vs-real</li>
+          <li>FID falls as training proceeds &mdash; and can rise again</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Halve the evaluation sample count. How does real-vs-real FID change &mdash; and why?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Recap the key pieces we built in this lesson."
+     data-ask="Which piece was the most surprising?"
+     data-time="1.5 min">
+  <h2>Lesson 13 Summary</h2>
+  <div class="three-col">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>Feature Extraction</h4>
+      <p>Inception pool3 layer &rarr; 2048-dim vector. Use a hook to grab it.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>FID = Two Distances</h4>
+      <p>Center distance (means) + shape distance (covariances). sqrtm for matrices.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Use It Right</h4>
+      <p>10K+ samples, same preprocessing, same count. Lower = better.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Let learners commit to an answer before revealing."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>You compute FID = 0 for your GAN. Your colleague says "Perfect GAN!" Should you celebrate?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">No! FID ≈ 0 likely means memorization &mdash; your Generator just copied the training data. Check by finding the nearest neighbor of each generated image in the training set. If they're pixel-identical, your GAN memorized instead of learning. Also check if you accidentally computed real vs real.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Why do we use pool3 features instead of the final class probabilities? What would go wrong?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">The final layer outputs 1000 ImageNet class probabilities. For MNIST digits or faces, none of those classes are relevant &mdash; you'd get meaningless probability distributions. Pool3 features capture general visual patterns (edges, shapes, textures) that are useful for ANY image domain, not just ImageNet classes.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>If Inception was trained on ImageNet (photos of objects), why does it work for evaluating MNIST (handwritten digits)?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Deep networks learn hierarchical features. Early layers learn edges and textures, middle layers learn shapes and patterns, pool3 captures high-level structural features. These features generalize across domains &mdash; "sharp edges vs blurry blobs" matters for digits AND photos. It's not perfect for MNIST, but it's remarkably effective.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="We can now measure GAN quality. But what if your GAN scores great overall... but only generates light-skinned faces? Next: bias and fairness."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>GAN Bias and Fairness</h1>
+  <p class="subtitle">L14: What happens when a "good" GAN learns the wrong things?</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+/* Generative AI part — local compositions */
+.s1-tight { margin: 0 0 .45rem; }
+.s1-muted { color: var(--muted); font-size: .95rem; }
+.s1-two-flows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.s1-patterns { display: grid; grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 1fr); gap: 1.4rem; align-items: center; }
+.s1-pattern-group { margin: 0; display: flex; flex-direction: column; gap: .6rem; align-items: center; padding: 1rem; border-radius: var(--r-lg); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.s1-pattern-group small { font-size: .68rem; font-weight: 750; letter-spacing: .14em; color: var(--blue); }
+.s1-pattern-new small { color: var(--mint); }
+.s1-pattern-new { border: 2px solid var(--mint); }
+.s1-pattern-group figcaption { font-size: .92rem; color: var(--ink-2); text-align: center; }
+.s1-digit-grid { display: grid; grid-template-columns: repeat(4, auto); gap: .5rem; }
+.s1-big-arrow { font-size: 3rem; font-weight: 800; color: var(--muted); }
+
+.s1-gan-sketch { padding: .6rem; }
+.s1-svg-label { font-size: 15px; font-weight: 750; letter-spacing: .1em; font-family: var(--sans); }
+.s1-svg-value { font-size: 26px; font-weight: 800; fill: var(--ink); font-family: var(--math); font-style: italic; }
+.s1-svg-small { font-size: 15px; fill: var(--muted); font-family: var(--sans); }
+.s1-players { display: flex; justify-content: center; gap: 1.4rem; margin-bottom: .8rem; }
+.slide-s1-gan .proscons { grid-template-columns: 1fr; gap: .6rem; }
+.slide-s1-gan .pc-col { padding: .7rem 1rem; }
+.slide-s1-gan .pc-col ul { margin-top: .35rem; gap: .3rem; }
+.slide-s1-transformer .proscons { grid-template-columns: 1fr; }
+
+.s1-tokens { display: flex; flex-direction: column; gap: .7rem; }
+.s1-context { margin: 0 0 .4rem; font-size: 1.7rem; font-weight: 650; letter-spacing: -.01em; }
+.s1-blank { color: var(--yellow); border-bottom: 3px solid var(--yellow-bright); }
+.s1-token-row { display: grid; grid-template-columns: 4.5rem 1fr 3rem; gap: .8rem; align-items: center; font-size: 1.1rem; font-weight: 650; }
+.s1-token-row b { font-family: var(--mono); text-align: right; color: var(--yellow); }
+.s1-token-bar { height: 1.1rem; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
+.s1-token-bar i { display: block; height: 100%; background: var(--yellow-bright); border-radius: 999px; }
+.s1-token-row:first-of-type .s1-token-bar i { background: var(--yellow); }
+
+.s1-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .7rem; }
+.s1-strip figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+.s1-strip figcaption { font-size: .82rem; color: var(--muted); font-family: var(--mono); text-align: center; }
+
+.s1-lab-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.s1-lab-panel { margin: 0; display: flex; flex-direction: column; align-items: center; gap: .6rem; padding: .9rem .6rem; border-radius: var(--r); background: var(--violet-soft); }
+.s1-lab-gan { background: var(--mint-soft); }
+.s1-lab-diff { background: var(--blue-soft); }
+.s1-lab-panel small { font-size: .7rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.s1-lab-panel figcaption { font-size: .92rem; color: var(--ink-2); text-align: center; }
+
+.s1-ranks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.s1-rank { padding: 1.1rem; border-radius: var(--r-lg); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.s1-rank header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .9rem; }
+.s1-rank header strong { font-size: 1.2rem; }
+.s1-rank header small { color: var(--muted); font-size: .8rem; }
+.s1-rank ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+.s1-rank li { display: flex; align-items: center; gap: .7rem; padding: .7rem .9rem; border-radius: var(--r-sm); background: var(--t-soft); font-weight: 700; font-size: 1.1rem; color: var(--t); }
+.s1-rank li span { width: 1.7rem; height: 1.7rem; border-radius: 50%; display: grid; place-items: center; background: var(--t); color: #fff; font-size: .85rem; }
+.s1-rank li.s1-rank-gan { box-shadow: inset 0 0 0 2px var(--t); }
+
+.s1-tree { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+@media (max-width: 860px) {
+  .s1-two-flows, .s1-patterns, .s1-ranks, .s1-tree, .s1-lab-row { grid-template-columns: 1fr; }
+  .s1-big-arrow { transform: rotate(90deg); justify-self: center; }
+  .s1-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.s1-icon-text { display: inline-flex; align-items: center; height: 64px; padding: 0 .7rem; border-radius: 8px; background: var(--ink); color: var(--yellow-bright); font-family: var(--mono); font-size: .8rem; }
+.slide-s1-four-approaches .card-icon .pixel-digit { box-shadow: none; }
+.s1-players .player figcaption { white-space: nowrap; }
+
+/* Narrow-screen guard (candidate for the shared kit): let grids shrink below their content's min width. */
+.part-s1 .slide-frame, .part-s1 .split > div, .part-s1 .lab > *, .part-s1 .s1-lab-row > * { min-width: 0; }
+/* VAE pipeline: shrink vertical padding on short screens */
+.slide-s1-vae .flow-node { padding-block: clamp(10px, 1.6vh, 30px); }
+.slide-s1-vae .pc-col { padding-block: clamp(12px, 1.8vh, 32px); }

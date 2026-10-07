@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L10 — Conditional GAN</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L10">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L09</a><a href="../../../index.html#unit-2" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L10 &bull; Unit 2</a><a href="L11.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L11 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-2">Unit 2</a> &bull; L10</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="We've spent lessons fixing HOW GANs train. Now we fix WHAT they generate. No more random outputs — we tell the GAN exactly what we want."
+     data-ask="If you could tell a GAN to generate one specific thing, what would you choose?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 10</div>
+  <h1>Conditional GAN</h1>
+  <p class="subtitle">Stop generating random digits &mdash; say "Generate a 7" and get a 7</p>
+</div>
+
+<!-- 2 ─── HOOK ─── -->
+<div class="slide"
+     data-say="Here's the frustration. You press generate and get... something. Could be a 3, could be a 9. Useful for research, useless for real applications. What if a hospital needs synthetic X-rays of pneumonia specifically? A random X-ray won't do."
+     data-ask="In what real application would you NEED to control what a GAN generates?"
+     data-time="2 min">
+  <h2>The Frustration with Our GANs</h2>
+  <p style="text-align:center;color:#8b90a5;font-size:0.85rem;margin-bottom:0.75rem;">Unit 1: a GAN that works. L07&ndash;L09: one that trains stably. Now: <strong style="color:#3b6df0;">add steering.</strong></p>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Our GANs So Far</h4>
+        <div class="formula" style="font-size:0.9rem;">noise &rarr; Generator &rarr; ???</div>
+        <p class="mt-1">Could be <strong>anything</strong>. No control over what digit appears.</p>
+        <p class="mt-1" style="font-size:0.85rem;font-style:italic;">Like asking a chef to cook "something" — you get whatever they feel like making</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="card" style="background:#ecfdf5;">
+        <h4>What We Want</h4>
+        <div class="formula" style="font-size:0.9rem;">noise + label "7" &rarr; Generator &rarr; 7</div>
+        <p class="mt-1">The label is a <strong>steering wheel</strong>.</p>
+        <p class="mt-1" style="font-size:0.85rem;font-style:italic;">Like ordering "pasta" — the chef must make pasta, not a burger</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── THE CORE IDEA ─── -->
+<div class="slide"
+     data-say="The core idea is beautifully simple: feed the label to BOTH networks. The Generator gets the label so it knows what to make. The Discriminator gets the label so it can check if the output matches. Both must agree on what's being generated."
+     data-ask="Why do you think we need to give the label to both networks, not just the Generator?"
+     data-time="2.5 min">
+  <h2>The Core Idea: Label Goes to Both</h2>
+  <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:center;flex:1;justify-content:center;">
+    <div class="card" style="background:#f8f9fb;max-width:600px;width:100%;">
+      <h4>Standard GAN</h4>
+      <div class="diagram">
+        <div class="box"><div class="label">noise z</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box gen"><div class="label">G</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box"><div class="label">fake</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box disc"><div class="label">D</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="box"><div class="label">real/fake?</div></div>
+      </div>
+    </div>
+    <div class="step card" style="background:#ecfdf5;max-width:600px;width:100%;">
+      <h4>Conditional GAN</h4>
+      <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;flex-wrap:wrap;padding:0.5rem;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+          <div class="box" style="background:#f8f9fb;border:2px solid #e2e5ef;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;min-width:60px;"><div class="label" style="font-size:0.65rem;color:#8b90a5;">noise z</div></div>
+          <div class="box" style="background:#eef2ff;border:2px solid #3b6df0;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;min-width:60px;"><div class="label" style="font-size:0.65rem;color:#3b6df0;font-weight:700;">label</div></div>
+        </div>
+        <div class="arrow" style="font-size:1.5rem;color:#b0b5c8;">&rarr;</div>
+        <div class="box gen" style="background:#ecfdf5;border:2px solid #10b981;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;"><div class="label" style="font-size:0.7rem;color:#8b90a5;">G</div></div>
+        <div class="arrow" style="font-size:1.5rem;color:#b0b5c8;">&rarr;</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem;">
+          <div class="box" style="background:#f8f9fb;border:2px solid #e2e5ef;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;min-width:60px;"><div class="label" style="font-size:0.65rem;color:#8b90a5;">fake</div></div>
+          <div class="box" style="background:#eef2ff;border:2px solid #3b6df0;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;min-width:60px;"><div class="label" style="font-size:0.65rem;color:#3b6df0;font-weight:700;">label</div></div>
+        </div>
+        <div class="arrow" style="font-size:1.5rem;color:#b0b5c8;">&rarr;</div>
+        <div class="box disc" style="background:#fef2f2;border:2px solid #ef4444;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;"><div class="label" style="font-size:0.7rem;color:#8b90a5;">D</div></div>
+        <div class="arrow" style="font-size:1.5rem;color:#b0b5c8;">&rarr;</div>
+        <div class="box" style="background:#f8f9fb;border:2px solid #e2e5ef;border-radius:10px;padding:0.5rem 0.8rem;text-align:center;"><div class="label" style="font-size:0.65rem;color:#8b90a5;">real/fake?</div></div>
+      </div>
+      <p style="text-align:center;font-weight:600;margin-top:0.5rem;">D checks: "Does this image <strong>match</strong> this label?"</p>
+      <p style="text-align:center;font-size:0.8rem;color:#8b90a5;">Mirza &amp; Osindero, 2014 &mdash; condition <strong>both</strong> G and D on y</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── G GETS LABEL, D GETS LABEL ─── -->
+<div class="slide"
+     data-say="Think about what each network does with the label. G uses it as instructions — 'make a 7'. D uses it as a checklist — 'is this really a 7?'. Without the label, D can't verify the match."
+     data-ask="What happens if G generates a perfect 3 but the label says 7?"
+     data-time="2 min">
+  <h2>What Each Network Does with the Label</h2>
+  <div class="two-col">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Generator Gets Label</h4>
+      <p style="font-size:1.1rem;font-weight:600;">"Generate something that looks like a 7"</p>
+      <p class="mt-1">Label = <strong>instructions</strong></p>
+      <p class="mt-1" style="font-size:0.85rem;">Like giving a chef a recipe card</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Discriminator Gets Label</h4>
+      <p style="font-size:1.1rem;font-weight:600;">"Does this image actually look like a 7?"</p>
+      <p class="mt-1">Label = <strong>checklist</strong></p>
+      <p class="mt-1" style="font-size:0.85rem;">Like a waiter checking the order slip</p>
+    </div>
+  </div>
+  <div class="card mt-2 step" style="background:#f8f9fb;">
+    <h4>If G generates a perfect 3 but the label says 7:</h4>
+    <p>D sees image + label "7" and says: <strong>"This doesn't look like a 7. Fake."</strong></p>
+    <p class="mt-1">G is <strong>forced</strong> to match the label, not just make pretty images.</p>
+  </div>
+</div>
+
+<!-- 5 ─── EMBEDDING ─── -->
+<div class="slide"
+     data-say="Labels are integers — 0 through 9. nn.Embedding is a learnable lookup table: label 7 in, a 50-dim vector out. It is exactly one_hot(y) @ W, a linear layer on the one-hot vector — the original cGAN (Mirza &amp; Osindero 2014) fed the one-hot y directly. lab-10 uses an embedding in G and fixed one-hot maps in D; both are standard."
+     data-ask="Why learn the embedding instead of just using one-hot vectors?"
+     data-time="2.5 min">
+  <h2>How to Feed Labels: Embedding</h2>
+  <div class="two-col align-center">
+    <div>
+      <p><strong>Problem:</strong> Labels are integers (0, 1, ..., 9). Networks need tensors.</p>
+      <p class="mt-1"><strong>Solution:</strong> <code style="font-family:var(--font-mono);">nn.Embedding</code> — a learnable lookup table</p>
+      <div class="card mt-2" style="background:#f8f9fb;">
+        <pre style="font-family:var(--font-mono);font-size:0.82rem;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;">embed = nn.Embedding(
+    num_classes=10,
+    embedding_dim=50
+)
+
+label_vec = embed(torch.tensor([7]))
+# shape: (1, 50)</pre>
+      </div>
+    </div>
+    <div>
+      <svg viewBox="0 0 260 220" style="width:100%;max-width:260px;">
+        <!-- Table -->
+        <rect x="30" y="10" width="200" height="200" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+        <!-- Rows -->
+        <text x="50" y="35" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">0:</text>
+        <rect x="70" y="22" width="145" height="14" rx="3" fill="#e2e5ef"/>
+        <text x="50" y="55" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">1:</text>
+        <rect x="70" y="42" width="145" height="14" rx="3" fill="#e2e5ef"/>
+        <text x="50" y="75" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">2:</text>
+        <rect x="70" y="62" width="145" height="14" rx="3" fill="#e2e5ef"/>
+        <text x="38" y="100" font-family="Inter" font-size="10" fill="#8b90a5">...</text>
+        <!-- Row 7 highlighted -->
+        <text x="50" y="135" font-family="JetBrains Mono" font-size="10" fill="#1a1d2e" font-weight="700">7:</text>
+        <rect x="70" y="122" width="145" height="16" rx="3" fill="#3b6df0" opacity="0.2" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="85" y="134" font-family="JetBrains Mono" font-size="8" fill="#3b6df0">[0.3, -0.8, 1.2, ...]</text>
+        <!-- Arrow -->
+        <text x="50" y="160" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">8:</text>
+        <rect x="70" y="147" width="145" height="14" rx="3" fill="#e2e5ef"/>
+        <text x="50" y="180" font-family="JetBrains Mono" font-size="10" fill="#8b90a5">9:</text>
+        <rect x="70" y="167" width="145" height="14" rx="3" fill="#e2e5ef"/>
+        <!-- Label -->
+        <text x="130" y="205" font-family="Inter" font-size="10" fill="#3b6df0" text-anchor="middle" font-weight="600">50-dim learned vectors</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── CONCAT FOR G ─── -->
+<div class="slide"
+     data-say="For the Generator, it's simple concatenation. The noise vector (64 dims) gets the label embedding (50 dims) appended to it, giving 114 dimensions total. This combined vector goes into the first Linear layer."
+     data-ask="What would happen if we used a very small embedding dim, like 2?"
+     data-time="1.5 min">
+  <h2>Feeding Labels to the Generator</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;flex:1;justify-content:center;">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;">
+      <div class="card" style="background:#f8f9fb;text-align:center;min-width:140px;">
+        <h4>Noise z</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;">[z1, z2, ..., z64]</p>
+        <p style="font-size:0.8rem;">64 dims</p>
+      </div>
+      <div style="font-size:2rem;font-weight:900;color:var(--text-light);">+</div>
+      <div class="card" style="background:#eef2ff;text-align:center;min-width:140px;">
+        <h4>Label Embed</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;">[e1, e2, ..., e50]</p>
+        <p style="font-size:0.8rem;">50 dims</p>
+      </div>
+      <div style="font-size:2rem;font-weight:900;color:var(--text-light);">=</div>
+      <div class="card" style="background:#ecfdf5;text-align:center;min-width:160px;">
+        <h4>Input to G</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;">[z1, ..., z64, e1, ..., e50]</p>
+        <p style="font-size:0.8rem;font-weight:600;">114 dims</p>
+      </div>
+    </div>
+    <pre style="font-family:var(--font-mono);font-size:0.82rem;line-height:1.7;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;max-width:500px;">label_vec = self.label_embed(labels)  # (batch, 50)
+x = torch.cat([z, label_vec], dim=1)  # (batch, 114)
+return self.model(x)</pre>
+  </div>
+</div>
+
+<!-- 7 ─── LABEL CHANNELS FOR D ─── -->
+<div class="slide"
+     data-say="For the Discriminator, we can't just concatenate — the input is a 2D image. The trick: turn the label into extra channels. One-hot encode, then expand each value to a full 28x28 grid. Label 7 becomes 10 channels, where channel 7 is all ones and the rest are all zeros."
+     data-ask="Why do we expand to full 28x28 grids instead of just adding one number?"
+     data-time="3 min">
+  <h2>Feeding Labels to the Discriminator</h2>
+  <div class="two-col">
+    <div>
+      <p><strong>Problem:</strong> D's input is a 2D image, not a 1D vector.</p>
+      <p class="mt-1"><strong>Solution:</strong> Label becomes extra <strong>channels</strong>.</p>
+      <div class="card mt-2" style="background:#f8f9fb;">
+        <h4>The Label-as-Channel Trick</h4>
+        <ol style="font-size:0.9rem;line-height:1.8;">
+          <li>Label 7 &rarr; one-hot: <span style="font-family:var(--font-mono);font-size:0.8rem;">[0,0,0,0,0,0,0,<strong>1</strong>,0,0]</span></li>
+          <li class="step">Expand each value to a 28&times;28 grid</li>
+          <li class="step">Channel 7 = all 1s, others = all 0s</li>
+          <li class="step">Concatenate with image: <strong>11 &times; 28 &times; 28</strong></li>
+        </ol>
+      </div>
+    </div>
+    <div>
+      <svg viewBox="0 0 250 220" style="width:100%;max-width:250px;">
+        <!-- Image channel -->
+        <rect x="10" y="20" width="70" height="70" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+        <text x="45" y="50" text-anchor="middle" font-family="Inter" font-size="9" fill="#1a1d2e" font-weight="600">Image</text>
+        <text x="45" y="65" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#8b90a5">1&times;28&times;28</text>
+        <!-- Plus -->
+        <text x="100" y="58" font-family="Inter" font-size="18" fill="#b0b5c8" font-weight="900">+</text>
+        <!-- Label channels (stacked) -->
+        <rect x="125" y="35" width="60" height="55" rx="4" fill="#e2e5ef" stroke="#8b90a5" stroke-width="1"/>
+        <rect x="120" y="30" width="60" height="55" rx="4" fill="#e2e5ef" stroke="#8b90a5" stroke-width="1"/>
+        <rect x="115" y="25" width="60" height="55" rx="4" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="145" y="48" text-anchor="middle" font-family="Inter" font-size="8" fill="#3b6df0" font-weight="600">Label</text>
+        <text x="145" y="60" text-anchor="middle" font-family="Inter" font-size="8" fill="#3b6df0">channels</text>
+        <text x="145" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#8b90a5">10&times;28&times;28</text>
+        <!-- Equals -->
+        <text x="200" y="58" font-family="Inter" font-size="18" fill="#b0b5c8" font-weight="900">=</text>
+        <!-- Result -->
+        <rect x="30" y="130" width="180" height="60" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="120" y="155" text-anchor="middle" font-family="Inter" font-size="11" fill="#1a1d2e" font-weight="700">Input to D</text>
+        <text x="120" y="175" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#10b981" font-weight="600">11 &times; 28 &times; 28</text>
+        <!-- Arrow -->
+        <line x1="120" y1="95" x2="120" y2="125" stroke="#4a5068" stroke-width="1.5"/>
+        <polygon points="115,125 120,133 125,125" fill="#4a5068"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="Every new symbol in the conditional GAN. The game is unchanged; both networks simply get the label as extra input."
+     data-ask="If we forgot to give D the label, what could G get away with?"
+     data-time="3 min">
+  <h2>Conditioning <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">x̃ = G( [ z ; e(y) ] ), &nbsp; e(y) = onehot(y) · W &nbsp;&nbsp;·&nbsp;&nbsp; D( [ x ; maps(y) ] ) → P(real)</div>
+    <div class="fx-read">Read it: G reads noise plus a label vector; D reads the image plus ten label channels</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-purple"><span class="fx-sym">y</span><div><strong>Label</strong><span class="fx-job">Which digit we ask for</span></div><span class="fx-chip">0 … 9</span></div>
+      <div class="fx-term fx-blue"><span class="fx-sym">onehot(y)</span><div><strong>One-hot vector</strong><span class="fx-job">1 in position y, 0 elsewhere</span></div><span class="fx-chip">10 numbers</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">W</span><div><strong>Embedding table</strong><span class="fx-job">Learned — one row per class</span></div><span class="fx-chip">10 × 50</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">e(y)</span><div><strong>Label embedding</strong><span class="fx-job">Row y of W</span></div><span class="fx-chip">50 numbers</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">[ z ; e(y) ]</span><div><strong>G’s input</strong><span class="fx-job">Noise then label, side by side</span></div><span class="fx-chip">64 + 50 = 114</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">maps(y)</span><div><strong>Label maps</strong><span class="fx-job">One-hot spread over 28 × 28 planes</span></div><span class="fx-chip">10 × 28 × 28</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">[ x ; maps(y) ]</span><div><strong>D’s input</strong><span class="fx-job">Image plus label channels</span></div><span class="fx-chip">1 + 10 = 11 channels</span></div>
+    </div>
+    <div class="fx-key">Same loss as before — only the inputs change: G(z, y) and D(x, y).</div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Show that the lookup and the matrix product give the same vector, then scale the toy sizes up to the lab: 64 noise + 50 label numbers into G, 11 channels into D."
+     data-ask="Why use a learned embedding instead of feeding the raw one-hot vector?"
+     data-time="3 min">
+  <h2>An embedding lookup is a one-hot product <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>toy: 4 classes, 3-number embedding</li><li>y = 2 &nbsp;·&nbsp; z = (0.5, −1.0)</li><li>row 2 of W = (−0.5, 0.9, 0.2)</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">onehot(2) = (0, 0, 1, 0)</span><span class="fx-note">a 1 in position 2</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">onehot · W = 0·w₀ + 0·w₁ + 1·w₂ + 0·w₃</span><span class="fx-note">every other row is multiplied by 0</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">e(2) = (−0.5, 0.9, 0.2)</span><span class="fx-note">nn.Embedding just looks this row up</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">[ z ; e ] = (0.5, −1.0, −0.5, 0.9, 0.2)</span><span class="fx-note">2 + 3 = 5 numbers</span></li>
+        <li><span class="fx-n">5</span><span class="fx-m">lab: 64 + 50 = 114 → Linear(114, …)</span><span class="fx-note">D: 1 + 10 = 11 input channels</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">Embedding = one learned row per class; G’s first layer sees 114 numbers</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Because the lookup is linear, blending two one-hots blends their embeddings the same way (L11).</div>
+  </div>
+</div>
+
+<!-- 8 ─── make_label_maps EXPLAINED ─── -->
+<div class="slide"
+     data-say="Here's the make_label_maps function step by step. scatter_ does one-hot encoding. view reshapes to add spatial dimensions. expand fills each value across a full 28x28 grid. It's just reshaping — no learnable parameters."
+     data-ask="What does scatter_ do with the 1 argument?"
+     data-time="2 min">
+  <h2>The <code style="font-family:var(--font-mono);">make_label_maps</code> Function</h2>
+  <div style="flex:1;overflow-y:auto;">
+    <pre style="font-family:var(--font-mono);font-size:0.78rem;line-height:1.7;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;max-width:650px;">def make_label_maps(self, labels, h, w):
+    # labels: (batch,)  e.g. [7, 3]
+    bs = labels.size(0)
+
+    # Step 1: one-hot encoding → (batch, 10)
+    one_hot = torch.zeros(bs, 10, device=labels.device)
+    one_hot.scatter_(1, labels.unsqueeze(1), 1.0)
+    # [0,0,0,0,0,0,0,1,0,0]  &larr; label 7
+    # [0,0,0,1,0,0,0,0,0,0]  &larr; label 3
+    # (same as F.one_hot(labels, 10).float())
+
+    # Step 2: reshape → (batch, 10, 1, 1)
+    # Step 3: expand  → (batch, 10, h, w)
+    #   each value fills a whole channel
+    return (one_hot.view(bs, 10, 1, 1)
+                   .expand(-1, -1, h, w))</pre>
+  </div>
+</div>
+
+<!-- 9 ─── GENERATOR ARCHITECTURE ─── -->
+<div class="slide"
+     data-say="The Generator architecture. The only difference from standard: the first Linear layer takes z_dim + embed_dim instead of just z_dim. The embedding is learned alongside the rest of the network."
+     data-ask="What's the only layer that changes size compared to a standard GAN Generator?"
+     data-time="2 min">
+  <h2>Generator Architecture</h2>
+  <div class="two-col">
+    <div>
+      <pre style="font-family:var(--font-mono);font-size:0.78rem;line-height:1.65;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;">class Generator(nn.Module):
+  def __init__(self, z_dim=64,
+               num_classes=10,
+               embed_dim=50):
+    super().__init__()
+    self.label_embed = nn.Embedding(
+        num_classes, embed_dim)
+
+    self.model = nn.Sequential(
+      nn.Linear(z_dim + embed_dim,
+                256 * 7 * 7),
+      nn.Unflatten(1, (256, 7, 7)),
+      nn.ConvTranspose2d(256, 128,
+                         4, 2, 1),
+      nn.BatchNorm2d(128),
+      nn.ReLU(),
+      nn.ConvTranspose2d(128, 1,
+                         4, 2, 1),
+      nn.Tanh(),
+    )</pre>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Forward Pass</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.82rem;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;">def forward(self, z, labels):
+  label_vec = self.label_embed(labels)
+  # (batch, 50)
+  x = torch.cat([z, label_vec], dim=1)
+  # (batch, 114)
+  return self.model(x)</pre>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Shape Trace</h4>
+        <p style="font-family:var(--font-mono);font-size:0.8rem;">
+          114 &rarr; 12544 &rarr; 256&times;7&times;7 &rarr; 128&times;14&times;14 &rarr; <strong>1&times;28&times;28</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── DISCRIMINATOR ARCHITECTURE ─── -->
+<div class="slide"
+     data-say="The Discriminator changes too. Its first Conv layer takes 11 channels instead of 1 — the image plus 10 label channels. It learns to check if the image matches the label."
+     data-ask="Why 11 channels? Where does the 11 come from?"
+     data-time="2 min">
+  <h2>Discriminator Architecture</h2>
+  <div class="two-col">
+    <div>
+      <pre style="font-family:var(--font-mono);font-size:0.78rem;line-height:1.65;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;">class Discriminator(nn.Module):
+  def __init__(self, num_classes=10):
+    super().__init__()
+    self.num_classes = num_classes
+
+    self.model = nn.Sequential(
+      # 11 x 28 x 28 input!
+      nn.Conv2d(1 + num_classes,
+                64, 4, 2, 1),
+      nn.LeakyReLU(0.2),
+
+      nn.Conv2d(64, 128, 4, 2, 1),
+      nn.BatchNorm2d(128),
+      nn.LeakyReLU(0.2),
+
+      nn.Flatten(),
+      nn.Linear(128 * 7 * 7, 1),
+      nn.Sigmoid(),
+    )</pre>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Forward Pass</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.82rem;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;">def forward(self, images, labels):
+  label_maps = self.make_label_maps(
+      labels, 28, 28)
+  x = torch.cat(
+      [images, label_maps], dim=1)
+  # (batch, 11, 28, 28)
+  return self.model(x)</pre>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Key Change</h4>
+        <p><strong>1 + 10 = 11</strong> input channels</p>
+        <p style="font-size:0.85rem;">1 image channel + 10 one-hot label channels</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Quick checkpoint. We have the architecture pieces. Now let's see how they fit together in training."
+     data-ask="Can you describe the data flow from label integer to D's input in one sentence?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Piece</th><th>How It Works</th></tr>
+    <tr><td><strong>Core Idea</strong></td><td>Feed label to BOTH G and D</td></tr>
+    <tr><td><strong>Embedding</strong></td><td>nn.Embedding turns integer label into a learnable vector</td></tr>
+    <tr><td><strong>G input</strong></td><td>Concatenate noise + label embedding (114 dims)</td></tr>
+    <tr><td><strong>D input</strong></td><td>Concatenate image + label channels (11 &times; 28 &times; 28)</td></tr>
+    <tr><td><strong>Label channels</strong></td><td>One-hot &rarr; expand to 10 full 28&times;28 grids</td></tr>
+  </table>
+</div>
+
+<!-- 12 ─── TRAINING LOOP ─── -->
+<div class="slide"
+     data-say="The training loop is almost identical to Unit 1&#39;s. The ONLY difference: pass labels everywhere. Fakes reuse the batch&#39;s real labels so classes stay balanced; sampling random labels is equally fine. Students will ask: why BCE again after three lessons against it? lab-10 deliberately keeps Unit 1&#39;s DCGAN recipe so that ONE thing changes — conditioning. The WGAN-GP version is two slides ahead and is the lab&#39;s natural extension."
+     data-ask="Can you spot the three places where labels appear in the training loop?"
+     data-time="2.5 min">
+  <h2>Training the Conditional GAN</h2>
+  <div style="flex:1;overflow-y:auto;">
+    <pre style="font-family:var(--font-mono);font-size:0.75rem;line-height:1.65;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;max-width:680px;">for epoch in range(epochs):
+  for real_images, real_labels in data:
+    bs = real_images.size(0)
+
+    # ── Train Discriminator ──
+    noise = torch.randn(bs, z_dim, device=device)
+    fake_images = gen(noise, real_labels).detach()  # &larr; labels!
+
+    pred_real = disc(real_images, real_labels)       # &larr; labels!
+    pred_fake = disc(fake_images, real_labels)       # &larr; labels!
+
+    loss_D = BCE(pred_real, ones) + BCE(pred_fake, zeros)
+    opt_D.zero_grad(); loss_D.backward(); opt_D.step()
+
+    # ── Train Generator ──
+    noise = torch.randn(bs, z_dim, device=device)
+    fake_images = gen(noise, real_labels)             # &larr; labels!
+    pred_fake = disc(fake_images, real_labels)        # &larr; labels!
+    loss_G = BCE(pred_fake, ones)
+
+    opt_G.zero_grad(); loss_G.backward(); opt_G.step()</pre>
+  </div>
+  <div class="formula mt-1" style="font-size:0.9rem;">Standard GAN: gen(noise), disc(fake) &nbsp;&rarr;&nbsp; cGAN: gen(noise, <strong>labels</strong>), disc(fake, <strong>labels</strong>)</div>
+  <p style="text-align:center;font-size:0.85rem;color:#8b90a5;">Why BCE again? lab-10 keeps Unit 1&rsquo;s DCGAN recipe so <strong>only conditioning</strong> changes &mdash; the WGAN-GP version follows.</p>
+</div>
+
+<!-- 13 ─── WHY D NEEDS LABEL ─── -->
+<div class="slide"
+     data-say="This is the most common question. Use the restaurant analogy. Without the label, D is a waiter who doesn't check the order slip. A burger when you ordered pasta? 'Looks like good food!' The label is the order slip."
+     data-ask="In the restaurant analogy, who is the customer?"
+     data-time="2.5 min">
+  <h2>Why D Needs the Label Too</h2>
+  <div class="two-col">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Only G Gets Label (Wrong)</h4>
+      <ul>
+        <li>G generates a "7" (told to)</li>
+        <li>D sees image only: "looks real!"</li>
+        <li class="step">G generates a <strong>perfect 3</strong> when asked for 7</li>
+        <li class="step">D says "looks real!" &mdash; <strong>can't detect the mismatch</strong></li>
+      </ul>
+      <p class="mt-1 step" style="font-style:italic;font-size:0.85rem;">Waiter without an order slip: "Burger looks great!" but customer ordered pasta.</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Both Get Label (Correct)</h4>
+      <ul>
+        <li>G generates a "7"</li>
+        <li>D sees image + label "7"</li>
+        <li>G generates a 3 when asked for 7</li>
+        <li>D checks order: <strong>"Not a 7. Fake."</strong></li>
+      </ul>
+      <p class="mt-1" style="font-style:italic;font-size:0.85rem;">Waiter with order slip: "This is a burger, not pasta. Rejected."</p>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── GENERATING SPECIFIC DIGITS ─── -->
+<div class="slide"
+     data-say="After training, you can generate any digit on demand. Same noise, different labels gives different digits. Same label, different noise gives different styles of the same digit. The noise controls HOW, the label controls WHAT."
+     data-ask="What would the grid look like if you fixed the noise AND the label?"
+     data-time="2 min">
+  <h2>Generating Specific Digits</h2>
+  <div class="two-col align-center">
+    <div>
+      <pre style="font-family:var(--font-mono);font-size:0.78rem;line-height:1.7;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;">gen.eval()
+for digit in range(10):
+    noise = torch.randn(8, z_dim, device=device)
+    labels = torch.full((8,), digit,
+                        dtype=torch.long, device=device)
+    fakes = gen(noise, labels)</pre>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Expected Output</h4>
+        <p style="font-family:var(--font-mono);font-size:0.8rem;line-height:1.8;">
+          Row 0: 0 0 0 0 0 0 0 0<br>
+          Row 1: 1 1 1 1 1 1 1 1<br>
+          Row 2: 2 2 2 2 2 2 2 2<br>
+          ...<br>
+          Row 9: 9 9 9 9 9 9 9 9
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Same noise, different label</h4>
+        <p>&rarr; Different <strong>digits</strong> (same style)</p>
+      </div>
+      <div class="card mt-1" style="background:#eef2ff;">
+        <h4>Same label, different noise</h4>
+        <p>&rarr; Same digit, different <strong>styles</strong></p>
+      </div>
+      <p class="mt-2" style="font-weight:600;text-align:center;">Each row = one digit, each column = one style</p>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── NOISE VS LABEL ─── -->
+<div class="slide"
+     data-say="This is a fundamental concept. The label controls the category — WHAT. The noise controls the variation — HOW. Together they give full control. This separation of concerns is what makes cGANs so powerful."
+     data-ask="How is this like ordering food: the dish name vs the chef's personal touch?"
+     data-time="2 min">
+  <h2>What Label Controls vs What Noise Controls</h2>
+  <div class="vs-layout">
+    <div class="card" style="background:#eef2ff;">
+      <h4>Label Controls: WHAT</h4>
+      <ul>
+        <li>"Generate a <strong>7</strong>"</li>
+        <li>"Generate a <strong>3</strong>"</li>
+        <li>The class / category / identity</li>
+      </ul>
+    </div>
+    <div class="vs">VS</div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Noise Controls: HOW</h4>
+      <ul>
+        <li>Thick or thin strokes</li>
+        <li>Tilted or straight</li>
+        <li>Rounded or angular</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card mt-2" style="background:#ecfdf5;text-align:center;">
+    <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+      label=7, noise_A &rarr; a <strong>thick, tilted</strong> 7<br>
+      label=7, noise_B &rarr; a <strong>thin, straight</strong> 7<br>
+      label=3, noise_A &rarr; a <strong>thick, tilted</strong> 3<br>
+      label=3, noise_B &rarr; a <strong>thin, straight</strong> 3
+    </p>
+  </div>
+</div>
+
+<!-- 16 ─── cGAN + WGAN-GP ─── -->
+<div class="slide"
+     data-say="You can combine cGAN with WGAN-GP for the best of both worlds — controlled generation with stable training. The main change: the gradient penalty function also needs labels, because the Critic takes labels as input."
+     data-ask="What changes in the GP function when the Critic is conditional?"
+     data-time="2 min">
+  <h2>cGAN + WGAN-GP</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Combine for Best Results</h4>
+        <ul>
+          <li>Critic instead of Discriminator (no Sigmoid)</li>
+          <li>Wasserstein loss + gradient penalty</li>
+          <li>No BatchNorm in Critic (LayerNorm / InstanceNorm)</li>
+          <li>5:1 training ratio</li>
+        </ul>
+      </div>
+      <pre class="mt-1" style="font-family:var(--font-mono);font-size:0.78rem;line-height:1.7;color:var(--text-primary);background:#f8f9fb;padding:1rem;border-radius:10px;white-space:pre-wrap;border:1px solid #e2e5ef;">loss_C = (critic(fake, labels).mean()
+          - critic(real, labels).mean()
+          + 10 * gp)
+
+loss_G = -critic(fake, labels).mean()</pre>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>GP Needs Labels Too!</h4>
+        <pre style="font-family:var(--font-mono);font-size:0.78rem;line-height:1.7;color:var(--text-primary);white-space:pre-wrap;">def gradient_penalty(critic,
+    real, fake, labels, device):
+  ...
+  scores = critic(interpolated,
+                  labels)  # &larr; labels!
+  ...</pre>
+        <p class="mt-1" style="font-size:0.85rem;">The interpolated images still need labels because the Critic expects them.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 16b ─── LAB DEMO ─── -->
+<div class="slide"
+     data-say="Live demo of lab-10. Run Data (labels kept this time), the conditional Generator and Discriminator, and the label-map test — show the 10 channels for digit 7. Start training (30 epochs) and talk over it. Then the payoff grid, the same-noise row, and finally the broken cGAN where D ignores labels — the most convincing 2 minutes of the lesson."
+     data-ask="Before the last experiment: if D can't see the label, what will G do with it?"
+     data-time="30 min">
+  <h2>Lab Demo: <code>lab-10-conditional-gan.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> say &ldquo;generate a 7&rdquo; and get a 7 &mdash; then prove D needs the label.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>Conditional Generator</strong> (64 + 50 = 114-dim input) and <strong>Discriminator</strong> (11 &times; 28 &times; 28)</li>
+        <li><strong>Quick test: label maps</strong> for digit 7</li>
+        <li><strong>Setup &amp; Training</strong>: BCE, Adam 2e-4, betas (0.5, 0.999), 30 epochs</li>
+        <li><strong>The Payoff</strong> grid, <strong>Same Noise, Different Labels</strong>, then <strong>What if D Doesn&rsquo;t Get the Label?</strong></li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>Label maps shape <strong>(1, 10, 28, 28)</strong>; only channel 7 is white</li>
+          <li>Grid: each <strong>row one digit</strong>, each column one style</li>
+          <li>Broken cGAN: digits <strong>don&rsquo;t match</strong> their labels</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Train the generator with <strong>random</strong> labels for its fakes instead of the batch&rsquo;s real labels. Any difference?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Six key takeaways. The core insight: labels go to both networks. Everything else follows from that."
+     data-ask="Which takeaway would you explain to a friend?"
+     data-time="1.5 min">
+  <h2>Lesson 10 Summary</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.8rem;font-weight:900;">1</p>
+      <h4>Labels to Both</h4>
+      <p>G and D both get the label</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.8rem;font-weight:900;">2</p>
+      <h4>Embedding</h4>
+      <p>Integer &rarr; learnable vector</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.8rem;font-weight:900;">3</p>
+      <h4>Label Channels</h4>
+      <p>One-hot expanded to image size</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.8rem;font-weight:900;">4</p>
+      <h4>D Needs Label</h4>
+      <p>To verify output matches request</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.8rem;font-weight:900;">5</p>
+      <h4>Noise vs Label</h4>
+      <p>Noise = style, Label = what</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:1.8rem;font-weight:900;">6</p>
+      <h4>cGAN + WGAN-GP</h4>
+      <p>Best stability + controllability</p>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Think about each one for a minute before revealing. Q1 is exactly lab-10's last experiment."
+     data-ask="Try all three before revealing any."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:780px;">
+    <div class="revealable card">
+      <h4>G gets the label, D doesn&rsquo;t. Samples look perfectly real. Do they match their labels?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1"><strong>No.</strong> G&rsquo;s only teacher is D. If D can&rsquo;t see the label it can&rsquo;t punish a mismatch, so G is free to ignore the label &mdash; and usually does (lab-10, last experiment).</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>10 one-hot maps per image is 10&times; the pixels. Why not one channel holding y/10?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">A single value invents an <strong>order</strong>: &ldquo;4 is between 3 and 5&rdquo;, &ldquo;9 is far from 0&rdquo;. One-hot (or a learned embedding) keeps classes unrelated. At 1000 classes you&rsquo;d use a <strong>projection discriminator</strong> (Miyato &amp; Koyama 2018, used in BigGAN).</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>10% of your training 7s are mislabelled as 1. What happens when you ask for a 1?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">D learns &ldquo;7-shaped image + label 1&rdquo; is <strong>real</strong>, so G is rewarded for sometimes drawing a 7 when asked for 1. Label noise flows straight into conditional samples.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="We can now control WHAT digit the GAN generates. But what about finer control? What if you want to make a digit thicker, more tilted, or more rounded? That's latent space manipulation — next lesson."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>Controllable Generation</h1>
+  <p class="subtitle">Lesson 11: Go beyond class labels &mdash; manipulate specific features in the latent space</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

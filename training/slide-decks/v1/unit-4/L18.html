@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L18 — Data Augmentation & Privacy</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L18">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L17.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L17</a><a href="../../../index.html#unit-4" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L18 &bull; Unit 4</a><a href="../unit-5/L19.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L19 &rarr;</a></div>
+
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-4">Unit 4</a> &bull; L18</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="So far, GANs have been the goal. Now GANs become a TOOL. L17 translated images; L10 generated a chosen class. Both become instruments here: synthetic training data for scarce classes, and data you can share without exposing real people — if you do it carefully."
+     data-ask="How many labeled images does a hospital typically have for a rare disease?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 18</div>
+  <h1>Data Augmentation &amp; Privacy</h1>
+  <p class="subtitle">GANs as a practical tool &mdash; synthetic data and differential privacy</p>
+</div>
+
+<!-- 2 ─── HOOK: DATA HUNGER ─── -->
+<div class="slide"
+     data-say="Deep learning is hungry. Most tasks need thousands of labeled examples. But in many domains, data is expensive or impossible to collect. Walk through each domain slowly — these are real problems."
+     data-ask="In which of these domains would you find it hardest to collect data?"
+     data-time="2 min">
+  <h2>The Data Hunger Problem</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;">
+    <div class="card" style="background:#fef2f2;">
+      <h4>Medical Imaging</h4>
+      <p>Rare diseases: maybe <strong>50 X-rays</strong> exist worldwide. Each needs expert annotation. Privacy laws limit sharing.</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Autonomous Driving</h4>
+      <p>Need millions of miles of data. Rare events (accidents) are by definition <strong>uncommon</strong>. Can't crash cars on purpose.</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Fraud Detection</h4>
+      <p>99.9% of transactions are normal. Only <strong>0.1% are fraud</strong>. New fraud types appear constantly.</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>Manufacturing</h4>
+      <p>Defective products are <strong>rare</strong> (that's the point!). Need images of defects for quality control.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── TRADITIONAL AUGMENTATION ─── -->
+<div class="slide"
+     data-say="We've always had standard augmentation: flip, rotate, crop, color jitter. It works but has limits. All rotated versions of dog #1 are still clearly dog #1. We want COMPLETELY NEW dogs."
+     data-ask="What's the difference between rotating a dog photo and generating a new dog?"
+     data-time="2 min">
+  <h2>Traditional vs GAN Augmentation</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Traditional: Transform Existing</h4>
+        <ul>
+          <li>RandomFlip, RandomRotation</li>
+          <li>RandomCrop, ColorJitter</li>
+          <li>Simple, fast, well-understood</li>
+        </ul>
+        <p class="mt-1" style="font-weight:600;">Still the SAME images, just transformed.</p>
+        <p class="text-muted">Can't create truly new examples.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>GAN: Generate New</h4>
+        <ul>
+          <li>Train GAN on real data</li>
+          <li>Generate synthetic images</li>
+          <li>Add to training set</li>
+        </ul>
+        <p class="mt-1" style="font-weight:600;">COMPLETELY NEW images that look realistic.</p>
+        <p class="text-muted">More diversity, not just more copies.</p>
+      </div>
+    </div>
+  </div>
+  <div class="step formula mt-1" style="font-size:1rem;">
+    Traditional: "Here's the same dog from a different angle" &nbsp;vs&nbsp; GAN: "Here's a completely new dog"
+  </div>
+</div>
+
+<!-- 4 ─── GAN AUGMENTATION RECIPE ─── -->
+<div class="slide"
+     data-say="The recipe is simple: train a GAN, generate synthetic images, add them to your training set, train your downstream model on the combined data. Key decisions: how many to add and how to mix."
+     data-ask="If you add too many synthetic images, what could go wrong?"
+     data-time="2 min">
+  <h2>GAN-Based Augmentation: The Recipe</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="diagram" style="flex-direction:column;gap:0.5rem;">
+        <div class="box" style="width:200px;"><div class="label">Step 1</div><div class="value" style="font-size:0.9rem;">Train GAN on real data</div></div>
+        <div class="arrow" style="transform:rotate(90deg);">&rarr;</div>
+        <div class="box gen" style="width:200px;"><div class="label">Step 2</div><div class="value" style="font-size:0.9rem;">Generate 2-5x synthetic</div></div>
+        <div class="arrow" style="transform:rotate(90deg);">&rarr;</div>
+        <div class="box" style="width:200px;"><div class="label">Step 3</div><div class="value" style="font-size:0.9rem;">Real + Synthetic = Augmented</div></div>
+        <div class="arrow" style="transform:rotate(90deg);">&rarr;</div>
+        <div class="box highlight" style="width:200px;"><div class="label">Step 4</div><div class="value" style="font-size:0.9rem;">Train classifier</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>When does it help?</h4>
+        <table class="compare-table">
+          <tr style="background:#ecfdf5;"><td><strong>Helps a lot</strong></td><td>Small datasets (100-1K), class imbalance, rare events</td></tr>
+          <tr><td><strong>Helps a little</strong></td><td>Medium datasets (5K-50K)</td></tr>
+          <tr style="background:#fef2f2;"><td><strong>Doesn't help</strong></td><td>Already large datasets (100K+)</td></tr>
+        </table>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Quality control</h4>
+        <p>Use FID (L13) to check synthetic quality. Visual inspection. If FID is too high, your GAN isn't ready.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── CONDITIONAL AUGMENTATION ─── -->
+<div class="slide"
+     data-say="The power move: conditional GANs let you generate SPECIFIC classes on demand. Have 5000 normal images but only 50 fraud examples? Generate 4950 synthetic fraud examples to balance the dataset."
+     data-ask="How would you balance a dataset with 5000 normal and 50 fraud examples?"
+     data-time="2 min">
+  <h2>Conditional GANs for Targeted Augmentation</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Before: Imbalanced</h4>
+        <table class="compare-table">
+          <tr><td>Class 0</td><td><strong>5000</strong> images</td></tr>
+          <tr><td>Class 1</td><td><strong>5000</strong> images</td></tr>
+          <tr style="background:#fef2f2;"><td>Class 7</td><td><strong>50</strong> images (rare!)</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>After: Balanced with cGAN</h4>
+        <table class="compare-table">
+          <tr><td>Class 0</td><td><strong>5000</strong> images</td></tr>
+          <tr><td>Class 1</td><td><strong>5000</strong> images</td></tr>
+          <tr style="background:#ecfdf5;"><td>Class 7</td><td>50 real + <strong>4950 synthetic</strong> = 5000</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="formula mt-1" style="font-size:1rem;">
+    cGAN(z, label=7) &rarr; "Generate specifically class 7" &rarr; targeted augmentation
+  </div>
+</div>
+
+<!-- 6 ─── DOES IT WORK? ─── -->
+<div class="slide"
+     data-say="One well-known published result: liver-lesion classification on 182 CT lesions (Frid-Adar et al., 2018). Adding GAN-synthesized lesions on top of classic augmentation raised both sensitivity and specificity. Gains like this are typical of small medical datasets — they are not guaranteed, and always measure them on a held-out real test set."
+     data-ask="Why must the test set never be seen by the GAN that made the synthetic data?"
+     data-time="2 min">
+  <h2>Does GAN Augmentation Actually Work?</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Evidence: often, on small data</h4>
+        <table class="compare-table">
+          <tr><th>Liver lesions (CT)</th><th>Sensitivity</th><th>Specificity</th></tr>
+          <tr><td>Classic augmentation</td><td>78.6%</td><td>88.4%</td></tr>
+          <tr style="background:#ecfdf5;"><td><strong>+ GAN synthetic lesions</strong></td><td><strong>85.7%</strong></td><td><strong>92.4%</strong></td></tr>
+        </table>
+        <p class="mt-1 text-muted" style="font-size:0.8rem;">Frid-Adar et al., Neurocomputing 2018 &middot; 182 lesions &middot; see also DAGAN (Antoniou et al., 2017)</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>When it fails</h4>
+        <ul>
+          <li><strong>Memorization:</strong> Dataset too small (&lt;50), GAN just copies</li>
+          <li class="step"><strong>No new information:</strong> a GAN can only remix what its training data contains</li>
+          <li class="step"><strong>Mode collapse:</strong> Only a few variations, no diversity</li>
+          <li class="step"><strong>GAN artifacts:</strong> Classifier learns artifacts instead of features</li>
+        </ul>
+        <p class="mt-1 text-muted">Check: FID, diversity, and accuracy on a <strong>real</strong> held-out test set the GAN never saw</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Quick recap of the augmentation side. Now we switch to the privacy side — equally important in the real world."
+     data-ask="Ready for the privacy challenge?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Concept</th><th>Key Idea</th></tr>
+    <tr><td><strong>Data hunger</strong></td><td>Many domains lack enough labeled data</td></tr>
+    <tr><td><strong>Traditional augment</strong></td><td>Same images transformed &mdash; limited diversity</td></tr>
+    <tr><td><strong>GAN augment</strong></td><td>Completely new images &mdash; real diversity</td></tr>
+    <tr><td><strong>Targeted augment</strong></td><td>cGAN generates specific classes on demand</td></tr>
+    <tr><td><strong>Pitfalls</strong></td><td>Memorization, mode collapse, GAN artifacts</td></tr>
+  </table>
+  <p class="text-center mt-1" style="font-weight:600;">Next: the privacy side of synthetic data</p>
+</div>
+
+<!-- 8 ─── SECTION: PRIVACY ─── -->
+<div class="slide section-divider"
+     data-say="Now the privacy challenge. Can we share synthetic data instead of real sensitive data?"
+     data-ask="" data-time="30 sec">
+  <div class="section-number">2</div>
+  <h2>The Privacy Problem</h2>
+</div>
+
+<!-- 9 ─── PRIVACY PROBLEM ─── -->
+<div class="slide"
+     data-say="Hospital A has 10,000 X-rays. Hospital B wants to train a model. Can they share? NO — patient privacy laws. But what if Hospital A shares SYNTHETIC X-rays that look realistic but don't correspond to any real patient?"
+     data-ask="What goes wrong if synthetic images look exactly like a real patient?"
+     data-time="2 min">
+  <h2>Why We Need Synthetic Data for Privacy</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Can't share real data</h4>
+        <ul>
+          <li>Patient privacy laws (HIPAA, GDPR)</li>
+          <li>X-rays can be re-identified</li>
+          <li>"Anonymized" data can be de-anonymized</li>
+          <li>Ethical obligations to patients</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Share synthetic data instead</h4>
+        <div class="diagram" style="padding:0.5rem;">
+          <div class="box"><div class="label">Real</div><div class="value" style="font-size:0.8rem;">private</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box gen"><div class="label">GAN</div><div class="value" style="font-size:0.8rem;">learns</div></div>
+          <div class="arrow">&rarr;</div>
+          <div class="box highlight"><div class="label">Synthetic</div><div class="value" style="font-size:0.8rem;">shareable</div></div>
+        </div>
+        <p class="mt-1">No real patients in the output.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── PRIVACY RISK ─── -->
+<div class="slide"
+     data-say="But wait — GANs can MEMORIZE training data! A GAN trained on faces might generate a face that looks exactly like patient #4523. Even synthetic data can leak privacy if the GAN memorizes. Membership inference attacks can detect this."
+     data-ask="How could an attacker tell if a specific person's data was used to train a GAN?"
+     data-time="2 min">
+  <h2>The Privacy Risk: GANs Can Memorize</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>The Problem</h4>
+        <p>A GAN trained on 10,000 faces might:</p>
+        <ul>
+          <li>Generate a face that looks <strong>exactly like</strong> patient #4523</li>
+          <li>Memorize and reproduce rare individuals</li>
+          <li>Leak sensitive information</li>
+        </ul>
+        <p class="mt-1 text-muted">If someone recognizes "Mrs. Johnson" in synthetic data &mdash; privacy is violated.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Membership Inference Attack</h4>
+        <p><strong>Question:</strong> "Was this person's photo used to train the GAN?"</p>
+        <ul class="mt-1">
+          <li class="step">Generate many images from the GAN</li>
+          <li class="step">Check if any are very similar to the target</li>
+          <li class="step">Or: find a z that reproduces the target (GAN inversion)</li>
+        </ul>
+        <p class="mt-1 text-muted">If successful: privacy breach</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── DIFFERENTIAL PRIVACY ─── -->
+<div class="slide"
+     data-say="The gold standard: differential privacy. A mathematical guarantee that the output distribution barely changes whether or not any single person's record was used. Epsilon bounds the change as a factor e^ε — e^1 ≈ 2.7, e^10 ≈ 22,026. Delta is a tiny probability that the bound fails; DP-SGD gives (ε, δ) guarantees with δ well below 1/N."
+     data-ask="What does epsilon=0 mean? What about epsilon=infinity?"
+     data-time="3 min">
+  <h2>Differential Privacy: The Gold Standard</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>The Guarantee</h4>
+        <p>&ldquo;Whether or not Mrs. Johnson's X-ray was in the training set, the GAN's outputs would be <strong>essentially the same</strong>.&rdquo;</p>
+        <div class="formula mt-1" style="font-size:0.85rem;">P(M(D) &isin; S) &le; e^&epsilon; &middot; P(M(D') &isin; S) + &delta;</div>
+        <p class="mt-1 text-muted">D, D' = two datasets that differ by one person (here D is a <em>dataset</em>, not the discriminator) &middot; &delta; &asymp; 0, below 1/N</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Privacy Budget &epsilon;</h4>
+        <table class="compare-table">
+          <tr><td><strong>&epsilon; = 0</strong></td><td>Output cannot depend on any one person</td></tr>
+          <tr><td><strong>&epsilon; = 1</strong></td><td>Strong: odds shift &le; &times;2.7</td></tr>
+          <tr><td><strong>&epsilon; = 10</strong></td><td>Weak: odds shift &le; &times;22,026</td></tr>
+          <tr><td><strong>&epsilon; = &infin;</strong></td><td>No privacy (standard training)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── DP-SGD ─── -->
+<div class="slide"
+     data-say="How to make it happen: DP-SGD (Abadi et al., 2016). Two changes to normal SGD. Step 1: CLIP each sample's OWN gradient — before averaging — so no single person can move the weights much. Step 2: ADD Gaussian noise scaled to that clip bound. In a GAN only the discriminator touches real data, so only D needs DP-SGD; the generator inherits the guarantee because it learns only through D."
+     data-ask="Why do we need BOTH clipping and noise? What if we only did one?"
+     data-time="3 min">
+  <h2>DP-SGD: How to Train Privately</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Normal SGD</h4>
+        <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+          grad = compute_gradient(batch)<br>
+          weights -= lr * grad
+        </p>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>DP-SGD (two changes)</h4>
+        <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:2;">
+          g_i = grad(sample_i) <span class="text-muted"># per sample</span><br>
+          g_i = <strong>clip(g_i, max_norm=C)</strong><br>
+          g = (&Sigma; g_i + <strong>N(0, &sigma;&sup2;C&sup2;I)</strong>) / B<br>
+          weights -= lr * g
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Step 1: CLIP</h4>
+        <p>Limits any single sample's influence.</p>
+        <p class="text-muted">Per sample: if ||g_i|| &gt; C, scale it down to C (e.g. (3, 4) &rarr; (0.6, 0.8) for C = 1)</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Step 2: ADD NOISE</h4>
+        <p>Hides individual contributions.</p>
+        <p class="text-muted">Add N(0, &sigma;&sup2;C&sup2;I) to the summed gradients. Apply to <strong>D only</strong> in a GAN.</p>
+      </div>
+      <div class="step card mt-1" style="background:#ecfdf5;">
+        <h4>Together</h4>
+        <p>Clipping limits the <strong>signal</strong>. Noise hides it. No one can tell if a specific sample was used.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── PRIVACY-UTILITY TRADEOFF ─── -->
+<div class="slide"
+     data-say="The fundamental tradeoff: more privacy means more noise, which means lower quality images. You can't have both perfect privacy and perfect quality. Choose your epsilon wisely."
+     data-ask="For a hospital sharing X-rays, what epsilon would you recommend?"
+     data-time="2 min">
+  <h2>The Privacy-Utility Tradeoff</h2>
+  <div class="two-col align-center">
+    <div>
+      <svg viewBox="0 0 300 220" style="width:100%;max-width:300px;">
+        <!-- Axes -->
+        <line x1="50" y1="180" x2="280" y2="180" stroke="#4a5068" stroke-width="1.5"/>
+        <line x1="50" y1="180" x2="50" y2="20" stroke="#4a5068" stroke-width="1.5"/>
+        <!-- Labels -->
+        <text x="165" y="210" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" fill="#4a5068">Privacy budget &epsilon;</text>
+        <text x="15" y="100" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" fill="#4a5068" transform="rotate(-90,15,100)">Quality</text>
+        <!-- Curve -->
+        <path d="M70,160 Q120,140 150,100 Q180,60 240,40" fill="none" stroke="#3b6df0" stroke-width="2.5"/>
+        <!-- Points -->
+        <circle cx="80" cy="155" r="5" fill="#ef4444"/>
+        <text x="85" y="170" font-size="9" font-family="JetBrains Mono,monospace" fill="#ef4444">&epsilon;=0.1</text>
+        <circle cx="130" cy="120" r="5" fill="#3b6df0"/>
+        <text x="135" y="115" font-size="9" font-family="JetBrains Mono,monospace" fill="#3b6df0">&epsilon;=1</text>
+        <circle cx="170" cy="85" r="5" fill="#3b6df0"/>
+        <text x="175" y="80" font-size="9" font-family="JetBrains Mono,monospace" fill="#3b6df0">&epsilon;=3</text>
+        <circle cx="240" cy="40" r="5" fill="#10b981"/>
+        <text x="245" y="35" font-size="9" font-family="JetBrains Mono,monospace" fill="#10b981">&epsilon;=10</text>
+        <!-- Axis ticks -->
+        <text x="55" y="195" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">more private</text>
+        <text x="235" y="195" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">less private</text>
+        <text x="55" y="35" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">high</text>
+        <text x="55" y="175" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">low</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>The Tradeoff</h4>
+        <table class="compare-table">
+          <tr><th>More Privacy (small &epsilon;)</th><th>Less Privacy (large &epsilon;)</th></tr>
+          <tr><td>More noise in gradients</td><td>Less noise</td></tr>
+          <tr><td>Harder for GAN to learn</td><td>Better image quality</td></tr>
+          <tr style="background:#ecfdf5;"><td><strong>Strong guarantees</strong></td><td><strong>Better quality</strong></td></tr>
+        </table>
+        <p class="mt-1 text-muted">Typical range: &epsilon; = 1-10</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── PATE-GAN ─── -->
+<div class="slide"
+     data-say="Alternative approach: PATE-GAN (Jordon, Yoon and van der Schaar, ICLR 2019). Split the real data into N partitions and train one teacher discriminator per partition. A student discriminator learns only from the teachers' noisy majority votes on generated samples, and the generator trains against the student. In the paper this gave better synthetic-data quality than DP-GAN at the same ε."
+     data-ask="Why might teacher-student be better than adding noise to every gradient?"
+     data-time="2 min">
+  <h2>PATE-GAN: An Alternative</h2>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+    <div class="diagram">
+      <div class="box"><div class="label">Data</div><div class="value" style="font-size:0.8rem;">Split</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="box disc"><div class="label">N Teachers</div><div class="value" style="font-size:0.8rem;">vote</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="box highlight"><div class="label">+ Noise</div><div class="value" style="font-size:0.8rem;">aggregate</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="box gen"><div class="label">Student D</div><div class="value" style="font-size:0.8rem;">learns</div></div>
+    </div>
+    <div class="two-col" style="max-width:700px;">
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Why Better?</h4>
+        <ul>
+          <li>Privacy cost is paid only on noisy votes</li>
+          <li>Paper: better quality than DP-GAN at the same &epsilon;</li>
+          <li>Student D and G never touch real data</li>
+        </ul>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>How It Works</h4>
+        <p>Each teacher sees only <strong>1/N</strong> of the data. Their votes are aggregated with noise. The student learns from noisy votes, not real data.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── PRACTICAL GUIDELINES ─── -->
+<div class="slide"
+     data-say="Practical decision framework. When to use GAN augmentation, when to use privacy-preserving GANs. And the checklist before sharing synthetic data."
+     data-ask="Which guideline surprises you?"
+     data-time="2 min">
+  <h2>Practical Guidelines</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Use GAN Augmentation When:</h4>
+        <ul>
+          <li>Small dataset (&lt; 5000 images)</li>
+          <li>Class imbalance (minority &lt; 10%)</li>
+          <li>Collecting more real data is expensive</li>
+          <li>You have enough data for a decent GAN (rule of thumb: &gt;100)</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Don't Use When:</h4>
+        <ul>
+          <li>Already large, balanced dataset</li>
+          <li>Fewer than ~50 images (GAN memorizes)</li>
+          <li>Exact photorealism required for safety</li>
+          <li>The GAN would be trained on your <strong>test</strong> data (leakage)</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Checklist Before Sharing Synthetic Data</h4>
+        <ul>
+          <li>Trained with DP-SGD or PATE-GAN</li>
+          <li>Chosen reasonable &epsilon; (typically 1-10)</li>
+          <li>Verified quality (FID, visual inspection)</li>
+          <li>Checked for memorization (nearest-neighbor)</li>
+          <li>Validated downstream task performance</li>
+          <li>Documented privacy guarantees</li>
+          <li>Privacy team review</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── BEYOND IMAGES ─── -->
+<div class="slide"
+     data-say="GANs aren't just for images. CTGAN generates synthetic tabular data (database rows). TimeGAN generates time series. The privacy and augmentation principles apply everywhere."
+     data-ask="Where else could synthetic data be useful?"
+     data-time="1.5 min">
+  <h2>Beyond Images: Tabular &amp; Time Series</h2>
+  <div class="three-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>CTGAN (Tabular)</h4>
+      <p>Generate synthetic database rows</p>
+      <p class="mt-1 text-muted">age=45, BP=130, diagnosis=diabetes</p>
+      <p class="mt-1">Preserves correlations between columns</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>TimeGAN (Sequences)</h4>
+      <p>Generate synthetic time series</p>
+      <p class="mt-1 text-muted">Stock prices, ECG signals</p>
+      <p class="mt-1">Preserves temporal patterns</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Text (Controlled)</h4>
+      <p>Generate synthetic text data</p>
+      <p class="mt-1 text-muted">Medical notes, reports</p>
+      <p class="mt-1">(LLMs are better at this now)</p>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Two sides of the same coin: augmentation to solve data scarcity, privacy to enable data sharing."
+     data-ask="Which application is more impactful: augmentation or privacy?"
+     data-time="1.5 min">
+  <h2>Lesson 18 Summary</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>GAN Augmentation</h4>
+      <p>Generate new synthetic images to expand small datasets and fix class imbalance</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>Targeted with cGAN</h4>
+      <p>Generate specific classes on demand &mdash; the power move for imbalanced data</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Privacy Risk</h4>
+      <p>GANs can memorize training data &mdash; synthetic doesn't automatically mean private</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">4</p>
+      <h4>DP-SGD</h4>
+      <p>Clip gradients + add noise = mathematical privacy guarantee (&epsilon;)</p>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Let students think before revealing."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>A GAN trained on 40 X-rays generates 1000 synthetic images. Will this help train a classifier?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Probably not. With only 40 images, the GAN is likely to <strong>memorize</strong> the training data. The 1000 synthetic images would be near-copies of the 40 originals, adding quantity but not diversity. As a rule of thumb you need 100+ images before a GAN learns patterns rather than copies &mdash; and check with nearest-neighbour search.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>A hospital uses a GAN to generate "anonymous" patient images without DP-SGD. Is this safe?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">No! Without differential privacy, the GAN may have <strong>memorized</strong> specific patients. A membership inference attack could reveal who was in the training data. "Synthetic" does not mean "private" unless you have mathematical guarantees (DP-SGD with a reasonable &epsilon;).</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>DP-SGD clips gradients AND adds noise. Why isn't clipping alone enough for privacy?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Clipping limits how much any one sample can influence the gradient, but the <strong>direction</strong> of the influence is still visible. An attacker could still detect whether a specific sample was present by examining gradient directions. Noise is needed to <strong>hide</strong> the remaining signal, making it impossible to distinguish any individual's contribution.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Unit 4 is complete: paired translation, plus GANs as a tool for augmentation and privacy. Unit 5 starts with the obvious gap: what if you DON'T have paired data? How do you translate horses to zebras without a single horse-zebra pair? That's the magic of CycleGAN."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Unit 4 complete &middot; Next: Unit 5</div>
+  <h1>CycleGAN: Unpaired Translation</h1>
+  <p class="subtitle">L19: Horse to zebra without a single matching pair &mdash; the cycle consistency trick</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

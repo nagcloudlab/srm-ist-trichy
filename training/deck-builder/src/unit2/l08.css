@@ -1,0 +1,3 @@
+/* L08 · WGAN — lesson-scoped styles */
+.l08-sand { display: block; width: 100%; max-height: min(26vh, 240px); }
+.l08-sand-label { fill: var(--muted); font: 800 15px var(--mono); letter-spacing: .04em; }

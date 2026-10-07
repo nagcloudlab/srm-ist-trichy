@@ -1,0 +1,13 @@
+/* L09 · WGAN-GP — local layout helpers (prefix l09-) */
+.l09-lab-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
+.l09-legend { display: flex; gap: 18px; justify-content: center; font: 800 12px var(--mono); color: var(--muted); }
+.l09-key::before { content: ''; display: inline-block; width: 22px; height: 0; margin-right: 8px; vertical-align: middle; border-top: 3px solid; }
+.l09-key-two::before { border-color: #7353bd; }
+.l09-key-one::before { border-color: #eb5a46; border-top-style: dashed; }
+.l09-hist { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.l09-hist figure { margin: 0; padding: 16px 18px 12px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+.l09-hist figcaption { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; font: 850 clamp(11px, .85vw, 14px) var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.l09-hist figcaption b { color: var(--ink); letter-spacing: 0; text-transform: none; font: 760 clamp(15px, 1.2vw, 19px) var(--display); }
+.l09-hist svg { display: block; width: 100%; height: auto; }
+.l09-hist p { margin: 8px 0 0; color: #5c6470; font-size: clamp(13px, 1.05vw, 16px); }
+@media (max-width: 900px) { .l09-lab-pair, .l09-hist { grid-template-columns: 1fr; } }

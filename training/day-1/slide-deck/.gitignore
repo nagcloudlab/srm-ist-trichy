@@ -1,3 +1,0 @@
-node_modules/
-.smoke/
-# dist/index.html is the published deck (linked from ../index.html) and is kept.

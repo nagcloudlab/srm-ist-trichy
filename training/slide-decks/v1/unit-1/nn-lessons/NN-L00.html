@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L00 — 🌍 Overview of Generative AI</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L00">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><span style="color:#b0b5c8;">&larr;</span><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L00 / 14</a><a href="NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L01 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L00</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Welcome to the course. Before any code, before any math, we orient. This lesson answers: what is generative AI, where do GANs fit, and why does this course exist?"
+     data-ask="How many of you have used a tool that creates something — an image, a sentence, a voice — rather than just classifying?"
+     data-time="1 min">
+  <div class="lesson-number">00 &bull; NEURAL NETWORKS &rarr; GANs</div>
+  <h1>Overview of Generative AI</h1>
+  <p class="subtitle">From discriminative models to machines that create</p>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <div style="font-size:2.6rem;font-weight:900;color:var(--text-muted);">Classify</div>
+      <div style="font-size:1rem;color:var(--text-muted);margin-top:0.25rem;">Discriminative</div>
+    </div>
+    <div style="font-size:3rem;font-weight:900;color:#3b6df0;">&rarr;</div>
+    <div style="text-align:center;">
+      <div style="font-size:2.6rem;font-weight:900;color:#3b6df0;">Create</div>
+      <div style="font-size:1rem;color:#3b6df0;margin-top:0.25rem;">Generative</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2 ─── OBJECTIVES ─── -->
+<div class="slide"
+     data-say="Map out exactly what this lesson covers so learners know what to expect. Each objective is a concrete question they should be able to answer when we finish."
+     data-ask="Which of these topics is most unfamiliar to you right now?"
+     data-time="1 min">
+  <h2>By the end of this lesson you can answer six questions</h2>
+  <p style="color:var(--text-muted);max-width:620px;margin-bottom:1.75rem;">No code in this lesson — only concepts and vocabulary.</p>
+  <div class="two-col" style="gap:1rem;">
+    <div class="card accent-blue" style="padding:1rem 1.25rem;">
+      <strong>01 &nbsp;</strong> What is the difference between discriminative and generative AI?
+    </div>
+    <div class="card accent-green" style="padding:1rem 1.25rem;">
+      <strong>02 &nbsp;</strong> What does "learning a distribution" actually mean?
+    </div>
+    <div class="card accent-purple" style="padding:1rem 1.25rem;">
+      <strong>03 &nbsp;</strong> What are the four main generative model families?
+    </div>
+    <div class="card accent-cyan" style="padding:1rem 1.25rem;">
+      <strong>04 &nbsp;</strong> What is a GAN and why are its outputs sharp?
+    </div>
+    <div class="card accent-red" style="padding:1rem 1.25rem;">
+      <strong>05 &nbsp;</strong> Where are GANs used in the real world?
+    </div>
+    <div class="card" style="padding:1rem 1.25rem;border:1px solid var(--card-border);">
+      <strong>06 &nbsp;</strong> Why study GANs when diffusion models exist?
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── TWO KINDS OF AI ─── -->
+<div class="slide"
+     data-say="Most students have only encountered discriminative AI — spam filters, image classifiers, recommendation scores. Anchor the distinction in examples they already know before introducing generative."
+     data-ask="Can you name an AI system you use that classifies something?"
+     data-time="2 min">
+  <h2>Most AI you know makes a decision — not a creation</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;"><strong>Discriminative AI</strong> looks at data and outputs a label or score.</p>
+  <div class="three-col">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">&#128444;</div>
+      <strong>Photo of a cat</strong>
+      <div style="font-size:1.5rem;margin:0.5rem 0;color:#3b6df0;">&darr;</div>
+      <span style="color:#10b981;font-weight:700;">"cat"</span>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">Classification</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">&#128100;</div>
+      <strong>Customer profile</strong>
+      <div style="font-size:1.5rem;margin:0.5rem 0;color:#10b981;">&darr;</div>
+      <span style="color:#10b981;font-weight:700;">"will churn"</span>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">Prediction</p>
+    </div>
+    <div class="card accent-red" style="text-align:center;">
+      <div style="font-size:2rem;margin-bottom:0.5rem;">&#128140;</div>
+      <strong>Email text</strong>
+      <div style="font-size:1.5rem;margin:0.5rem 0;color:#ef4444;">&darr;</div>
+      <span style="color:#10b981;font-weight:700;">"spam"</span>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">Filtering</p>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;color:var(--text-muted);text-align:center;">Input in &rarr; label out. One thing created: a <em>decision</em>.</p>
+</div>
+
+<!-- 4 ─── GENERATIVE AI ─── -->
+<div class="slide"
+     data-say="Now flip the direction. The generative model produces something new — a full image, a face, a building. Contrast each example to the discriminative version on the previous slide."
+     data-ask="What makes a generated image different from a stored image retrieved from a database?"
+     data-time="2 min">
+  <h2>Generative AI creates new data that looks like the real thing</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;"><strong>Generative AI</strong> takes a prompt or noise and outputs new content.</p>
+  <div class="three-col">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.85rem;font-weight:700;color:#3b6df0;letter-spacing:0.06em;margin-bottom:0.5rem;">TEXT PROMPT</div>
+      <strong>"a cat on a beach"</strong>
+      <div style="font-size:1.5rem;margin:0.5rem 0;color:#3b6df0;">&darr;</div>
+      <span style="color:#10b981;font-weight:700;">New image of cat on beach</span>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.85rem;font-weight:700;color:#10b981;letter-spacing:0.06em;margin-bottom:0.5rem;">RANDOM NOISE</div>
+      <strong>z ~ N(0, 1)</strong>
+      <div style="font-size:1.5rem;margin:0.5rem 0;color:#10b981;">&darr;</div>
+      <span style="color:#10b981;font-weight:700;">Realistic human face</span>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.85rem;font-weight:700;color:#8b5cf6;letter-spacing:0.06em;margin-bottom:0.5rem;">SKETCH INPUT</div>
+      <strong>Rough line drawing</strong>
+      <div style="font-size:1.5rem;margin:0.5rem 0;color:#8b5cf6;">&darr;</div>
+      <span style="color:#10b981;font-weight:700;">Photorealistic building</span>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem;color:var(--text-muted);text-align:center;">This course is about the second kind. <strong style="color:#3b6df0;">One classifies. The other creates.</strong></p>
+</div>
+
+<!-- 5 ─── DISCRIMINATIVE vs GENERATIVE (diagram) ─── -->
+<div class="slide"
+     data-say="Use the diagram to make the distinction visual and memorable. Discriminative maps data to label space. Generative maps from latent or noise space to data space."
+     data-ask="If you had to explain this difference to a non-technical friend, what would you say?"
+     data-time="2 min">
+  <h2>Discriminative vs Generative — the core distinction</h2>
+  <div class="vs-layout" style="margin-top:2rem;">
+    <div class="card" style="text-align:center;min-width:240px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:1rem;">DISCRIMINATIVE</div>
+      <div class="diagram" style="justify-content:center;margin-bottom:1rem;">
+        <div class="box disc">Data x</div>
+        <div class="arrow">&rarr;</div>
+        <div class="box">Label y</div>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.9rem;">Learns P(y | x)<br>Maps input to label</p>
+    </div>
+    <div style="align-self:center;font-size:2.5rem;font-weight:900;color:#3b6df0;">vs</div>
+    <div class="card" style="text-align:center;min-width:240px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:1rem;">GENERATIVE</div>
+      <div class="diagram" style="justify-content:center;margin-bottom:1rem;">
+        <div class="box">Noise z</div>
+        <div class="arrow">&rarr;</div>
+        <div class="box gen">New data x</div>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.9rem;">Learns P(x)<br>Maps noise to data</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── WHAT CAN GEN AI CREATE ─── -->
+<div class="slide"
+     data-say="The range of what generative AI creates is broad. Show that generative modeling is not just about images — it covers sound, text, code, molecules, and video."
+     data-ask="Which of these surprised you most? Which seems hardest to generate well?"
+     data-time="2 min">
+  <h2>Generative AI creates across every data type</h2>
+  <table class="compare-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Data Type</th>
+        <th>What Gets Generated</th>
+        <th>Example System</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Images</strong></td>
+        <td>Faces, scenes, artwork</td>
+        <td style="color:#3b6df0;">StyleGAN, DALL-E, Midjourney</td>
+      </tr>
+      <tr>
+        <td><strong>Text</strong></td>
+        <td>Sentences, stories, code</td>
+        <td style="color:#3b6df0;">GPT-4, Claude, Gemini</td>
+      </tr>
+      <tr>
+        <td><strong>Audio</strong></td>
+        <td>Music, speech, sound effects</td>
+        <td style="color:#3b6df0;">WaveNet, AudioLM, Suno</td>
+      </tr>
+      <tr>
+        <td><strong>Video</strong></td>
+        <td>Realistic video sequences</td>
+        <td style="color:#3b6df0;">Sora, Runway Gen-2</td>
+      </tr>
+      <tr>
+        <td><strong>3D / Molecules</strong></td>
+        <td>Drug candidates, protein structures</td>
+        <td style="color:#3b6df0;">AlphaFold, DiffSBDD</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1.25rem;color:var(--text-muted);">Every row has one thing in common: the output did not exist before inference.</p>
+</div>
+
+<!-- 7 ─── HOW A MACHINE CREATES — DISTRIBUTION ─── -->
+<div class="slide"
+     data-say="This is the hardest concept to make intuitive. A generative model does not memorize images. It learns the statistical rules that produced those images, then samples new points that follow those rules."
+     data-ask="What rule does every face photo share that makes a face look like a face?"
+     data-time="3 min">
+  <h2>A generative model learns the hidden rules behind data</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Training data: thousands of face photos. The model learns a <strong>distribution</strong> — the patterns that all real faces share.</p>
+  <div class="three-col">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:0.75rem;">STEP 1 &bull; OBSERVE</div>
+      <strong>See many examples</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">Thousands of face photos with shared structure</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.75rem;">STEP 2 &bull; LEARN</div>
+      <strong>Extract patterns</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">Eyes above nose, skin tones, symmetry, hair at top</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;letter-spacing:0.08em;margin-bottom:0.75rem;">STEP 3 &bull; SAMPLE</div>
+      <strong>Generate new examples</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">New faces that follow the same rules — belonging to no real person</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.5rem;padding:0.9rem 1.25rem;text-align:center;">
+    It does not memorize images. It learns the <strong style="color:#3b6df0;">patterns</strong> behind them.
+  </div>
+</div>
+
+<!-- 8 ─── SECTION DIVIDER: FOUR APPROACHES ─── -->
+<div class="slide section-divider"
+     data-say="Transition to the four main families. Set the expectation: we're not learning all four deeply here, just enough to understand where GANs fit and why they matter."
+     data-ask="Has anyone heard of VAEs or diffusion models before this course?"
+     data-time="1 min">
+  <div class="lesson-number">SECTION 2</div>
+  <h1>Four Families of Generative Models</h1>
+  <p class="subtitle">VAE &bull; GAN &bull; Transformer &bull; Diffusion</p>
+</div>
+
+<!-- 9 ─── VAE ─── -->
+<div class="slide"
+     data-say="VAE came first in this era. The key word is 'compress'. The encoder squeezes the image to a small code; the decoder expands it back. The model learns which codes produce which kinds of images."
+     data-ask="If a compressed code represents 'face-like', what would the decoded output look like halfway between two faces?"
+     data-time="2 min">
+  <h2>VAE (2013) — Encode, compress, decode</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Variational Autoencoder learns a smooth <strong>latent space</strong>.</p>
+  <div class="diagram" style="justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div class="box">Input image</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box" style="border-color:#3b6df0;">[Encoder]</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box" style="border-color:#3b6df0;">code z</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box" style="border-color:#10b981;">[Decoder]</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box gen">Reconstructed image</div>
+  </div>
+  <div class="two-col" style="gap:1rem;">
+    <div class="card accent-green" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#10b981;">Strengths</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li>Stable training</li>
+        <li>Smooth latent space — good for interpolation</li>
+      </ul>
+    </div>
+    <div class="card accent-red" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#ef4444;">Weakness</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li>Outputs tend to be <strong>blurry</strong> (averages over possibilities)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── GAN ─── -->
+<div class="slide"
+     data-say="This is the star of the course. The adversarial idea is what makes outputs sharp — there is competitive pressure to look real, not just close-enough. Emphasize that sharpness comes from competition."
+     data-ask="Why would competition between two networks force higher quality than a single network training alone?"
+     data-time="2 min">
+  <h2>GAN (2014) — Two networks compete</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Generative Adversarial Network introduced the adversarial training game.</p>
+  <div class="diagram" style="justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div class="box">Noise z</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box gen">[Generator G]</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box disc">[Discriminator D]</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box">Real / Fake?</div>
+  </div>
+  <div class="two-col" style="gap:1rem;">
+    <div class="card accent-green" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#10b981;">Strengths</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li><strong>Sharp, photorealistic outputs</strong></li>
+        <li>No encoder needed — generates from noise directly</li>
+        <li>Fast inference (one forward pass)</li>
+      </ul>
+    </div>
+    <div class="card accent-red" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#ef4444;">Weakness</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li>Training can be <strong>unstable</strong> (two networks must stay balanced)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── DIFFUSION ─── -->
+<div class="slide"
+     data-say="Diffusion is the current state of the art for image quality. It arrived after GANs and in some ways learned from their failure modes. Many students know DALL-E or Midjourney — those use diffusion, not GANs."
+     data-ask="If diffusion is best, why are DALL-E images sometimes slow to generate?"
+     data-time="2 min">
+  <h2>Diffusion (2020) — Add noise, then learn to remove it</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Used by DALL-E 2, Stable Diffusion, Midjourney.</p>
+  <div class="diagram" style="justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div class="box gen">Clean image</div>
+    <div class="arrow">&rarr; add noise&rarr;</div>
+    <div class="box" style="border-color:#8b90a5;color:#8b90a5;">Pure noise</div>
+    <div class="arrow">&rarr; denoise&rarr;</div>
+    <div class="box gen">Clean image</div>
+  </div>
+  <div class="two-col" style="gap:1rem;">
+    <div class="card accent-green" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#10b981;">Strengths</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li><strong>Best image quality today</strong></li>
+        <li>Stable training (no adversarial game)</li>
+      </ul>
+    </div>
+    <div class="card accent-red" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#ef4444;">Weakness</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li><strong>Slow</strong> — requires hundreds of denoising steps per image</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── TRANSFORMER ─── -->
+<div class="slide"
+     data-say="The Transformer is the engine behind all large language models. It is primarily a text model, though vision transformers exist. The key idea is next-token prediction — the model learns to predict what comes next."
+     data-ask="What kind of data is a Transformer most naturally suited to generate?"
+     data-time="2 min">
+  <h2>Transformer (2017) — Predict the next token</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Powers ChatGPT, Claude, Gemini, GitHub Copilot.</p>
+  <div class="diagram" style="justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div class="box">"The cat sat"</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box" style="border-color:#3b6df0;">[Transformer]</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box gen">"on the mat"</div>
+  </div>
+  <div class="two-col" style="gap:1rem;">
+    <div class="card accent-green" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#10b981;">Strengths</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li>Excels at text, code, sequential data</li>
+        <li>Scales massively with data</li>
+      </ul>
+    </div>
+    <div class="card accent-red" style="padding:0.9rem 1.25rem;">
+      <strong style="color:#ef4444;">Weakness</strong>
+      <ul style="margin:0.5rem 0 0;padding-left:1.25rem;color:var(--text-muted);">
+        <li>Requires enormous data and compute</li>
+        <li>Less natural fit for raw pixel images</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── COMPARE ALL FOUR ─── -->
+<div class="slide"
+     data-say="Read across each row. Ask students which column matters most for their particular application. The key takeaway: no single model wins everywhere, and GANs still hold the speed advantage for image generation."
+     data-ask="If you needed to generate 10,000 synthetic images as fast as possible, which model would you pick and why?"
+     data-time="3 min">
+  <h2>Comparing all four generative model families</h2>
+  <table class="compare-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Year</th>
+        <th>Core Idea</th>
+        <th>Image Quality</th>
+        <th>Training Stability</th>
+        <th>Generation Speed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>VAE</strong></td>
+        <td>2013</td>
+        <td>Encode &rarr; compress &rarr; decode</td>
+        <td style="color:#3b6df0;">Blurry</td>
+        <td style="color:#10b981;">Stable</td>
+        <td style="color:#10b981;">Fast</td>
+      </tr>
+      <tr style="background:rgba(59,109,240,0.07);">
+        <td><strong style="color:#3b6df0;">GAN</strong></td>
+        <td>2014</td>
+        <td>Two networks compete</td>
+        <td style="color:#10b981;font-weight:700;">Sharp</td>
+        <td style="color:#ef4444;">Tricky</td>
+        <td style="color:#10b981;font-weight:700;">Fastest</td>
+      </tr>
+      <tr>
+        <td><strong>Transformer</strong></td>
+        <td>2017</td>
+        <td>Predict next token</td>
+        <td style="color:var(--text-muted);">Text-focused</td>
+        <td style="color:#10b981;">Stable</td>
+        <td style="color:#3b6df0;">Moderate</td>
+      </tr>
+      <tr>
+        <td><strong>Diffusion</strong></td>
+        <td>2020</td>
+        <td>Add noise &rarr; remove noise</td>
+        <td style="color:#10b981;font-weight:700;">Best today</td>
+        <td style="color:#10b981;">Stable</td>
+        <td style="color:#ef4444;">Slow</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1.25rem;text-align:center;color:var(--text-muted);">This course focuses on <strong style="color:#3b6df0;">GANs</strong> — the approach that first proved machines can generate photorealistic images.</p>
+</div>
+
+<!-- 14 ─── SECTION DIVIDER: WHY GANS MATTER ─── -->
+<div class="slide section-divider"
+     data-say="We've seen what GANs are in the landscape. Now let's feel why they were a breakthrough — and why they're still worth studying."
+     data-ask="What year do you think someone first generated a photorealistic human face with AI?"
+     data-time="1 min">
+  <div class="lesson-number">SECTION 3</div>
+  <h1>Why GANs Matter</h1>
+  <p class="subtitle">The 2014 breakthrough and what it changed</p>
+</div>
+
+<!-- 15 ─── BEFORE AND AFTER GANS ─── -->
+<div class="slide"
+     data-say="Make the before-after contrast visceral. Before 2014 the best generative images looked like smeared watercolors. Goodfellow's 2014 paper started the revolution — its own samples were still small and fuzzy. Within five years (ProGAN 2017, StyleGAN 2019) GAN faces were sharp enough to fool humans."
+     data-ask="Why do you think blurry outputs were the norm before GANs?"
+     data-time="2 min">
+  <h2>GANs were the first models to produce photorealistic images</h2>
+  <div class="vs-layout" style="margin-top:1.5rem;">
+    <div style="text-align:center;flex:1;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:1rem;">BEFORE GANS (pre-2014)</div>
+      <div style="font-family:monospace;background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.5rem;padding:1.25rem;font-size:0.9rem;color:#8b90a5;text-align:left;max-width:280px;margin:0 auto;">
+        &#9617;&#9617;&#9618;&#9618;&#9617;&#9618;&#9618;&#9617;&#9617;<br>
+        &#9618;&#9617;&#9617;&#9617;&#9618;&#9618;&#9617;&#9617;&#9618;<br>
+        &#9617;&#9618;&#9618;&#9617;&#9617;&#9617;&#9618;&#9618;&#9617;<br>
+        &#9618;&#9617;&#9618;&#9618;&#9618;&#9617;&#9617;&#9618;&#9617;
+      </div>
+      <p style="color:#ef4444;font-weight:600;margin-top:0.75rem;">Blurry blobs. Clearly fake.</p>
+    </div>
+    <div style="align-self:center;font-size:2.5rem;color:#3b6df0;">&rarr;</div>
+    <div style="text-align:center;flex:1;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:1rem;">AFTER GANS (2014 &rarr; 2019)</div>
+      <div style="background:var(--card-bg);border:2px solid #3b6df0;border-radius:0.5rem;padding:1.25rem;max-width:280px;margin:0 auto;min-height:80px;display:flex;align-items:center;justify-content:center;">
+        <span style="color:#10b981;font-weight:700;font-size:1rem;">A face so real<br>you can't tell.</span>
+      </div>
+      <p style="color:#10b981;font-weight:600;margin-top:0.75rem;">Photorealistic by 2017&ndash;19 (ProGAN, StyleGAN).</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.5rem;text-align:center;padding:0.9rem;">
+    Key paper: <strong>"Generative Adversarial Nets"</strong> — Ian Goodfellow et al., 2014 &nbsp;&middot;&nbsp; <span style="color:var(--text-muted);">its own samples were still low-res; photorealism took ~5 years of follow-up work</span>
+  </div>
+</div>
+
+<!-- 16 ─── THE GAN IDEA IN 60 SECONDS (forger/detective) ─── -->
+<div class="slide"
+     data-say="The forger-detective analogy is one of the most effective in all of machine learning. Walk through each round slowly. Ask a student to roleplay as the detective."
+     data-ask="At what point does the detective give up? When does the forger win?"
+     data-time="3 min">
+  <h2>The GAN idea — a forger and a detective</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Two roles, opposite goals, both improving through competition.</p>
+  <div style="display:flex;flex-direction:column;gap:0.7rem;max-width:680px;margin:0 auto;">
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#8b90a5;font-weight:700;min-width:60px;font-size:0.85rem;">ROUND 1</span>
+      <span>Forger paints a stick figure. &nbsp; Detective: <strong style="color:#10b981;">"Fake!"</strong></span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#8b90a5;font-weight:700;min-width:60px;font-size:0.85rem;">ROUND 2</span>
+      <span>Forger adds shading. &nbsp; Detective: <strong style="color:#10b981;">"Still fake!"</strong></span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#8b90a5;font-weight:700;min-width:60px;font-size:0.85rem;">ROUND 3</span>
+      <span>Forger adds texture and detail. &nbsp; Detective: <strong style="color:#3b6df0;">"Hmm... real?"</strong></span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;border-color:#3b6df0;">
+      <span style="color:#3b6df0;font-weight:700;min-width:60px;font-size:0.85rem;">ROUND N</span>
+      <span>Forgeries are <strong style="color:#3b6df0;">indistinguishable from originals.</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── GENERATOR vs DISCRIMINATOR TABLE ─── -->
+<div class="slide"
+     data-say="Crystallize the roles. Generator takes noise in, fake data out. Discriminator takes real or fake in, probability out. They are trained simultaneously with opposite objectives."
+     data-ask="What happens if the Discriminator gets much better than the Generator, or vice versa?"
+     data-time="2 min">
+  <h2>Two networks, opposite goals</h2>
+  <table class="compare-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Network</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Goal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:#3b6df0;">Generator (G)</strong></td>
+        <td>Random noise z</td>
+        <td>Fake data</td>
+        <td style="color:#3b6df0;font-weight:600;">Fool the Discriminator</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#10b981;">Discriminator (D)</strong></td>
+        <td>Real or fake data</td>
+        <td>Probability 0–1</td>
+        <td style="color:#10b981;font-weight:600;">Catch the fakes</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="card" style="margin-top:1.5rem;text-align:center;padding:1rem;">
+    They train <strong>together</strong>. Competition drives quality. Neither improves alone.
+  </div>
+</div>
+
+<!-- 18 ─── VAE vs GAN vs DIFFUSION (deep compare) ─── -->
+<div class="slide"
+     data-say="Now go one level deeper on the three image-generation families. This slide gives a mental model for why GAN outputs are sharp, why VAE outputs are blurry, and why diffusion is slow."
+     data-ask="In one word, what is the key advantage of VAE? GAN? Diffusion?"
+     data-time="3 min">
+  <h2>VAE vs GAN vs Diffusion — why sharpness matters</h2>
+  <div class="three-col">
+    <div class="card accent-blue">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:0.75rem;">VAE</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);">Image &rarr; code &rarr; image<br>Stable training</p>
+      <p style="color:#ef4444;font-size:0.85rem;margin-top:0.5rem;"><strong>Blurry outputs</strong> — averages across possibilities</p>
+    </div>
+    <div class="card accent-green">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.75rem;">GAN</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);">Noise &rarr; fake &rarr; judge<br>Adversarial pressure</p>
+      <p style="color:#10b981;font-size:0.85rem;margin-top:0.5rem;"><strong>Sharp outputs</strong> — must look real to fool D</p>
+    </div>
+    <div class="card accent-purple">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;letter-spacing:0.08em;margin-bottom:0.75rem;">DIFFUSION</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);">Noise &rarr; denoise (N steps)<br>No adversarial game</p>
+      <p style="color:#10b981;font-size:0.85rem;margin-top:0.5rem;"><strong>Best quality</strong> — but slow (100s of steps)</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.5rem;padding:0.9rem;text-align:center;">
+    GANs: fastest generation &bull; sharpest among non-diffusion models &bull; hardest to train
+  </div>
+</div>
+
+<!-- 19 ─── WHY STUDY GANS ─── -->
+<div class="slide"
+     data-say="Pre-empt the obvious objection. Students who have used DALL-E or Midjourney may wonder why we study GANs at all. Hit each reason directly. Point 4 — GANs as a foundation — is the academic argument."
+     data-ask="Which of these five reasons feels most relevant to you personally?"
+     data-time="2 min">
+  <h2>Why study GANs when diffusion models produce better images?</h2>
+  <div style="display:flex;flex-direction:column;gap:0.7rem;margin-top:1.5rem;max-width:700px;">
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#3b6df0;font-weight:900;min-width:28px;">1</span>
+      <span><strong>GANs are faster at generation</strong> — one forward pass vs hundreds of denoising steps</span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#3b6df0;font-weight:900;min-width:28px;">2</span>
+      <span><strong>GANs teach adversarial thinking</strong> — a concept used across all of ML</span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#3b6df0;font-weight:900;min-width:28px;">3</span>
+      <span><strong>Real-world systems still use GANs</strong> — data augmentation, super-resolution, style transfer</span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#3b6df0;font-weight:900;min-width:28px;">4</span>
+      <span><strong>GANs are the foundation</strong> — understanding them makes diffusion models easier to learn</span>
+    </div>
+    <div class="card" style="display:flex;gap:1rem;align-items:flex-start;padding:0.9rem 1.25rem;">
+      <span style="color:#3b6df0;font-weight:900;min-width:28px;">5</span>
+      <span><strong>The course requires it</strong> — this is CS60507</span>
+    </div>
+  </div>
+</div>
+
+<!-- 20 ─── WHERE GANS ARE USED TODAY ─── -->
+<div class="slide"
+     data-say="Concrete applications make the course feel relevant. Medical imaging and privacy-preserving data synthesis are high-value, less obvious applications worth spending time on."
+     data-ask="Which application here do you think has the highest economic or social impact?"
+     data-time="2 min">
+  <h2>Where GANs are used today</h2>
+  <table class="compare-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Application</th>
+        <th>What Happens</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Face generation</strong></td>
+        <td>StyleGAN creates photorealistic faces of people who don't exist</td>
+      </tr>
+      <tr>
+        <td><strong>Image super-resolution</strong></td>
+        <td>SRGAN turns blurry images into sharp ones</td>
+      </tr>
+      <tr>
+        <td><strong>Data augmentation</strong></td>
+        <td>Generate synthetic training data when real data is scarce</td>
+      </tr>
+      <tr>
+        <td><strong>Medical imaging</strong></td>
+        <td>Create synthetic X-rays/MRIs to train diagnostic models</td>
+      </tr>
+      <tr>
+        <td><strong>Image-to-image translation</strong></td>
+        <td>Sketch &rarr; photo, satellite &rarr; map, day &rarr; night</td>
+      </tr>
+      <tr>
+        <td><strong>Privacy preservation</strong></td>
+        <td>Synthetic data preserves statistics but protects identity</td>
+      </tr>
+      <tr>
+        <td><strong>Art and design</strong></td>
+        <td>Style transfer, artistic filters, creative tools</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 21 ─── SECTION DIVIDER: COURSE ROADMAP ─── -->
+<div class="slide section-divider"
+     data-say="Before showing the formula and the family tree, give everyone a map of the full journey. Students learn better when they know where each piece fits in the bigger picture."
+     data-ask="Which part of the roadmap are you most curious about?"
+     data-time="1 min">
+  <div class="lesson-number">SECTION 4</div>
+  <h1>Course Roadmap</h1>
+  <p class="subtitle">Where we are headed across the units</p>
+</div>
+
+<!-- 22 ─── COURSE ROADMAP ─── -->
+<div class="slide"
+     data-say="Walk through each unit briefly. Emphasize the arc: start with the smallest piece (the neuron), build up to a full GAN, then improve it, evaluate it, and apply it to real problems."
+     data-ask="What is the very first thing we need to understand before we can build a GAN?"
+     data-time="3 min">
+  <h2>From neuron to GAN to real-world applications</h2>
+  <div class="two-col" style="gap:1rem;margin-top:1.5rem;">
+    <div class="card accent-blue" style="padding:1.1rem 1.25rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:0.75rem;">UNIT 1 — BASIC GANs</div>
+      <ul style="margin:0;padding-left:1.25rem;color:var(--text-muted);font-size:0.9rem;">
+        <li>Neural network foundations (L01–L14)</li>
+        <li>Build your first GAN (L15)</li>
+        <li>GAN for images — MNIST (L16)</li>
+        <li>DCGAN — convolutional GAN (L17)</li>
+      </ul>
+    </div>
+    <div class="card accent-green" style="padding:1.1rem 1.25rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.75rem;">UNIT 2 — BETTER GANs</div>
+      <ul style="margin:0;padding-left:1.25rem;color:var(--text-muted);font-size:0.9rem;">
+        <li>GAN training tricks (L18)</li>
+        <li>WGAN — Wasserstein loss (L19+)</li>
+        <li>Conditional &amp; Controllable GANs</li>
+      </ul>
+    </div>
+    <div class="card accent-purple" style="padding:1.1rem 1.25rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;letter-spacing:0.08em;margin-bottom:0.75rem;">UNIT 3 — EVALUATE &amp; IMPROVE</div>
+      <ul style="margin:0;padding-left:1.25rem;color:var(--text-muted);font-size:0.9rem;">
+        <li>FID score, Inception Score</li>
+        <li>GAN disadvantages &amp; bias</li>
+        <li>StyleGAN</li>
+      </ul>
+    </div>
+    <div class="card accent-cyan" style="padding:1.1rem 1.25rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#06b6d4;letter-spacing:0.08em;margin-bottom:0.75rem;">UNITS 4–5 — APPLY GANs</div>
+      <ul style="margin:0;padding-left:1.25rem;color:var(--text-muted);font-size:0.9rem;">
+        <li>Data augmentation &amp; privacy</li>
+        <li>Pix2Pix (paired image translation)</li>
+        <li>CycleGAN (unpaired image translation)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 23 ─── GAN FAMILY TREE (SVG) ─── -->
+<div class="slide"
+     data-say="The family tree shows how GANs evolved. Each major variant solved a specific problem. We'll visit most of these nodes during the course."
+     data-ask="Looking at the tree, which GAN variant do you think solved the stability problem?"
+     data-time="3 min">
+  <h2>The GAN family tree</h2>
+  <p style="color:var(--text-muted);margin-bottom:1rem;">Every major variant addressed a limitation of the original.</p>
+  <div style="display:flex;justify-content:center;overflow-x:auto;">
+    <svg viewBox="0 0 720 340" width="720" height="340" style="max-width:100%;font-family:inherit;">
+      <!-- root -->
+      <rect x="290" y="10" width="140" height="40" rx="8" fill="#3b6df0" opacity="0.9"/>
+      <text x="360" y="35" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">GAN (2014)</text>
+
+      <!-- level 1 connectors -->
+      <line x1="360" y1="50" x2="360" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+      <line x1="80" y1="75" x2="640" y2="75" stroke="#4a5068" stroke-width="1.5"/>
+
+      <!-- DCGAN -->
+      <line x1="80" y1="75" x2="80" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="12" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#10b981" stroke-width="1.5"/>
+      <text x="80" y="120" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">DCGAN (2015)</text>
+      <text x="80" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Convolutional layers</text>
+
+      <!-- CGAN -->
+      <line x1="220" y1="75" x2="220" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="152" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#8b5cf6" stroke-width="1.5"/>
+      <text x="220" y="120" text-anchor="middle" fill="#8b5cf6" font-size="12" font-weight="700">CGAN (2014)</text>
+      <text x="220" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Conditional generation</text>
+
+      <!-- WGAN -->
+      <line x1="360" y1="75" x2="360" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="292" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="360" y="120" text-anchor="middle" fill="#3b6df0" font-size="12" font-weight="700">WGAN (2017)</text>
+      <text x="360" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Wasserstein loss</text>
+
+      <!-- Pix2Pix -->
+      <line x1="500" y1="75" x2="500" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="432" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="500" y="120" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="700">Pix2Pix (2017)</text>
+      <text x="500" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Paired img translation</text>
+
+      <!-- StyleGAN -->
+      <line x1="640" y1="75" x2="640" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="572" y="100" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="640" y="120" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700">StyleGAN (2019)</text>
+      <text x="640" y="136" text-anchor="middle" fill="#8b90a5" font-size="10">Best face synthesis</text>
+
+      <!-- level 2 connectors from DCGAN -->
+      <line x1="80" y1="140" x2="80" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="12" y="175" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#10b981" stroke-width="1"/>
+      <text x="80" y="195" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">ProGAN (2017)</text>
+      <text x="80" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Progressive growing</text>
+
+      <!-- level 2 from Pix2Pix -->
+      <line x1="500" y1="140" x2="500" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="432" y="175" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#06b6d4" stroke-width="1"/>
+      <text x="500" y="195" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="700">CycleGAN (2017)</text>
+      <text x="500" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Unpaired translation</text>
+
+      <!-- level 2 from StyleGAN -->
+      <line x1="640" y1="140" x2="640" y2="175" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="572" y="175" width="136" height="40" rx="8" fill="#f8f9fb" stroke="#ef4444" stroke-width="1"/>
+      <text x="640" y="195" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">StyleGAN2/3 (2020/21)</text>
+      <text x="640" y="209" text-anchor="middle" fill="#8b90a5" font-size="10">Artifact removal</text>
+
+      <!-- legend -->
+      <text x="30" y="290" fill="#8b90a5" font-size="11">Coverage in this course:</text>
+      <rect x="30" y="298" width="12" height="12" rx="2" fill="#10b981"/>
+      <text x="48" y="308" fill="#8b90a5" font-size="10">Core (Unit 1)</text>
+      <rect x="130" y="298" width="12" height="12" rx="2" fill="#3b6df0"/>
+      <text x="148" y="308" fill="#8b90a5" font-size="10">Advanced (Unit 2)</text>
+      <rect x="240" y="298" width="12" height="12" rx="2" fill="#06b6d4"/>
+      <text x="258" y="308" fill="#8b90a5" font-size="10">Applications (Units 4–5)</text>
+      <rect x="360" y="298" width="12" height="12" rx="2" fill="#ef4444"/>
+      <text x="378" y="308" fill="#8b90a5" font-size="10">StyleGAN (Unit 3)</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 24 ─── GAN FORMULA FIRST LOOK ─── -->
+<div class="slide"
+     data-say="Don't try to teach this formula yet. The goal is to demystify it — show that it is composed of symbols they will know well by Lesson 15. Make it feel approachable rather than scary."
+     data-ask="Which symbol here is most unfamiliar to you?"
+     data-time="2 min">
+  <h2>The GAN formula — a first look</h2>
+  <p style="color:var(--text-muted);margin-bottom:1rem;">Don't worry about understanding this yet. By the end of Unit 1 you will know every symbol.</p>
+  <div style="text-align:center;margin:1.5rem 0;">
+    <div class="formula" style="font-size:1.5rem;justify-content:center;padding:1.25rem 2rem;flex-wrap:wrap;gap:0.75rem;">
+      <span style="color:#8b5cf6;">min<sub>G</sub> max<sub>D</sub></span>
+      <span style="color:var(--text-muted);">V(D,G)</span>
+      <span style="color:var(--text-muted);">=</span>
+      <span style="color:#10b981;">E[log D(x)]</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="color:#3b6df0;">E[log(1 &minus; D(G(z)))]</span>
+    </div>
+  </div>
+  <table class="compare-table" style="max-width:560px;margin:0 auto;">
+    <thead><tr><th>Symbol</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>G</code></td><td>Generator network</td></tr>
+      <tr><td><code>D</code></td><td>Discriminator network</td></tr>
+      <tr><td><code>x</code></td><td>Real data</td></tr>
+      <tr><td><code>z</code></td><td>Random noise</td></tr>
+      <tr><td><code>G(z)</code></td><td>Generator's fake output</td></tr>
+      <tr><td><code>D(x)</code></td><td>Discriminator's judgment of real data</td></tr>
+      <tr><td><code>E[...]</code></td><td>Average over many examples</td></tr>
+      <tr><td><code>min<sub>G</sub> max<sub>D</sub></code></td><td>G minimizes, D maximizes — the adversarial game</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 25 ─── GAN TRAINING LOOP PREVIEW ─── -->
+<div class="slide"
+     data-say="Show the big picture of the training loop without any math. Two alternating steps — update D, then update G — repeated for many epochs. This is the whole algorithm in plain English."
+     data-ask="What do you think would happen if we updated only D and never G?"
+     data-time="2 min">
+  <h2>The GAN training loop — big picture</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.25rem;">We'll build this step by step in Unit 1. For now, see the structure.</p>
+  <div style="max-width:640px;margin:0 auto;">
+    <div class="card" style="border-color:#3b6df0;padding:1rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:0.6rem;">PART A — TRAIN THE DISCRIMINATOR</div>
+      <ul style="margin:0;padding-left:1.25rem;color:var(--text-muted);font-size:0.9rem;">
+        <li>Show real data &rarr; should output 1 (real)</li>
+        <li>Show fake data &rarr; should output 0 (fake)</li>
+        <li>Update D's weights</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:#10b981;padding:1rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.6rem;">PART B — TRAIN THE GENERATOR</div>
+      <ul style="margin:0;padding-left:1.25rem;color:var(--text-muted);font-size:0.9rem;">
+        <li>Generate fake data</li>
+        <li>Ask D to judge it</li>
+        <li>G wants D to say 1 (real) for fake data</li>
+        <li>Update G's weights</li>
+      </ul>
+    </div>
+    <div class="card" style="text-align:center;padding:0.75rem;">
+      Repeat both steps each epoch. Both networks improve through competition.
+    </div>
+  </div>
+</div>
+
+<!-- 26 ─── KNOWLEDGE CHECK (reveal) ─── -->
+<div class="slide"
+     data-say="Consolidate everything from this lesson into five sentences. Ask students to close their notes and reconstruct the story from the five points."
+     data-ask="Without looking at the slide, can you explain the GAN idea in under 30 seconds?"
+     data-time="2 min">
+  <h2>What you learned in this lesson</h2>
+  <div class="card" style="max-width:660px;margin:1.5rem auto 0;padding:1.5rem 2rem;">
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.9rem;">
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">1.</span>
+        <span>Discriminative AI classifies. <strong>Generative AI creates.</strong></span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">2.</span>
+        <span>Generative models learn the <strong>distribution</strong> (patterns) behind data, not the data itself.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">3.</span>
+        <span>Four families: <strong>VAE</strong> (stable, blurry), <strong>GAN</strong> (sharp, tricky), <strong>Transformer</strong> (text), <strong>Diffusion</strong> (best quality, slow).</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">4.</span>
+        <span>GANs: a <strong>Generator</strong> fools a <strong>Discriminator</strong>. Competition makes outputs sharp.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">5.</span>
+        <span>GANs are still used in super-resolution, medical imaging, data augmentation, and style transfer.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- 28 ─── BRIDGE TO NEXT LESSON ─── -->
+<div class="slide cover"
+     data-say="Close the loop. We now know what generative AI is and where GANs fit. But GANs are built from neural networks, and neural networks are built from neurons. So we start at the smallest possible piece."
+     data-ask="What do you think a neuron does in a neural network?"
+     data-time="1 min">
+  <div class="lesson-number">NEXT &bull; LESSON 01</div>
+  <h1>Now we start at the smallest piece</h1>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">YOU KNOW</div>
+      <strong style="font-size:1.3rem;color:#3b6df0;">What GANs do</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">Big picture: two networks, competition, sharper outputs</p>
+    </div>
+    <div style="font-size:3rem;font-weight:900;color:#3b6df0;">&rarr;</div>
+    <div class="card" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:0.75rem;">NEXT: L01</div>
+      <strong style="font-size:1.3rem;color:#10b981;">How a neuron works</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">The single unit that makes all of this possible</p>
+    </div>
+  </div>
+  <p style="margin-top:2rem;font-size:1.1rem;color:var(--text-muted);">Next: <strong>Lesson 01 — What Is a Neuron?</strong></p>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L01.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L01 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4>
+  <span class="note-time"></span>
+  <p class="note-say"></p>
+  <p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

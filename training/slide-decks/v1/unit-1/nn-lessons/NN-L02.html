@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L02 — 📏 How Wrong Is the Prediction?</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L02">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L01.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L01</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L02 / 14</a><a href="NN-L03.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L03 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L02</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Connect directly to Lesson 1: the neuron can calculate, but it still cannot judge itself."
+     data-ask="What information would tell a model whether 13 minutes is a good prediction?"
+     data-time="1 min">
+  <div class="lesson-number">02 &bull; NEURAL NETWORKS &rarr; GANs</div>
+  <h1>How Wrong Is the Prediction?</h1>
+  <p class="subtitle">Loss gives the neuron one score to improve</p>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;font-size:2.8rem;font-weight:900;letter-spacing:0.04em;">
+    <span style="color:#3b6df0;">ŷ</span>
+    <span style="color:var(--text-muted);">−</span>
+    <span style="color:#10b981;">y</span>
+    <span style="color:#3b6df0;font-size:3rem;">?</span>
+  </div>
+</div>
+
+<!-- 2 ─── OBJECTIVES ─── -->
+<div class="slide"
+     data-say="Separate making a prediction from evaluating it. Learning needs both."
+     data-ask="Can a neuron improve if it never measures its result?"
+     data-time="1 min">
+  <h2>A prediction is not enough to create learning</h2>
+  <div class="vs-layout" style="margin-top:2rem;">
+    <div class="card accent-blue" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">PART 1 &bull; LESSON 01</div>
+      <strong style="font-size:1.3rem;">Neuron</strong>
+      <p class="formula" style="margin:0.75rem 0;">ŷ = wx + b</p>
+      <span style="color:var(--text-muted);font-size:0.9rem;">Makes a prediction</span>
+    </div>
+    <div style="font-size:2.5rem;font-weight:900;color:var(--text-muted);align-self:center;">+</div>
+    <div class="card" style="text-align:center;min-width:200px;border:2px dashed #4a5068;opacity:0.7;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;margin-bottom:0.75rem;">PART 2 &bull; THIS LESSON</div>
+      <strong style="font-size:1.3rem;">Loss</strong>
+      <p class="formula" style="margin:0.75rem 0;color:#3b6df0;">?</p>
+      <span style="color:var(--text-muted);font-size:0.9rem;">Measures prediction quality</span>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── WRONG MODEL ─── -->
+<div class="slide"
+     data-say="Keep b at 5 and deliberately choose w = 1 instead of 2."
+     data-ask="Before calculating, will this model predict too high or too low?"
+     data-time="2 min">
+  <h2>The wrong weight makes every prediction too low</h2>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">The correct rule needs w = 2. We deliberately start with a weaker slope.</p>
+  <div style="display:flex;justify-content:center;">
+    <div class="card accent-blue" style="text-align:center;min-width:260px;padding:2rem 3rem;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.1em;margin-bottom:1.25rem;">STARTING PARAMETERS</div>
+      <div style="display:flex;gap:2.5rem;justify-content:center;margin-bottom:1.25rem;">
+        <div>
+          <div style="font-size:0.85rem;color:var(--text-muted);">w</div>
+          <div class="big-stat" style="color:#3b6df0;">1</div>
+        </div>
+        <div>
+          <div style="font-size:0.85rem;color:var(--text-muted);">b</div>
+          <div class="big-stat" style="color:#3b6df0;">5</div>
+        </div>
+      </div>
+      <div class="formula">ŷ = 1x + 5</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── ERROR TABLE ─── -->
+<div class="slide"
+     data-say="Read one row left to right, then let learners complete the pattern."
+     data-ask="Why does the error become more negative as distance grows?"
+     data-time="2 min">
+  <h2>The error grows as distance grows</h2>
+  <table class="compare-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Distance</th>
+        <th>Actual y</th>
+        <th>Prediction ŷ</th>
+        <th>Error ŷ &minus; y</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1 km</strong></td>
+        <td>7 min</td>
+        <td>6 min</td>
+        <td style="color:#ef4444;font-weight:700;">−1</td>
+      </tr>
+      <tr>
+        <td><strong>2 km</strong></td>
+        <td>9 min</td>
+        <td>7 min</td>
+        <td style="color:#ef4444;font-weight:700;">−2</td>
+      </tr>
+      <tr>
+        <td><strong>3 km</strong></td>
+        <td>11 min</td>
+        <td>8 min</td>
+        <td style="color:#ef4444;font-weight:700;">−3</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1.5rem;color:var(--text-muted);">Every error is negative: the neuron <strong style="color:#ef4444;">underpredicts</strong>.</p>
+</div>
+
+<!-- 6 ─── ERROR EQUATION ─── -->
+<div class="slide"
+     data-say="Always subtract actual from prediction in this course so the sign has a stable meaning."
+     data-ask="If prediction is 12 and actual is 10, what is the error?"
+     data-time="2 min">
+  <h2>Error tells us both size and direction</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2rem;margin-top:2.5rem;">
+    <div class="formula" style="font-size:2.2rem;gap:1.2rem;padding:1.5rem 3rem;">
+      <span>error</span>
+      <span style="color:var(--text-muted);">=</span>
+      <span style="color:#3b6df0;">ŷ</span>
+      <span style="color:var(--text-muted);">−</span>
+      <span style="color:#10b981;">y</span>
+    </div>
+    <p style="font-size:1.2rem;color:var(--text-muted);">error = prediction &minus; actual</p>
+  </div>
+</div>
+
+<!-- 7 ─── ERROR SIGNS ─── -->
+<div class="slide"
+     data-say="Use the number line: negative is under, positive is over, zero is exact."
+     data-ask="What does an error of −4 tell us?"
+     data-time="2 min">
+  <h2>Negative means low; positive means high</h2>
+  <div class="three-col" style="margin-top:2rem;">
+    <div class="card accent-red" style="text-align:center;">
+      <div style="font-size:3rem;font-weight:900;color:#ef4444;margin-bottom:0.5rem;">−</div>
+      <strong>Underpredict</strong>
+      <p>Prediction is too low</p>
+      <small style="color:var(--text-muted);">Example: 8 &minus; 11 = &minus;3</small>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:3rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">0</div>
+      <strong>Exact</strong>
+      <p>Prediction matches reality</p>
+      <small style="color:var(--text-muted);">Example: 11 &minus; 11 = 0</small>
+    </div>
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:3rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">+</div>
+      <strong>Overpredict</strong>
+      <p>Prediction is too high</p>
+      <small style="color:var(--text-muted);">Example: 14 &minus; 11 = +3</small>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── CANCELLATION (reveal) ─── -->
+<div class="slide"
+     data-say="Let learners calculate the average before revealing why zero is deceptive."
+     data-ask="Does an average error of zero prove both predictions are correct?"
+     data-time="3 min">
+  <h2>Raw errors can cancel and pretend everything is fine</h2>
+  <div style="display:flex;align-items:center;justify-content:center;gap:2rem;margin-top:2rem;flex-wrap:wrap;">
+    <div class="card" style="text-align:center;min-width:180px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">TWO WRONG PREDICTIONS</div>
+      <div style="font-size:2.5rem;font-weight:900;">
+        <span style="color:#ef4444;">−2</span>
+        <span style="color:var(--text-muted);margin:0 0.5rem;">+</span>
+        <span style="color:#3b6df0;">+2</span>
+      </div>
+    </div>
+    <div style="font-size:2rem;color:var(--text-muted);">÷ 2</div>
+    <div class="revealable card" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">AVERAGE ERROR</div>
+      <div class="big-stat hint" style="color:#3b6df0;">0</div>
+      <p class="answer" style="color:#ef4444;font-weight:600;margin-top:0.5rem;">Zero looks perfect—but both predictions were wrong.</p>
+      <p class="hint" style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">Press <kbd>R</kbd> to inspect this result</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── SQUARING ─── -->
+<div class="slide"
+     data-say="Squaring removes the sign and gives larger mistakes more influence."
+     data-ask="What do −2 and +2 become after squaring?"
+     data-time="2 min">
+  <h2>Squaring makes every mistake count</h2>
+  <div style="display:flex;align-items:center;justify-content:center;gap:2rem;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-red" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">NEGATIVE ERROR</div>
+      <div style="font-size:2rem;font-weight:900;color:#ef4444;">(−2)²</div>
+      <div class="big-stat" style="color:#ef4444;font-size:2.5rem;">4</div>
+    </div>
+    <div style="font-size:2rem;font-weight:900;color:var(--text-muted);">=</div>
+    <div class="card accent-blue" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">POSITIVE ERROR</div>
+      <div style="font-size:2rem;font-weight:900;color:#3b6df0;">(+2)²</div>
+      <div class="big-stat" style="color:#3b6df0;font-size:2.5rem;">4</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:var(--text-muted);">Both mistakes now contribute <strong>positively</strong>—and equally—to the loss.</p>
+</div>
+
+<!-- 10 ─── MSE EQUATION ─── -->
+<div class="slide"
+     data-say="Translate the formula into words before discussing the notation."
+     data-ask="Where do you see square, mean, and error in the formula?"
+     data-time="2 min">
+  <h2>MSE compresses many mistakes into one loss</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2rem;margin-top:2.5rem;">
+    <div class="formula" style="font-size:2rem;gap:1rem;padding:1.5rem 3rem;align-items:center;">
+      <span style="color:#10b981;">MSE</span>
+      <span style="color:var(--text-muted);">=</span>
+      <span>
+        <span style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;border-right:2px solid #4a5068;padding-right:0.5rem;margin-right:0.25rem;">
+          <i style="font-style:normal;border-bottom:2px solid currentColor;padding-bottom:2px;">1</i>
+          <i style="font-style:normal;">n</i>
+        </span>
+      </span>
+      <span style="font-size:2.5rem;color:#3b6df0;">&Sigma;</span>
+      <span style="color:#3b6df0;">(ŷ<sub>i</sub> &minus; y<sub>i</sub>)²</span>
+    </div>
+    <p style="font-size:1.15rem;color:var(--text-muted);">Square each error, then average them.</p>
+  </div>
+</div>
+
+<!-- 11 ─── MSE WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="Move through the row in order: errors, squares, sum, divide."
+     data-ask="Which error contributes the most to the final loss?"
+     data-time="3 min">
+  <h2>Square each error, then take the mean</h2>
+  <div class="diagram" style="margin-top:2rem;justify-content:center;flex-wrap:wrap;">
+    <div class="box">
+      <small style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">ERRORS</small>
+      <strong style="font-size:1.2rem;color:#ef4444;">−1, −2, −3</strong>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="box">
+      <small style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">SQUARE</small>
+      <strong style="font-size:1.2rem;color:#3b6df0;">1, 4, 9</strong>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="box">
+      <small style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">SUM</small>
+      <strong style="font-size:1.2rem;color:#3b6df0;">14</strong>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="box" style="border-color:#10b981;">
+      <small style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;">DIVIDE BY 3</small>
+      <strong style="font-size:1.4rem;color:#10b981;">4.67</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── LOSS MEANING ─── -->
+<div class="slide"
+     data-say="Loss is a comparison score, not a percentage and not automatically an accuracy."
+     data-ask="What is special about a loss of zero?"
+     data-time="2 min">
+  <h2>📉 Lower loss means predictions are closer to reality</h2>
+  <div style="display:flex;align-items:center;gap:1.5rem;margin:1.5rem 0;padding:1.25rem 1.5rem;background:var(--card-bg);border-radius:0.75rem;border:1px solid var(--card-border);">
+    <div style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">HIGH LOSS</div>
+      <div style="font-weight:700;color:#ef4444;">Predictions are far away</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+      <div style="width:100%;height:6px;background:linear-gradient(to right,#ef4444,#10b981);border-radius:3px;"></div>
+      <div style="font-size:0.75rem;color:#3b6df0;font-weight:600;">Learning moves this way &rarr;</div>
+    </div>
+    <div style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">ZERO LOSS</div>
+      <div style="font-weight:700;color:#10b981;">Every training prediction matches</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem;">
+    <div class="card" style="padding:0.75rem 1.25rem;"><strong style="color:#10b981;">Lower is better.</strong> Loss compares model choices.</div>
+    <div class="card" style="padding:0.75rem 1.25rem;"><strong style="color:#3b6df0;">Large errors matter more.</strong> Squaring amplifies them.</div>
+    <div class="card" style="padding:0.75rem 1.25rem;"><strong style="color:#3b6df0;">Zero is exact on this data.</strong> It does not guarantee unseen-data performance.</div>
+  </div>
+</div>
+
+<!-- 13 ─── LOSS CODE / ALGORITHM ─── -->
+<div class="slide"
+     data-say="This table is the complete algorithm. Each row can later become a line or loop in Python."
+     data-ask="Which step prevents errors from cancelling?"
+     data-time="3 min">
+  <h2>MSE follows the same five-step story every time</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.25rem;">Inputs: x = 1, 2, 3 &nbsp;&bull;&nbsp; y = 7, 9, 11 &nbsp;&bull;&nbsp; w = 1 &nbsp;&bull;&nbsp; b = 5</p>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Operation</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>01</strong></td>
+        <td>Predict: ŷ = wx + b</td>
+        <td style="color:#3b6df0;font-weight:600;">6, 7, 8</td>
+      </tr>
+      <tr>
+        <td><strong>02</strong></td>
+        <td>Subtract: ŷ &minus; y</td>
+        <td style="color:#ef4444;font-weight:600;">−1, −2, −3</td>
+      </tr>
+      <tr>
+        <td><strong>03</strong></td>
+        <td>Square every error</td>
+        <td style="color:#3b6df0;font-weight:600;">1, 4, 9</td>
+      </tr>
+      <tr>
+        <td><strong>04</strong></td>
+        <td>Add the squares</td>
+        <td style="color:#8b5cf6;font-weight:600;">14</td>
+      </tr>
+      <tr>
+        <td><strong>05</strong></td>
+        <td>Divide by n = 3</td>
+        <td style="color:#10b981;font-weight:700;">MSE = 4.67</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 14 ─── WEIGHT LAB (reveal) ─── -->
+<div class="slide"
+     data-say="Ask learners to select the winner before revealing the highlight."
+     data-ask="Which weight should win, and why do weights 1 and 3 tie?"
+     data-time="3 min">
+  <h2>The best weight produces the lowest loss</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Keep b = 5 &nbsp;&bull;&nbsp; compare three weights</p>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Weight</th>
+        <th>Predictions ŷ</th>
+        <th>Errors</th>
+        <th>MSE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>w = 1</strong></td>
+        <td>6, 7, 8</td>
+        <td style="color:#ef4444;">−1, −2, −3</td>
+        <td>4.67</td>
+      </tr>
+      <tr class="highlight-row revealable">
+        <td><strong style="color:#10b981;">w = 2</strong></td>
+        <td>7, 9, 11</td>
+        <td style="color:#10b981;">0, 0, 0</td>
+        <td><strong style="color:#10b981;">0.00</strong> <span class="answer" style="color:#10b981;font-size:0.75rem;font-weight:700;margin-left:0.5rem;">LOWEST LOSS</span></td>
+      </tr>
+      <tr>
+        <td><strong>w = 3</strong></td>
+        <td>8, 11, 14</td>
+        <td style="color:#3b6df0;">+1, +2, +3</td>
+        <td>4.67</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1rem;color:var(--text-muted);">
+    <span class="hint">Choose the winner, then press <kbd>R</kbd></span>
+    <span class="answer">w = 2 wins. Weights 1 and 3 tie because they are equally far from the ideal in opposite directions.</span>
+  </p>
+</div>
+
+<!-- 15 ─── WEIGHT CODE / REPEAT EXPERIMENT ─── -->
+<div class="slide"
+     data-say="Repeat one identical evaluation recipe for each candidate so the comparison is fair."
+     data-ask="Which value changes between the three runs?"
+     data-time="2 min">
+  <h2>Apply the same recipe to every candidate weight</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Keep b = 5 and the dataset fixed. Change only w.</p>
+  <div class="diagram" style="justify-content:center;flex-wrap:wrap;margin-bottom:1.75rem;">
+    <div class="box">Choose w</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box">Predict all</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box">Calculate MSE</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box">Record</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:400px;margin:0 auto;">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.5rem;">
+      <strong>w = 1</strong><span style="flex:1;"></span><span style="color:var(--text-muted);">MSE = 4.67</span>
+    </div>
+    <div class="card accent-green" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.5rem;">
+      <strong style="color:#10b981;">w = 2</strong><span style="flex:1;"></span><strong style="color:#10b981;">MSE = 0.00</strong>
+    </div>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1.5rem;">
+      <strong>w = 3</strong><span style="flex:1;"></span><span style="color:var(--text-muted);">MSE = 4.67</span>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── LEARNING SYSTEM ─── -->
+<div class="slide"
+     data-say="Name the two responsibilities clearly: the neuron predicts; the loss evaluates."
+     data-ask="What must change for loss to become smaller?"
+     data-time="2 min">
+  <h2>Prediction and loss are the two pieces we have so far</h2>
+  <div class="vs-layout" style="margin-top:2rem;">
+    <div class="card accent-blue" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">PIECE 1</div>
+      <strong style="font-size:1.3rem;">Neuron</strong>
+      <p class="formula" style="margin:0.75rem 0;">ŷ = wx + b</p>
+      <span style="color:var(--text-muted);font-size:0.9rem;">Makes predictions</span>
+    </div>
+    <div style="font-size:2.5rem;font-weight:900;color:var(--text-muted);align-self:center;">+</div>
+    <div class="card accent-green" style="text-align:center;min-width:200px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">PIECE 2</div>
+      <strong style="font-size:1.3rem;">Loss function</strong>
+      <p class="formula" style="margin:0.75rem 0;font-size:0.9rem;">MSE = mean(ŷ &minus; y)²</p>
+      <span style="color:var(--text-muted);font-size:0.9rem;">Measures prediction quality</span>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:var(--text-muted);"><strong>Learning</strong> will change w and b so that MSE becomes smaller.</p>
+</div>
+
+<!-- 17 ─── KNOWLEDGE CHECK (reveal) ─── -->
+<div class="slide"
+     data-say="Give silent thinking time, then reveal answers inside each card."
+     data-ask="Which answer distinguishes training performance from generalization?"
+     data-time="4 min">
+  <h2>Can you reason about loss without notes?</h2>
+  <div class="two-col" style="margin-top:1.5rem;gap:1rem;">
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <p style="margin-bottom:0.75rem;">ŷ = 12, y = 10. Error?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
+      <strong class="answer" style="color:#10b981;">+2</strong>
+    </div>
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">02</div>
+      <p style="margin-bottom:0.75rem;">Why square errors?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
+      <strong class="answer" style="color:#10b981;">Prevent cancellation; emphasize large errors</strong>
+    </div>
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">03</div>
+      <p style="margin-bottom:0.75rem;">MSE of −2, 0, +2?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
+      <strong class="answer" style="color:#10b981;">2.67</strong>
+    </div>
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">04</div>
+      <p style="margin-bottom:0.75rem;">Does MSE = 0 guarantee unseen success?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first…</strong>
+      <strong class="answer" style="color:#10b981;">No—only these examples are perfect</strong>
+    </div>
+
+  </div>
+</div>
+
+<!-- 18 ─── RECAP ─── -->
+<div class="slide"
+     data-say="Reconstruct the chain: prediction → error → square → mean → loss."
+     data-ask="Explain MSE in one plain-English sentence."
+     data-time="2 min">
+  <h2>Loss tells learning what "better" means</h2>
+  <div class="card" style="max-width:640px;margin:1.5rem auto 0;padding:1.5rem 2rem;">
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.9rem;">
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">1.</span>
+        <span>Error is <strong>prediction minus actual</strong>.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">2.</span>
+        <span>The sign shows underprediction or overprediction.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">3.</span>
+        <span>Squaring prevents positive and negative errors from cancelling.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">4.</span>
+        <span>MSE averages squared errors into one loss.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">5.</span>
+        <span>Learning means changing parameters to make loss smaller.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- 19 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Loss can compare weights, but trying every value is not learning. Create the need for direction."
+     data-ask="How could we know whether increasing w will raise or lower the loss?"
+     data-time="1 min">
+  <div class="lesson-number">NEXT &bull; LESSON 03</div>
+  <h1>We can score a weight—but which way should it move?</h1>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">TRY SMALLER</div>
+      <strong style="font-size:1.4rem;color:#3b6df0;">w = 1.9</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">Will loss rise or fall?</p>
+    </div>
+    <div style="font-size:3rem;font-weight:900;color:#3b6df0;">?</div>
+    <div class="card" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">TRY LARGER</div>
+      <strong style="font-size:1.4rem;color:#3b6df0;">w = 2.1</strong>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">Will loss rise or fall?</p>
+    </div>
+  </div>
+  <p style="margin-top:2rem;font-size:1.1rem;color:var(--text-muted);">The gradient tells us the direction.</p>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L03.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L03 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4>
+  <span class="note-time"></span>
+  <p class="note-say"></p>
+  <p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

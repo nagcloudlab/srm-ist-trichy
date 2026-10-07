@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L15 — StyleGAN</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L15">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L14.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L14</a><a href="../../../index.html#unit-3" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L15 &bull; Unit 3</a><a href="../unit-4/L16.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">Unit 4 &middot; L16 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-3">Unit 3</a> &bull; L15</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This is the lesson where GANs go from impressive to jaw-dropping. StyleGAN generates photorealistic 1024x1024 faces. But more than that, it introduced ideas that changed all of generative AI."
+     data-ask="Have you seen those AI-generated faces that look completely real? That's StyleGAN."
+     data-time="1 min">
+  <div class="lesson-number">Lesson 15</div>
+  <h1>StyleGAN</h1>
+  <p class="subtitle">The architecture that changed everything</p>
+</div>
+
+<!-- 2 ─── HOOK ─── -->
+<div class="slide"
+     data-say="Show this: thispersondoesnotexist.com uses StyleGAN. Every face is generated. None are real. Let that sink in."
+     data-ask="Can you tell these apart from photographs?"
+     data-time="2 min">
+  <h2>These People Don't Exist</h2>
+  <div style="text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
+    <p style="font-size:1.2rem;">Every face on <strong>thispersondoesnotexist.com</strong> is generated by a StyleGAN-family model.</p>
+    <p style="font-size:1.1rem;">1024 x 1024 pixels. Photorealistic. No real person was photographed.</p>
+    <div class="step" style="margin-top:1rem;">
+      <p style="font-size:1.3rem;font-weight:700;">How? By rethinking the Generator from scratch.</p>
+      <p style="font-size:1rem;margin-top:0.5rem;">StyleGAN didn't just add more layers. It changed <strong>how the Generator uses noise</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── WHAT'S WRONG WITH NORMAL GENERATORS ─── -->
+<div class="slide"
+     data-say="Every generator we've built feeds z at the start, and z controls everything at once. Change one number and everything changes unpredictably. That's the entanglement problem."
+     data-ask="In your DCGAN, could you change just the hair color without changing the face shape?"
+     data-time="2.5 min">
+  <h2>The Problem with Normal Generators</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>DCGAN Generator</h4>
+        <p style="font-family:var(--font-mono);font-size:0.9rem;line-height:1.7;">z = [0.3, -0.7, 1.2, 0.5, ...]</p>
+        <p class="mt-1">What does z[0] control?</p>
+        <ul style="font-size:0.9rem;">
+          <li>A little bit of hair color</li>
+          <li>A little bit of face shape</li>
+          <li>A little bit of background</li>
+          <li>A little bit of <strong>everything</strong></li>
+        </ul>
+        <p class="mt-1" style="font-weight:700;">Everything is entangled.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>The Problem</h4>
+        <p>z controls:</p>
+        <ul>
+          <li>Face shape (high-level)</li>
+          <li>Eye color (mid-level)</li>
+          <li>Freckles, hair strands (fine detail)</li>
+        </ul>
+        <p class="mt-1">All tangled in <strong>one vector</strong>.</p>
+        <p class="mt-1" style="font-weight:700;">You can't change JUST the hair color.</p>
+      </div>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>StyleGAN's Big Idea</h4>
+        <p><strong>Disentangle</strong> these controls.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── MAPPING NETWORK ─── -->
+<div class="slide"
+     data-say="Key insight: don't feed z directly to the generator. First transform it through 8 FC layers into a new vector w. Z-space is cramped. W-space is organized."
+     data-ask="Why would 8 fully-connected layers help separate features?"
+     data-time="3 min">
+  <h2>The Mapping Network: z &rarr; w</h2>
+  <div class="two-col align-center">
+    <div>
+      <div style="max-width:350px;margin:0 auto;">
+        <svg viewBox="0 0 350 170" style="width:100%;">
+          <defs><marker id="a15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5068"/></marker></defs>
+          <!-- z -->
+          <rect x="10" y="55" width="80" height="50" rx="10" fill="#f8f9fb" stroke="#3b6df0" stroke-width="2"/>
+          <text x="50" y="75" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#1a1d2e">z</text>
+          <text x="50" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">512-dim noise</text>
+          <line x1="90" y1="80" x2="120" y2="80" stroke="#4a5068" stroke-width="2" marker-end="url(#a15)"/>
+          <!-- Mapping -->
+          <rect x="120" y="45" width="110" height="70" rx="10" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+          <text x="175" y="72" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#1a1d2e">Mapping Net</text>
+          <text x="175" y="92" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#3b6df0">8 FC layers</text>
+          <line x1="230" y1="80" x2="260" y2="80" stroke="#4a5068" stroke-width="2" marker-end="url(#a15)"/>
+          <!-- w -->
+          <rect x="260" y="55" width="80" height="50" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+          <text x="300" y="75" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#1a1d2e">w</text>
+          <text x="300" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">512-dim style</text>
+          <!-- Labels -->
+          <text x="50" y="35" text-anchor="middle" font-family="Inter" font-size="10" fill="#8b90a5">Z-space</text>
+          <text x="300" y="35" text-anchor="middle" font-family="Inter" font-size="10" fill="#10b981" font-weight="600">W-space</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>Z-space (input)</h4>
+        <p>Random, normally distributed. Must fill a sphere. Features <strong>forced to entangle</strong>.</p>
+        <p style="font-style:italic;font-size:0.9rem;margin-top:0.3rem;">Like cramming all clothes into a ball.</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>W-space (learned)</h4>
+        <p>No distribution constraint. Can spread into whatever shape the data needs. Features <strong>separate naturally</strong>.</p>
+        <p style="font-style:italic;font-size:0.9rem;margin-top:0.3rem;">Like laying clothes in organized drawers.</p>
+      </div>
+      <p class="mt-1" style="font-size:0.85rem;color:var(--text-secondary);">Sizes: StyleGAN z, w &isin; R<sup>512</sup> &middot; our MNIST labs z = 64 &middot; Unit 1&rsquo;s DCGAN z = 100.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── AdaIN ─── -->
+<div class="slide"
+     data-say="In a normal generator, z enters once at the start. In StyleGAN, w is injected at EVERY layer via AdaIN. AdaIN strips the current style, then injects new style from w."
+     data-ask="Why normalize first before applying the new style?"
+     data-time="3 min">
+  <h2>AdaIN: How Style Controls the Image</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Adaptive Instance Normalization</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;">
+          1. Normalize x (instance norm)<br>
+          &nbsp;&nbsp; x_norm = (x - mean) / std<br><br>
+          2. Get scale + shift from w<br>
+          &nbsp;&nbsp; gamma, beta = Linear(w)<br><br>
+          3. Apply new style<br>
+          &nbsp;&nbsp; out = gamma * x_norm + beta
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Step 1: Wash the canvas</h4>
+        <p>Instance norm <strong>strips the current style</strong> from the feature map.</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Step 2: Paint with new style</h4>
+        <p>Scale (gamma) and shift (beta) from w <strong>inject the desired style</strong>.</p>
+      </div>
+      <p class="mt-1" style="font-weight:600;text-align:center;">w is injected at <strong>every layer</strong> via AdaIN. Each layer learns its own Linear(w &rarr; gamma, beta).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── LAYER HIERARCHY ─── -->
+<div class="slide"
+     data-say="This is where StyleGAN gets magical. Different layers control different levels of detail. Coarse layers control face shape, fine layers control freckles."
+     data-ask="If you changed w at only the fine layers, what would change about the face?"
+     data-time="2.5 min">
+  <h2>What Controls What?</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 650 260" style="width:100%;max-width:650px;">
+      <defs><marker id="a15b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5068"/></marker></defs>
+      <!-- w vector on the left -->
+      <rect x="10" y="80" width="70" height="100" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="45" y="125" text-anchor="middle" font-family="Inter" font-size="16" font-weight="800" fill="#1a1d2e">w</text>
+      <text x="45" y="145" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#10b981">style</text>
+
+      <!-- Coarse -->
+      <line x1="80" y1="100" x2="140" y2="40" stroke="#10b981" stroke-width="1.5" marker-end="url(#a15b)"/>
+      <rect x="140" y="15" width="180" height="50" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+      <text x="150" y="35" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">COARSE (4x4, 8x8)</text>
+      <text x="150" y="52" font-family="Inter" font-size="10" fill="#4a5068">Face shape, pose, head angle</text>
+      <rect x="340" y="20" width="90" height="40" rx="20" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+      <text x="385" y="45" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#3b6df0">Structure</text>
+
+      <!-- Medium -->
+      <line x1="80" y1="130" x2="140" y2="110" stroke="#10b981" stroke-width="1.5" marker-end="url(#a15b)"/>
+      <rect x="140" y="85" width="180" height="50" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+      <text x="150" y="105" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">MEDIUM (16x16, 32x32)</text>
+      <text x="150" y="122" font-family="Inter" font-size="10" fill="#4a5068">Eye shape, nose, mouth</text>
+      <rect x="340" y="90" width="90" height="40" rx="20" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+      <text x="385" y="115" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#3b6df0">Features</text>
+
+      <!-- Fine -->
+      <line x1="80" y1="160" x2="140" y2="180" stroke="#10b981" stroke-width="1.5" marker-end="url(#a15b)"/>
+      <rect x="140" y="155" width="180" height="50" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1.5"/>
+      <text x="150" y="175" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">FINE (64x64, 128x128+)</text>
+      <text x="150" y="192" font-family="Inter" font-size="10" fill="#4a5068">Skin texture, freckles, hair</text>
+      <rect x="340" y="160" width="90" height="40" rx="20" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+      <text x="385" y="185" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#3b6df0">Texture</text>
+
+      <!-- Summary -->
+      <text x="500" y="80" font-family="Inter" font-size="12" font-weight="700" fill="#1a1d2e">Same w,</text>
+      <text x="500" y="100" font-family="Inter" font-size="12" font-weight="700" fill="#1a1d2e">different info</text>
+      <text x="500" y="120" font-family="Inter" font-size="12" font-weight="700" fill="#1a1d2e">at each layer</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 7 ─── STYLE MIXING ─── -->
+<div class="slide"
+     data-say="The proof of disentanglement: style mixing. Use w_A at coarse layers and w_B at fine layers. You get A's face shape with B's coloring. Impossible with DCGAN."
+     data-ask="What would happen if you used w_A at fine layers and w_B at coarse layers instead?"
+     data-time="3 min">
+  <h2>Style Mixing</h2>
+  <div class="two-col align-center">
+    <div>
+      <div style="max-width:320px;margin:0 auto;">
+        <svg viewBox="0 0 320 220" style="width:100%;">
+          <defs><marker id="a15c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5068"/></marker></defs>
+          <!-- Person A -->
+          <rect x="10" y="10" width="90" height="40" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+          <text x="55" y="28" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">Person A</text>
+          <text x="55" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#10b981">w_A</text>
+          <!-- Person B -->
+          <rect x="10" y="170" width="90" height="40" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+          <text x="55" y="188" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">Person B</text>
+          <text x="55" y="202" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#3b6df0">w_B</text>
+          <!-- Coarse layers -->
+          <line x1="100" y1="30" x2="140" y2="70" stroke="#10b981" stroke-width="1.5" marker-end="url(#a15c)"/>
+          <rect x="140" y="55" width="120" height="35" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+          <text x="200" y="72" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#1a1d2e">Coarse: use w_A</text>
+          <text x="200" y="84" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">A's face shape</text>
+          <!-- Fine layers -->
+          <line x1="100" y1="190" x2="140" y2="130" stroke="#3b6df0" stroke-width="1.5" marker-end="url(#a15c)"/>
+          <rect x="140" y="110" width="120" height="35" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+          <text x="200" y="127" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#1a1d2e">Fine: use w_B</text>
+          <text x="200" y="139" text-anchor="middle" font-family="Inter" font-size="9" fill="#8b90a5">B's color/texture</text>
+          <!-- Result -->
+          <line x1="260" y1="80" x2="280" y2="100" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="260" y1="130" x2="280" y2="110" stroke="#4a5068" stroke-width="1.5"/>
+          <rect x="278" y="85" width="35" height="40" rx="8" fill="#f8f9fb" stroke="#4a5068" stroke-width="2"/>
+          <text x="296" y="110" text-anchor="middle" font-family="Inter" font-size="18" font-weight="900" fill="#1a1d2e">!</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Result</h4>
+        <p><strong>A's face shape</strong> with <strong>B's skin/hair/color</strong>!</p>
+      </div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>DCGAN: Impossible</h4>
+        <p>z enters once at start. Can't separate face shape from hair color. Everything is entangled.</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Style Mixing as Regularization</h4>
+        <p>During training, randomly mix two w vectors. Forces the network to keep styles independent at each layer.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── NOISE INJECTION ─── -->
+<div class="slide"
+     data-say="Even with disentangled styles, we need random variation for things like exact hair strand placement. StyleGAN adds random noise at every layer, scaled by a learned factor."
+     data-ask="What's the difference between what w controls and what noise controls?"
+     data-time="2.5 min">
+  <h2>Noise Injection: Stochastic Details</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Per-Layer Noise</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.8;">
+          x = Conv(previous_layer)<br>
+          x = x + <strong>B * noise</strong><br>
+          x = AdaIN(x, w)
+        </p>
+        <p class="mt-1">noise = random tensor (same spatial size)<br>B = learned per-channel scaling factor</p>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Style (from w via AdaIN)</h4>
+        <p>Controls <strong>WHAT</strong> the image looks like.</p>
+        <p style="font-style:italic;">"This person has curly hair"</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Noise (random per-pixel)</h4>
+        <p>Controls exact random <strong>PLACEMENT</strong>.</p>
+        <p style="font-style:italic;">"Exactly where each curl falls"</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Mid-lesson recap. We've covered the four big innovations. Now: how the full architecture fits together."
+     data-ask="Can you name all four innovations we've covered?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Innovation</th><th>What It Does</th><th>Why It Matters</th></tr>
+    <tr><td><strong>Mapping Network</strong></td><td>z &rarr; w (8 FC layers)</td><td>Disentangles latent space</td></tr>
+    <tr><td><strong>W-space</strong></td><td>Learned style space</td><td>No distribution constraint</td></tr>
+    <tr><td><strong>AdaIN</strong></td><td>Inject w at every layer</td><td>Control style at each resolution</td></tr>
+    <tr class="highlight-row"><td><strong>Noise injection</strong></td><td>Per-layer random noise</td><td>Stochastic details (hair, pores)</td></tr>
+  </table>
+  <p style="text-align:center;margin-top:1rem;font-weight:600;">Next: full architecture, progressive growing, and truncation.</p>
+</div>
+
+<!-- 10 ─── FULL ARCHITECTURE ─── -->
+<div class="slide"
+     data-say="The full StyleGAN architecture. Note the HUGE difference from DCGAN: the generator starts from a LEARNED CONSTANT, not from z. All variation comes from w and noise."
+     data-ask="Why start from a constant instead of from z?"
+     data-time="3 min">
+  <h2>Full Architecture</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 680 340" style="width:100%;max-width:680px;">
+      <defs><marker id="a15d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5068"/></marker></defs>
+      <!-- z -->
+      <rect x="10" y="15" width="70" height="35" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="45" y="38" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#1a1d2e">z (512)</text>
+      <line x1="80" y1="32" x2="105" y2="32" stroke="#4a5068" stroke-width="1.5" marker-end="url(#a15d)"/>
+      <!-- Mapping -->
+      <rect x="105" y="10" width="100" height="45" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="155" y="30" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#1a1d2e">Mapping Net</text>
+      <text x="155" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#3b6df0">8 FC layers</text>
+      <line x1="205" y1="32" x2="230" y2="32" stroke="#4a5068" stroke-width="1.5" marker-end="url(#a15d)"/>
+      <!-- w -->
+      <rect x="230" y="10" width="70" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="265" y="30" text-anchor="middle" font-family="Inter" font-size="12" font-weight="800" fill="#1a1d2e">w</text>
+      <text x="265" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#10b981">style</text>
+
+      <!-- w branches -->
+      <line x1="265" y1="55" x2="265" y2="310" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Constant -->
+      <rect x="370" y="75" width="120" height="35" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="430" y="97" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#1a1d2e">Constant 4x4</text>
+      <text x="540" y="97" font-family="Inter" font-size="9" fill="#8b90a5" font-style="italic">learned param</text>
+
+      <!-- Style blocks -->
+      <line x1="430" y1="110" x2="430" y2="125" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="370" y="125" width="120" height="30" rx="6" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+      <text x="430" y="144" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#1a1d2e">StyleBlock 4x4</text>
+      <line x1="300" y1="140" x2="370" y2="140" stroke="#10b981" stroke-width="1" marker-end="url(#a15d)"/>
+      <text x="335" y="133" text-anchor="middle" font-family="Inter" font-size="8" fill="#10b981">w + noise</text>
+
+      <line x1="430" y1="155" x2="430" y2="170" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="370" y="170" width="120" height="30" rx="6" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+      <text x="430" y="189" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#1a1d2e">StyleBlock 8x8</text>
+      <line x1="300" y1="185" x2="370" y2="185" stroke="#10b981" stroke-width="1" marker-end="url(#a15d)"/>
+
+      <line x1="430" y1="200" x2="430" y2="215" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="370" y="215" width="120" height="30" rx="6" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+      <text x="430" y="234" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#1a1d2e">StyleBlock 16x16</text>
+      <line x1="300" y1="230" x2="370" y2="230" stroke="#10b981" stroke-width="1" marker-end="url(#a15d)"/>
+
+      <line x1="430" y1="245" x2="430" y2="260" stroke="#4a5068" stroke-width="1.5"/>
+      <text x="430" y="272" text-anchor="middle" font-family="Inter" font-size="11" fill="#8b90a5">...</text>
+
+      <line x1="430" y1="278" x2="430" y2="295" stroke="#4a5068" stroke-width="1.5"/>
+      <rect x="370" y="295" width="120" height="30" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="430" y="315" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#1a1d2e">1024x1024</text>
+      <line x1="300" y1="310" x2="370" y2="310" stroke="#10b981" stroke-width="1" marker-end="url(#a15d)"/>
+
+      <!-- Key differences -->
+      <text x="570" y="140" font-family="Inter" font-size="9" font-weight="700" fill="#ef4444">z does NOT enter</text>
+      <text x="570" y="155" font-family="Inter" font-size="9" font-weight="700" fill="#ef4444">generator directly</text>
+      <text x="570" y="200" font-family="Inter" font-size="9" font-weight="700" fill="#10b981">w injected at</text>
+      <text x="570" y="215" font-family="Inter" font-size="9" font-weight="700" fill="#10b981">EVERY layer</text>
+      <text x="570" y="260" font-family="Inter" font-size="9" font-weight="700" fill="#3b6df0">noise added at</text>
+      <text x="570" y="275" font-family="Inter" font-size="9" font-weight="700" fill="#3b6df0">every layer</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 11 ─── PROGRESSIVE GROWING ─── -->
+<div class="slide"
+     data-say="Training directly at 1024x1024 is unstable. StyleGAN v1 starts at 4x4 and gradually adds layers. Like learning to draw: rough shapes first, then details."
+     data-ask="Why is it easier to learn 4x4 images first?"
+     data-time="2.5 min">
+  <h2>Progressive Growing (v1)</h2>
+  <div class="two-col align-center">
+    <div>
+      <div style="display:flex;gap:0.6rem;align-items:end;justify-content:center;flex-wrap:wrap;">
+        <div style="text-align:center;"><div style="width:20px;height:20px;background:#e2e5ef;border:1px solid #ccc;border-radius:3px;margin:0 auto;"></div><p style="font-size:0.7rem;margin-top:0.2rem;">4x4</p></div>
+        <div style="text-align:center;"><div style="width:30px;height:30px;background:#d1d5e0;border:1px solid #ccc;border-radius:3px;margin:0 auto;"></div><p style="font-size:0.7rem;margin-top:0.2rem;">8x8</p></div>
+        <div style="text-align:center;"><div style="width:40px;height:40px;background:#b8bfce;border:1px solid #ccc;border-radius:3px;margin:0 auto;"></div><p style="font-size:0.7rem;margin-top:0.2rem;">16x16</p></div>
+        <div style="text-align:center;"><div style="width:55px;height:55px;background:#9ba3b5;border:1px solid #ccc;border-radius:3px;margin:0 auto;"></div><p style="font-size:0.7rem;margin-top:0.2rem;">32 … 128</p></div>
+        <div style="text-align:center;"><div style="width:70px;height:70px;background:#7a849a;border:1px solid #ccc;border-radius:3px;margin:0 auto;"></div><p style="font-size:0.7rem;margin-top:0.2rem;">256, 512</p></div>
+        <div style="text-align:center;"><div style="width:85px;height:85px;background:#4a5068;border:1px solid #ccc;border-radius:5px;margin:0 auto;"></div><p style="font-size:0.7rem;margin-top:0.2rem;font-weight:700;">1024</p></div>
+      </div>
+      <p style="text-align:center;margin-top:1rem;font-style:italic;">Start small, add layers gradually</p>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#ecfdf5;">
+        <h4>Fade-in</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;">
+          blended = (1-alpha)*old + alpha*new<br>
+          alpha: 0 &rarr; 1 gradually
+        </p>
+        <p class="mt-1">Smooth transition from old to new resolution.</p>
+      </div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Note</h4>
+        <p>Progressive growing comes from <strong>ProGAN</strong> (Karras et al., 2018); StyleGAN v1 kept it. StyleGAN2 <strong>dropped</strong> it (it caused artifacts) and used skip connections instead.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── TRUNCATION TRICK ─── -->
+<div class="slide"
+     data-say="Call back to L11: there we truncated z by re-sampling values with |z| &gt; t. StyleGAN truncates in w instead: pull w toward the average w with psi. psi=1 is full diversity, psi=0 is always the average face. Same quality-vs-variety trade-off."
+     data-ask="Why does truncation work better in W-space than Z-space?"
+     data-time="2.5 min">
+  <h2>Truncation Trick</h2>
+  <div class="two-col">
+    <div>
+      <div class="formula" style="font-size:clamp(0.85rem,1.3vw,1.05rem);text-align:left;white-space:nowrap;">
+        w&prime; = w&#772; + &psi; &middot; (w &minus; w&#772;)
+      </div>
+      <table class="compare-table mt-2">
+        <tr><th>psi</th><th>Effect</th></tr>
+        <tr><td><strong>1.0</strong></td><td>No truncation (full diversity, some weird faces)</td></tr>
+        <tr><td><strong>0.7</strong></td><td>Mild (high quality, good diversity)</td></tr>
+        <tr><td><strong>0.5</strong></td><td>Strong (very high quality, less diversity)</td></tr>
+        <tr><td><strong>0.0</strong></td><td>Always the "average face"</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card mb-1" style="background:#fef2f2;">
+        <h4>In Z-space (L11)</h4>
+        <p>You met this in L11: re-sample any z<sub>i</sub> with |z<sub>i</sub>| &gt; t (BigGAN). Works &mdash; but z is entangled, so shrinking z changes many features unevenly.</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>In W-space</h4>
+        <p>Pull w toward the average w&#772;. W is more disentangled, so this smoothly shrinks every style toward the average face &rarr; <strong>cleaner quality-vs-variety control</strong>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── STYLEGAN EVOLUTION ─── -->
+<div class="slide"
+     data-say="StyleGAN evolved through three versions. Each fixed problems from the previous. v2 fixed blob artifacts from AdaIN. v3 fixed texture sticking."
+     data-ask="What caused the blob artifacts in v1?"
+     data-time="2.5 min">
+  <h2>StyleGAN Evolution</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>StyleGAN v1 (2018/19)</h4>
+      <ul style="font-size:0.85rem;">
+        <li>Mapping network + AdaIN</li>
+        <li>Progressive growing</li>
+        <li>Truncation trick</li>
+        <li><strong>First photorealistic faces</strong></li>
+      </ul>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>StyleGAN2 (2020)</h4>
+      <ul style="font-size:0.85rem;">
+        <li>Dropped progressive growing</li>
+        <li>Replaced AdaIN with weight demodulation (fixed blob artifacts)</li>
+        <li>Skip connections + residual; path-length regularization</li>
+        <li><strong>Cleaner images</strong></li>
+      </ul>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>StyleGAN3 (2021)</h4>
+      <ul style="font-size:0.85rem;">
+        <li>Fixed position-dependent artifacts</li>
+        <li>Anti-aliased layers</li>
+        <li>Objects move naturally in latent space</li>
+        <li><strong>Alias-free generation</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── WHY STYLEGAN MATTERS BEYOND FACES ─── -->
+<div class="slide"
+     data-say="StyleGAN's ideas are everywhere now. Mapping networks, multi-scale style injection, disentangled latent spaces. These concepts appear in diffusion models, VAEs, and more."
+     data-ask="Where else have you seen the idea of injecting information at multiple scales?"
+     data-time="2 min">
+  <h2>Why StyleGAN Matters Beyond Faces</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Ideas That Spread Everywhere</h4>
+      <ul>
+        <li><strong>Mapping networks:</strong> transform z before using it (widely reused)</li>
+        <li><strong>Multi-scale injection:</strong> coarse/medium/fine control</li>
+        <li><strong>W-space:</strong> a learned, more disentangled latent &mdash; the basis of GAN inversion and editing</li>
+        <li><strong>Proof:</strong> GANs can be photorealistic</li>
+      </ul>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Applications Beyond Faces</h4>
+      <ul>
+        <li>Cars, rooms, cats, art</li>
+        <li><strong>GAN inversion:</strong> find w for real image &rarr; edit it</li>
+        <li><strong>Domain adaptation:</strong> face GAN &rarr; cartoon GAN</li>
+        <li>Medical imaging, satellite imagery</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── DCGAN vs STYLEGAN ─── -->
+<div class="slide"
+     data-say="Final comparison: five key differences between DCGAN and StyleGAN. This slide crystallizes what makes StyleGAN revolutionary."
+     data-ask="Which difference do you think contributes most to quality?"
+     data-time="2 min">
+  <h2>DCGAN vs StyleGAN</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th></th><th>DCGAN</th><th>StyleGAN</th></tr>
+    <tr><td><strong>z enters</strong></td><td>Directly into generator</td><td>Through mapping network &rarr; w</td></tr>
+    <tr><td><strong>Generator starts from</strong></td><td>z reshaped as feature map</td><td><strong>Learned constant</strong></td></tr>
+    <tr><td><strong>Style control</strong></td><td>z controls everything at once</td><td><strong>w injected at every layer</strong></td></tr>
+    <tr><td><strong>Stochastic variation</strong></td><td>Only from z</td><td><strong>Per-layer noise injection</strong></td></tr>
+    <tr class="highlight-row"><td><strong>Disentanglement</strong></td><td>Entangled</td><td><strong>More disentangled (W-space)</strong></td></tr>
+  </table>
+</div>
+
+
+<!-- LAB DEMO -->
+<div class="slide"
+     data-say="Live demo of lab-15. Run the building-block cells and read the printed shapes. Start training (the long cell), then run the experiments while pointing at the grids."
+     data-ask="Before running style mixing: which layers should decide which digit appears?"
+     data-time="3 min">
+  <h2>Lab Demo: <code>lab-15-stylegan.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> build a mini-StyleGAN on MNIST and see mapping, AdaIN, noise, style mixing and truncation work.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>AdaIN</strong>, <strong>Mapping Network</strong>, <strong>Style Block</strong>: test cells print the shapes</li>
+        <li><strong>Mini-StyleGAN Generator</strong>: learned 4×4 constant, z (64) → w (128)</li>
+        <li><strong>Training with WGAN-GP Loss</strong> (Unit 2 recipe: λ 10, 5 critic steps, Adam β = (0, 0.99))</li>
+        <li>Experiments: <strong>style mixing</strong>, <strong>truncation</strong>, <strong>noise</strong>, <strong>W vs Z interpolation</strong></li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>Style mixing grid: rows share the coarse shape, columns the stroke style</li>
+          <li>ψ = 0 gives one “average digit” for every z</li>
+          <li>Same w + new noise: same digit, slightly different strokes</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Swap the mixing split to coarse = B, fine = A. What changes in the grid?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Four key takeaways from StyleGAN."
+     data-ask="Which idea from StyleGAN will you remember longest?"
+     data-time="1.5 min">
+  <h2>Lesson 15 Summary</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>Mapping Network</h4>
+      <p>z &rarr; w disentangles the latent space. W-space is organized, Z-space is cramped.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>AdaIN at Every Layer</h4>
+      <p>Strip style, inject new style. Coarse = shape, fine = texture.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Style + Noise Separation</h4>
+      <p>w controls WHAT. Noise controls random WHERE. Style mixing proves it works.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">4</p>
+      <h4>Ideas That Last</h4>
+      <p>Mapping networks, multi-scale control, and disentanglement are now everywhere.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. These test understanding, not recall."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>StyleGAN's generator starts from a learned constant, not from z. If z doesn't enter the generator directly, where does the variation come from?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">All variation comes from two sources: (1) w via AdaIN &mdash; injected at every layer, controlling style (shape, features, texture). (2) Per-layer noise injection &mdash; controlling random details (hair strand placement, pore patterns). The constant is just a starting canvas. z's influence enters indirectly through the mapping network: z &rarr; w &rarr; AdaIN.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>In style mixing, you use w_A at coarse layers and w_B at fine layers. What would break if you tried this with a normal DCGAN?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">In DCGAN, z enters once at the very beginning and is transformed through the network. There's no mechanism to inject different control at different layers. z[0] affects everything &mdash; shape, color, texture &mdash; all entangled. StyleGAN's architecture makes style mixing possible because w is injected separately at each layer via AdaIN, and each layer has its own learned transformation from w to scale+shift.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>You truncated z in L11. Why does StyleGAN truncate w instead?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Both trade variety for quality. But z is entangled: shrinking it changes many features unevenly. The mapping network learns a W that is more disentangled and closer to linear, so moving w toward the average w&#772; shrinks each style smoothly toward the average face &mdash; a cleaner, more predictable trade-off.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="Unit 3 is complete: we can measure GANs (IS, FID, precision/recall), audit them for bias, and we have seen StyleGAN. Unit 4 changes the input: instead of noise, the generator receives an image and translates it — Pix2Pix."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Unit 3 Complete!</div>
+  <h1>Next: Unit 4 &middot; L16</h1>
+  <p class="subtitle">Image-to-image translation &mdash; the generator gets an image, not noise (Pix2Pix; CycleGAN in Unit 5)</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

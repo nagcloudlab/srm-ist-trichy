@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L08 — 🔀 A Neuron with Multiple Inputs</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L08">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L07.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L07</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L08 / 14</a><a href="NN-L09.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L09 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L08</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Part 2 adds capacity while preserving the learning loop from Part 1."
+     data-ask="What real prediction depends on only one thing?"
+     data-time="1 min">
+  <div class="lesson-number">08 &bull; PART 2 &bull; DEEP NEURAL NETWORKS</div>
+  <h1>A Neuron with Multiple Inputs</h1>
+  <p class="subtitle">More evidence enters&mdash;one neuron combines it all</p>
+  <div style="display:flex;gap:2.5rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <span style="font-size:2rem;font-weight:900;color:#3b6df0;">x&#8321;</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">input 1</div>
+    </div>
+    <div style="text-align:center;">
+      <span style="font-size:2rem;font-weight:900;color:#10b981;">x&#8322;</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">input 2</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div style="text-align:center;">
+      <span style="font-size:2.5rem;font-weight:900;color:#8b5cf6;">&Sigma;</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">one neuron</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div style="text-align:center;">
+      <span style="font-size:2rem;font-weight:900;color:#ef4444;">&#375;</span>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">prediction</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2 ─── LEARNING OUTCOMES ─── -->
+<div class="slide"
+     data-say="Locate this lesson at the start of deep neural networks."
+     data-ask="Which ideas follow multiple inputs in Part 2?"
+     data-time="2 min">
+  <h2>The learning loop is ready for more powerful models</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;">
+    <div class="revealable card accent-blue" style="text-align:center;min-width:150px;opacity:0.6;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PART 1 &bull; DONE</div>
+      <strong>One input + learning loop</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-red" style="text-align:center;min-width:180px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">PART 2 &bull; NOW</div>
+      <strong>Inputs &rarr; layers &rarr; activations &rarr; backprop</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:150px;opacity:0.6;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PART 3</div>
+      <strong>PyTorch + CNNs</strong>
+    </div>
+    <div style="font-size:1.5rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;opacity:0.6;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PART 4</div>
+      <strong>GANs</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── WHY MULTIPLE INPUTS? ─── -->
+<div class="slide"
+     data-say="Delivery time depends on distance and workload together."
+     data-ask="Name another factor that could affect delivery time."
+     data-time="2 min">
+  <h2>Real predictions depend on more than one thing</h2>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:160px;">
+      <div style="font-size:2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <strong>Distance</strong>
+      <p style="color:var(--text-muted);">More kilometres usually require more time.</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">+</div>
+    <div class="card accent-green" style="text-align:center;min-width:160px;">
+      <div style="font-size:2rem;font-weight:900;color:#10b981;margin-bottom:0.5rem;">02</div>
+      <strong>Packages</strong>
+      <p style="color:var(--text-muted);">More packages require more handling.</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">&rarr;</div>
+    <div class="card accent-purple" style="text-align:center;min-width:160px;">
+      <div style="font-size:2rem;font-weight:900;color:#8b5cf6;margin-bottom:0.5rem;">&#375;</div>
+      <strong>Delivery time</strong>
+      <p style="color:var(--text-muted);">Both factors act together.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── DELIVERY DATA ─── -->
+<div class="slide"
+     data-say="Compare rows that hold one feature steady while the other changes."
+     data-ask="What happens from one package to two at one kilometre?"
+     data-time="3 min">
+  <h2>Distance and packages both change delivery time</h2>
+  <table class="compare-table" style="margin-top:2rem;max-width:640px;margin-left:auto;margin-right:auto;">
+    <tr><th>Distance</th><th>Packages</th><th>Delivery time</th></tr>
+    <tr><td>1 km</td><td>1</td><td style="color:#3b6df0;font-weight:700;">10 min</td></tr>
+    <tr><td>2 km</td><td>1</td><td style="color:#3b6df0;font-weight:700;">12 min</td></tr>
+    <tr><td>1 km</td><td>2</td><td style="color:#3b6df0;font-weight:700;">13 min</td></tr>
+    <tr><td>3 km</td><td>2</td><td style="color:#3b6df0;font-weight:700;">17 min</td></tr>
+  </table>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <div class="formula" style="display:inline-block;">time = 2 &times; distance + 3 &times; packages + 5</div>
+  </div>
+</div>
+
+<!-- 6 ─── THE NEW EQUATION ─── -->
+<div class="slide"
+     data-say="Match each input to its own weight, then add one shared bias."
+     data-ask="Which symbol represents minutes per package?"
+     data-time="3 min">
+  <h2>Every input receives its own weight</h2>
+  <div style="text-align:center;margin:2rem 0;">
+    <div class="formula" style="font-size:1.8rem;">&#375; = w&#8321;x&#8321; + w&#8322;x&#8322; + b</div>
+  </div>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <strong style="font-size:1.3rem;">x&#8321;</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem;">distance</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#3b6df0;">varies</div>
+    </div>
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <strong style="font-size:1.3rem;">x&#8322;</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem;">packages</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#3b6df0;">varies</div>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:120px;">
+      <strong style="font-size:1.3rem;">w&#8321;</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem;">min per km</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#10b981;">2</div>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:120px;">
+      <strong style="font-size:1.3rem;">w&#8322;</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem;">min per package</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#10b981;">3</div>
+    </div>
+    <div class="card accent-purple" style="text-align:center;min-width:120px;">
+      <strong style="font-size:1.3rem;">b</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem;">prep time</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#8b5cf6;">5</div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── ONE NEURON, MANY CONNECTIONS ─── -->
+<div class="slide"
+     data-say="Count incoming connections, but keep the single output neuron clear."
+     data-ask="How many neurons are shown?"
+     data-time="2 min">
+  <h2>More connections do not mean more neurons</h2>
+  <div style="display:flex;justify-content:center;align-items:center;gap:0;margin-top:2.5rem;">
+    <svg viewBox="0 0 560 280" style="max-width:640px;width:100%;" role="img" aria-label="Two input nodes x1 and x2 connected by arrows labelled w1 and w2 to a single summation neuron, which feeds output y-hat">
+      <!-- Input x1 -->
+      <circle cx="80" cy="90" r="34" fill="#eff6ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="80" y="87" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" font-weight="700" fill="#3b6df0">x&#8321;</text>
+      <text x="80" y="107" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5">distance</text>
+      <!-- Input x2 -->
+      <circle cx="80" cy="190" r="34" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/>
+      <text x="80" y="187" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" font-weight="700" fill="#10b981">x&#8322;</text>
+      <text x="80" y="207" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5">packages</text>
+      <!-- Arrow x1 -> neuron -->
+      <line x1="114" y1="105" x2="238" y2="138" stroke="#3b6df0" stroke-width="2" marker-end="url(#arrowL08)"/>
+      <!-- Arrow x2 -> neuron -->
+      <line x1="114" y1="175" x2="238" y2="152" stroke="#10b981" stroke-width="2" marker-end="url(#arrowL08)"/>
+      <!-- Weight labels -->
+      <text x="168" y="115" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" font-weight="700">w&#8321;</text>
+      <text x="168" y="178" font-family="JetBrains Mono,monospace" font-size="13" fill="#10b981" font-weight="700">w&#8322;</text>
+      <!-- Bias label -->
+      <text x="248" y="100" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b5cf6">+b</text>
+      <!-- Neuron -->
+      <circle cx="280" cy="140" r="42" fill="#faf5ff" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="280" y="137" text-anchor="middle" font-family="Inter,sans-serif" font-size="22" font-weight="900" fill="#8b5cf6">&Sigma;</text>
+      <text x="280" y="157" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5">one neuron</text>
+      <!-- Arrow neuron -> output -->
+      <line x1="322" y1="140" x2="432" y2="140" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowL08)"/>
+      <!-- Output -->
+      <circle cx="466" cy="140" r="34" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+      <text x="466" y="137" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" font-weight="700" fill="#ef4444">&#375;</text>
+      <text x="466" y="157" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5">time</text>
+      <defs>
+        <marker id="arrowL08" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#4a5068"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <p style="text-align:center;margin-top:1rem;color:#1a1d2e;">Adding inputs creates more <strong>incoming connections</strong>, not more neurons.</p>
+</div>
+
+<!-- 8 ─── WORKED PREDICTION ─── -->
+<div class="slide"
+     data-say="Substitute distance four, packages two, and the known parameters."
+     data-ask="Which multiplication contributes more?"
+     data-time="2 min">
+  <h2>Combine 4 km and 2 packages</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;">
+    <div class="card accent-blue" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">DISTANCE</div>
+      <strong style="font-size:1.3rem;">x&#8321; = 4</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;">km</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PACKAGES</div>
+      <strong style="font-size:1.3rem;">x&#8322; = 2</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;">items</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">DIST WEIGHT</div>
+      <strong style="font-size:1.3rem;">w&#8321; = 2</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;">min per km</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PKG WEIGHT</div>
+      <strong style="font-size:1.3rem;">w&#8322; = 3</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;">min per pkg</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">BIAS</div>
+      <strong style="font-size:1.3rem;">b = 5</strong>
+      <p style="color:var(--text-muted);font-size:0.85rem;">base min</p>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── CONTRIBUTIONS ─── -->
+<div class="slide"
+     data-say="Keep the three contributions separate before adding to nineteen."
+     data-ask="What does the five-minute contribution represent?"
+     data-time="3 min">
+  <h2>Multiply separately, then add</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">DISTANCE</div>
+      <strong style="font-size:1.1rem;">2 &times; 4</strong>
+      <div style="font-size:1.5rem;font-weight:900;color:#3b6df0;margin-top:0.5rem;">8 min</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">+</div>
+    <div class="card accent-green" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PACKAGES</div>
+      <strong style="font-size:1.1rem;">3 &times; 2</strong>
+      <div style="font-size:1.5rem;font-weight:900;color:#10b981;margin-top:0.5rem;">6 min</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">+</div>
+    <div class="card accent-purple" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">BIAS</div>
+      <strong style="font-size:1.1rem;">base</strong>
+      <div style="font-size:1.5rem;font-weight:900;color:#8b5cf6;margin-top:0.5rem;">5 min</div>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">=</div>
+    <div class="card accent-red" style="text-align:center;min-width:130px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">TOTAL</div>
+      <strong style="font-size:1.1rem;">8 + 6 + 5</strong>
+      <div style="font-size:1.5rem;font-weight:900;color:#ef4444;margin-top:0.5rem;">19 min</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── SEPARATE JOBS ─── -->
+<div class="slide"
+     data-say="Each parameter owns one independent influence."
+     data-ask="Would changing w1 alter the packages contribution?"
+     data-time="3 min">
+  <h2>Each parameter controls one part of the rule</h2>
+  <div class="three-col" style="margin-top:2rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">DISTANCE WEIGHT</div>
+      <div class="formula">w&#8321; = 2</div>
+      <p style="color:var(--text-muted);margin-top:0.75rem;">How much <strong>distance</strong> affects time</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">PACKAGE WEIGHT</div>
+      <div class="formula">w&#8322; = 3</div>
+      <p style="color:var(--text-muted);margin-top:0.75rem;">How much <strong>packages</strong> affect time</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BIAS</div>
+      <div class="formula">b = 5</div>
+      <p style="color:var(--text-muted);margin-top:0.75rem;">Fixed base time for <strong>every delivery</strong></p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#1a1d2e;">Changing one weight changes only how its matching input is used.</p>
+</div>
+
+<!-- 11 ─── FOUR DELIVERIES ─── -->
+<div class="slide"
+     data-say="Translate the source program into four visible arithmetic rows."
+     data-ask="Which row totals seventeen minutes?"
+     data-time="3 min">
+  <h2>The same rule explains every row</h2>
+  <table class="compare-table" style="margin-top:2rem;max-width:740px;margin-left:auto;margin-right:auto;">
+    <tr><th>Inputs</th><th>Calculation</th><th>Total</th></tr>
+    <tr>
+      <td>1 km &bull; 1 package</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2(1) + 3(1) + 5</td>
+      <td style="color:#3b6df0;font-weight:700;">10 min</td>
+    </tr>
+    <tr>
+      <td>2 km &bull; 1 package</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2(2) + 3(1) + 5</td>
+      <td style="color:#3b6df0;font-weight:700;">12 min</td>
+    </tr>
+    <tr>
+      <td>1 km &bull; 2 packages</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2(1) + 3(2) + 5</td>
+      <td style="color:#3b6df0;font-weight:700;">13 min</td>
+    </tr>
+    <tr class="highlight-row">
+      <td><strong>3 km &bull; 2 packages</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;"><strong>2(3) + 3(2) + 5</strong></td>
+      <td style="color:#10b981;font-weight:700;"><strong>17 min</strong></td>
+    </tr>
+  </table>
+</div>
+
+<!-- 12 ─── THREE GRADIENTS ─── -->
+<div class="slide section-divider"
+     data-say="Compare the three formulas and identify the direct influence paired with error."
+     data-ask="Why does the bias gradient contain neither input?"
+     data-time="4 min">
+  <div style="max-width:820px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <span style="font-size:0.85rem;font-weight:700;letter-spacing:0.12em;color:#3b6df0;">LEARNING</span>
+      <h2 style="margin-top:0.5rem;">Each parameter follows the input it touches</h2>
+    </div>
+    <div class="three-col" style="gap:1.5rem;">
+      <div class="card accent-blue" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">DISTANCE WEIGHT</div>
+        <div class="formula">&part;L/&part;w&#8321;</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:#3b6df0;margin:0.75rem 0;font-weight:700;">mean(2e &middot; x&#8321;)</div>
+        <p style="color:var(--text-muted);">w&#8321; touches x&#8321;.</p>
+      </div>
+      <div class="card accent-green" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">PACKAGE WEIGHT</div>
+        <div class="formula">&part;L/&part;w&#8322;</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:#10b981;margin:0.75rem 0;font-weight:700;">mean(2e &middot; x&#8322;)</div>
+        <p style="color:var(--text-muted);">w&#8322; touches x&#8322;.</p>
+      </div>
+      <div class="card accent-purple" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BIAS</div>
+        <div class="formula">&part;L/&part;b</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:#8b5cf6;margin:0.75rem 0;font-weight:700;">mean(2e)</div>
+        <p style="color:var(--text-muted);">b is added directly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── GENERAL PRINCIPLE ─── -->
+<div class="slide"
+     data-say="Generalize Lessons 6 and 7: multiply error by what the parameter touches."
+     data-ask="What does w2 touch directly?"
+     data-time="2 min">
+  <h2>Multiply error by the parameter&rsquo;s direct influence</h2>
+  <div style="max-width:600px;margin:2.5rem auto;text-align:center;">
+    <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:1rem;">THE TOUCH PRINCIPLE</div>
+    <div style="display:flex;gap:1rem;justify-content:center;align-items:center;flex-wrap:wrap;">
+      <div class="formula" style="font-size:1.3rem;">gradient</div>
+      <div style="font-size:1.5rem;color:#4a5068;">=</div>
+      <div class="formula" style="font-size:1.3rem;">2 &times; error</div>
+      <div style="font-size:1.5rem;color:#4a5068;">&times;</div>
+      <div class="formula" style="font-size:1.3rem;">what it touches</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+    <div class="card accent-blue" style="text-align:center;min-width:120px;">
+      <strong>w&#8321; &rarr; x&#8321;</strong>
+    </div>
+    <div class="card accent-green" style="text-align:center;min-width:120px;">
+      <strong>w&#8322; &rarr; x&#8322;</strong>
+    </div>
+    <div class="card accent-purple" style="text-align:center;min-width:120px;">
+      <strong>b &rarr; 1</strong>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── TRAIN ALL THREE ─── -->
+<div class="slide"
+     data-say="Accumulate all three gradients before making one simultaneous update."
+     data-ask="Which preserves a fair shared starting point?"
+     data-time="3 min">
+  <h2>Calculate every gradient, then update every parameter</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:640px;margin:1.5rem auto;">
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">01</span>
+      <div><strong>Predict</strong><p style="color:var(--text-muted);margin-top:0.25rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">&#375; = w&#8321;x&#8321; + w&#8322;x&#8322; + b</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">02</span>
+      <div><strong>Find error</strong><p style="color:var(--text-muted);margin-top:0.25rem;">&#375; &minus; y for each example</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">03</span>
+      <div><strong>Accumulate</strong><p style="color:var(--text-muted);margin-top:0.25rem;">three gradient sums&mdash;one per parameter</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">04</span>
+      <div><strong>Average</strong><p style="color:var(--text-muted);margin-top:0.25rem;">divide each gradient sum by n</p></div>
+    </div>
+    <div class="card accent-purple" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.1rem;font-weight:900;color:#8b5cf6;flex-shrink:0;">05</span>
+      <div><strong>Update together</strong><p style="color:var(--text-muted);margin-top:0.25rem;">w&#8321;, w&#8322;, and b simultaneously</p></div>
+    </div>
+    <div class="card accent-blue" style="display:flex;gap:1rem;align-items:flex-start;">
+      <span style="font-size:1.1rem;font-weight:900;color:#3b6df0;flex-shrink:0;">06</span>
+      <div><strong>Repeat</strong><p style="color:var(--text-muted);margin-top:0.25rem;">next epoch</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── FIRST EPOCH ─── -->
+<div class="slide"
+     data-say="Show how the first averaged gradients create the exact source updates."
+     data-ask="Which parameter receives the largest first move?"
+     data-time="4 min">
+  <h2>Zero knowledge produces three strong first updates</h2>
+  <div class="three-col" style="margin-top:2rem;gap:1.5rem;">
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WEIGHT 1</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:#3b6df0;">g&#8321; = &minus;49</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--text-muted);margin:0.5rem 0;">0 &minus; .05(&minus;49)</div>
+      <div class="formula">w&#8321; = 2.45</div>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WEIGHT 2</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:#10b981;">g&#8322; = &minus;41</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--text-muted);margin:0.5rem 0;">0 &minus; .05(&minus;41)</div>
+      <div class="formula">w&#8322; = 2.05</div>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">BIAS</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:#8b5cf6;">g&#7522; = &minus;26</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--text-muted);margin:0.5rem 0;">0 &minus; .05(&minus;26)</div>
+      <div class="formula">b = 1.30</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#1a1d2e;">All three gradients were calculated at <strong>(0, 0, 0)</strong> before any update.</p>
+</div>
+
+<!-- 16 ─── TRAINING RECORD ─── -->
+<div class="slide"
+     data-say="Trace all three parameters and loss across the five checkpoints."
+     data-ask="At which epoch is the learner effectively exact?"
+     data-time="4 min">
+  <h2>All three values converge from zero</h2>
+  <table class="compare-table" style="margin-top:2rem;max-width:760px;margin-left:auto;margin-right:auto;">
+    <tr><th>Epoch</th><th>w&#8321;</th><th>w&#8322;</th><th>b</th><th>Loss</th></tr>
+    <tr>
+      <td>1</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2.4500</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2.0500</td>
+      <td style="font-family:'JetBrains Mono',monospace;">1.3000</td>
+      <td style="color:#ef4444;font-weight:700;">19.071875</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td style="font-family:'JetBrains Mono',monospace;">3.2300</td>
+      <td style="font-family:'JetBrains Mono',monospace;">3.2426</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2.1808</td>
+      <td style="color:#ef4444;font-weight:700;">1.221104</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2.1692</td>
+      <td style="font-family:'JetBrains Mono',monospace;">3.6094</td>
+      <td style="font-family:'JetBrains Mono',monospace;">3.6939</td>
+      <td style="color:#ef4444;font-weight:700;">0.147507</td>
+    </tr>
+    <tr>
+      <td>1000</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2.0002</td>
+      <td style="font-family:'JetBrains Mono',monospace;">3.0012</td>
+      <td style="font-family:'JetBrains Mono',monospace;">4.9976</td>
+      <td style="color:#3b6df0;font-weight:700;">0.000001</td>
+    </tr>
+    <tr class="highlight-row">
+      <td><strong>5000</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;"><strong>2.0000</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;"><strong>3.0000</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;"><strong>5.0000</strong></td>
+      <td style="color:#10b981;font-weight:700;"><strong>0.000000</strong></td>
+    </tr>
+  </table>
+</div>
+
+<!-- 17 ─── DISCOVERED RULE ─── -->
+<div class="slide"
+     data-say="All parameters began at zero and recovered the hidden rule from examples."
+     data-ask="What did we tell the neuron besides data and learning procedure?"
+     data-time="2 min">
+  <h2>The neuron recovers every hidden value</h2>
+  <table class="compare-table" style="margin-top:2rem;max-width:680px;margin-left:auto;margin-right:auto;">
+    <tr><th>Parameter</th><th>Started</th><th>Learned</th><th>Actual</th></tr>
+    <tr>
+      <td>w&#8321; &bull; distance</td>
+      <td style="font-family:'JetBrains Mono',monospace;">0</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#10b981;font-weight:700;">2.0000</td>
+      <td style="font-family:'JetBrains Mono',monospace;">2</td>
+    </tr>
+    <tr>
+      <td>w&#8322; &bull; packages</td>
+      <td style="font-family:'JetBrains Mono',monospace;">0</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#10b981;font-weight:700;">3.0000</td>
+      <td style="font-family:'JetBrains Mono',monospace;">3</td>
+    </tr>
+    <tr>
+      <td>b &bull; bias</td>
+      <td style="font-family:'JetBrains Mono',monospace;">0</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#10b981;font-weight:700;">5.0000</td>
+      <td style="font-family:'JetBrains Mono',monospace;">5</td>
+    </tr>
+  </table>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <div class="formula" style="display:inline-block;">&#375; = 2x&#8321; + 3x&#8322; + 5 &nbsp;&bull;&nbsp; learned from data alone</div>
+  </div>
+</div>
+
+<!-- 18 ─── NEW PREDICTION ─── -->
+<div class="slide"
+     data-say="Apply the learned rule to a new combination: four kilometres and three packages."
+     data-ask="What total should the learner predict?"
+     data-time="2 min">
+  <h2>Use the learned rule on 4 km and 3 packages</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:3rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">DISTANCE</div>
+      <strong style="font-size:1.2rem;">2(4) = 8</strong>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">+</div>
+    <div class="card accent-green" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">PACKAGES</div>
+      <strong style="font-size:1.2rem;">3(3) = 9</strong>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">+</div>
+    <div class="card accent-purple" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">BIAS</div>
+      <strong style="font-size:1.2rem;">5</strong>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;font-weight:700;">=</div>
+    <div class="card accent-red" style="text-align:center;min-width:110px;border-width:2px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:0.5rem;">PREDICTION</div>
+      <strong style="font-size:1.5rem;color:#ef4444;">22 min</strong>
+    </div>
+  </div>
+  <div style="display:flex;gap:2rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap;">
+    <span style="font-size:0.85rem;color:var(--text-muted);">4 km</span>
+    <span style="font-size:0.85rem;color:var(--text-muted);">3 packages</span>
+    <span style="font-size:0.85rem;color:var(--text-muted);">base time</span>
+    <span style="font-size:0.85rem;color:#ef4444;font-weight:700;">new prediction</span>
+  </div>
+</div>
+
+<!-- 19 ─── COMPACT NOTATION ─── -->
+<div class="slide section-divider"
+     data-say="Vectors package many related values without changing the arithmetic."
+     data-ask="Which entries must line up with each other?"
+     data-time="3 min">
+  <div style="max-width:800px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <span style="font-size:0.85rem;font-weight:700;letter-spacing:0.12em;color:#8b5cf6;">VECTORS</span>
+      <h2 style="margin-top:0.5rem;">Group inputs and weights into vectors</h2>
+    </div>
+    <div class="two-col" style="gap:2rem;margin-top:1.5rem;">
+      <div class="card accent-blue" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">INPUT VECTOR</div>
+        <div class="formula" style="font-size:1.3rem;">x = [x&#8321;, x&#8322;]</div>
+        <p style="color:var(--text-muted);margin-top:0.75rem;">[distance, packages]</p>
+      </div>
+      <div class="card accent-green" style="text-align:center;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WEIGHT VECTOR</div>
+        <div class="formula" style="font-size:1.3rem;">w = [w&#8321;, w&#8322;]</div>
+        <p style="color:var(--text-muted);margin-top:0.75rem;">[min/km, min/package]</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+      <div class="formula" style="font-size:1.5rem;display:inline-block;">&#375; = <strong>w &middot; x</strong> + b</div>
+    </div>
+  </div>
+</div>
+
+<!-- 20 ─── DOT PRODUCT ─── -->
+<div class="slide"
+     data-say="Correct the source typo explicitly: four kilometres and two packages gives fourteen before bias, not seventeen."
+     data-ask="What changes if packages becomes three?"
+     data-time="3 min">
+  <h2>Match, multiply, and add</h2>
+  <!-- SVG dot product visualization -->
+  <div style="display:flex;justify-content:center;margin:1.5rem 0;">
+    <svg viewBox="0 0 820 200" style="max-width:820px;width:100%;" role="img" aria-label="Dot product diagram: x1=4 matched to w1=2 gives product 8; x2=2 matched to w2=3 gives product 6; sum 8+6=14; plus bias 5 gives 19">
+      <!-- Input column -->
+      <rect x="10" y="30" width="120" height="50" rx="10" fill="#eff6ff" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="70" y="52" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">INPUT</text>
+      <text x="70" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#3b6df0" font-weight="700">x&#8321; = 4</text>
+
+      <rect x="10" y="120" width="120" height="50" rx="10" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+      <text x="70" y="142" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">INPUT</text>
+      <text x="70" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#10b981" font-weight="700">x&#8322; = 2</text>
+
+      <!-- Weight column -->
+      <rect x="190" y="30" width="120" height="50" rx="10" fill="#eff6ff" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="250" y="52" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">WEIGHT</text>
+      <text x="250" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#3b6df0" font-weight="700">w&#8321; = 2</text>
+
+      <rect x="190" y="120" width="120" height="50" rx="10" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+      <text x="250" y="142" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">WEIGHT</text>
+      <text x="250" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#10b981" font-weight="700">w&#8322; = 3</text>
+
+      <!-- Multiply connectors -->
+      <line x1="130" y1="55" x2="190" y2="55" stroke="#3b6df0" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="130" y1="145" x2="190" y2="145" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="160" y="50" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#4a5068">&times;</text>
+      <text x="160" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#4a5068">&times;</text>
+
+      <!-- Product column -->
+      <rect x="370" y="30" width="120" height="50" rx="10" fill="#faf5ff" stroke="#8b5cf6" stroke-width="1.5"/>
+      <text x="430" y="52" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">PRODUCT</text>
+      <text x="430" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#8b5cf6" font-weight="700">2 &times; 4 = 8</text>
+
+      <rect x="370" y="120" width="120" height="50" rx="10" fill="#faf5ff" stroke="#8b5cf6" stroke-width="1.5"/>
+      <text x="430" y="142" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">PRODUCT</text>
+      <text x="430" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#8b5cf6" font-weight="700">3 &times; 2 = 6</text>
+
+      <!-- Arrows to products -->
+      <line x1="310" y1="55" x2="370" y2="55" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aDP08)"/>
+      <line x1="310" y1="145" x2="370" y2="145" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aDP08)"/>
+
+      <!-- Sum node -->
+      <circle cx="570" cy="100" r="36" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="570" y="97" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="900" fill="#3b6df0">&Sigma;</text>
+      <text x="570" y="115" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#3b6df0" font-weight="700">14</text>
+
+      <!-- Arrows to sum -->
+      <line x1="490" y1="55" x2="545" y2="85" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aDP08)"/>
+      <line x1="490" y1="145" x2="545" y2="115" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aDP08)"/>
+
+      <!-- Bias -->
+      <rect x="620" y="75" width="80" height="50" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="660" y="97" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">BIAS</text>
+      <text x="660" y="115" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14" fill="#ef4444" font-weight="700">+5</text>
+      <line x1="606" y1="100" x2="620" y2="100" stroke="#4a5068" stroke-width="1.5" marker-end="url(#aDP08)"/>
+
+      <!-- Output -->
+      <rect x="720" y="75" width="90" height="50" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5"/>
+      <text x="765" y="97" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8b90a5" font-weight="700">OUTPUT</text>
+      <text x="765" y="116" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#ef4444" font-weight="900">19</text>
+      <line x1="700" y1="100" x2="720" y2="100" stroke="#ef4444" stroke-width="2" marker-end="url(#aDP08r)"/>
+
+      <defs>
+        <marker id="aDP08" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#4a5068"/>
+        </marker>
+        <marker id="aDP08r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#ef4444"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <p style="text-align:center;color:var(--text-muted);font-size:0.9rem;">For 4 km and <strong>3 packages</strong>: 8 + 9 + 5 = <strong style="color:#ef4444;">22</strong>.</p>
+</div>
+
+<!-- 21 ─── SCALE ─── -->
+<div class="slide"
+     data-say="Dot products work identically for two, one hundred, or ten thousand inputs."
+     data-ask="How many weights accompany ten thousand inputs?"
+     data-time="2 min">
+  <h2>The same notation handles thousands of inputs</h2>
+  <div style="display:flex;gap:1rem;justify-content:center;align-items:center;margin-top:3rem;flex-wrap:wrap;">
+    <div class="card accent-blue" style="text-align:center;min-width:140px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#3b6df0;">2</div>
+      <span style="color:var(--text-muted);">inputs</span>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;min-width:140px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#10b981;">100</div>
+      <span style="color:var(--text-muted);">inputs</span>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;">&rarr;</div>
+    <div class="card accent-purple" style="text-align:center;min-width:140px;">
+      <div style="font-size:2.5rem;font-weight:900;color:#8b5cf6;">10,000</div>
+      <span style="color:var(--text-muted);">inputs</span>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;color:#1a1d2e;">One matching weight per input. The dot-product operation stays the same.</p>
+</div>
+
+<!-- 22 ─── COMPARE: CHANGED vs UNCHANGED ─── -->
+<div class="slide"
+     data-say="Separate model capacity changes from the learning ideas that stay intact."
+     data-ask="Which simultaneous-update rule survives unchanged?"
+     data-time="3 min">
+  <h2>More inputs change capacity&mdash;not the learning loop</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;">
+    <div class="card accent-red" style="text-align:left;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;margin-bottom:1rem;">CHANGED</div>
+      <p style="margin-bottom:0.5rem;">&#10003; Multiple inputs</p>
+      <p style="margin-bottom:0.5rem;">&#10003; One weight per input</p>
+      <p style="margin-bottom:0.5rem;">&#10003; Dot-product notation</p>
+      <p style="margin-bottom:0;">&#10003; More parameters to learn</p>
+    </div>
+    <div class="card accent-green" style="text-align:left;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;margin-bottom:1rem;">HASN&rsquo;T CHANGED</div>
+      <p style="margin-bottom:0.5rem;">&#10003; Still one neuron</p>
+      <p style="margin-bottom:0.5rem;">&#10003; Same learning loop</p>
+      <p style="margin-bottom:0.5rem;">&#10003; Same gradient descent</p>
+      <p style="margin-bottom:0;">&#10003; Calculate all, then update all</p>
+    </div>
+  </div>
+</div>
+
+<!-- 23 ─── SECTION DIVIDER: CHECK ─── -->
+<div class="slide"
+     data-say="Ask all four questions before revealing the answers."
+     data-ask="Ask for reasoning before revealing all four answers."
+     data-time="4 min">
+  <h2>🧠 Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.5rem;">
+    <div class="revealable card accent-blue">
+      <h4>01 &mdash; Does a second input create a second neuron?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">No — one neuron, more connections. Still one output.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>02 &mdash; How many weights for 5 inputs?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">5 weights + 1 bias = 6 learnable parameters.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>03 &mdash; Why does w₁'s gradient contain x₁?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">w₁ only touches x₁ — so x₁ determines how much w₁ should change.</p></div>
+    </div>
+    <div class="revealable card accent-blue">
+      <h4>04 &mdash; What is [1,2]·[3,4]?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="text-green mt-1">1×3 + 2×4 = 3 + 8 = 11.</p></div>
+    </div>
+  </div>
+</div>
+<div class="slide cover"
+     data-say="Multiple inputs still combine linearly, so curved patterns remain out of reach."
+     data-ask="What new mechanism might bend a straight-line model?"
+     data-time="1 min">
+  <h2>Multiple inputs still produce a straight-line model</h2>
+  <div class="two-col" style="margin-top:2rem;gap:2rem;align-items:center;">
+    <div class="card accent-green" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NOW &bull; READY</div>
+      <strong style="font-size:1.3rem;">Many inputs</strong>
+      <p style="color:var(--text-muted);margin-top:0.5rem;">more evidence, still linear</p>
+    </div>
+    <div style="font-size:2rem;color:#4a5068;text-align:center;">&rarr;</div>
+    <div class="card accent-blue" style="text-align:center;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.5rem;">NEXT NEED</div>
+      <strong style="font-size:1.3rem;">Activation</strong>
+      <p style="color:var(--text-muted);margin-top:0.5rem;">the ability to model curves</p>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:1.5rem;font-style:italic;color:#1a1d2e;font-size:1.05rem;">How can a neuron bend beyond a straight line?</p>
+  <div style="text-align:center;margin-top:1rem;">
+    <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;color:#3b6df0;">NEXT &bull; LESSON 09</span>
+  </div>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L09.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L09 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

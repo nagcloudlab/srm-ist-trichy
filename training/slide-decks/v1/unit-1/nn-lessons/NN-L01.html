@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NN-L01 — 🧠 What Is a Neuron?</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="NN-L01">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="NN-L00.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L00</a><a href="../../../../index.html#unit-1" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L01 / 14</a><a href="NN-L02.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L02 &rarr;</a></div>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../../index.html#unit-1">Unit 1</a> &bull; Neural Networks &bull; L01</div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This is the very first lesson. Everything we build — layers, deep networks, GANs — starts with a single neuron. Take it slow here; there is no background knowledge required."
+     data-ask="Has anyone here written a Python expression like 2 * x + 5 before?"
+     data-time="1 min">
+  <div class="lesson-number">01 &bull; NEURAL NETWORKS &rarr; GANs</div>
+  <h1>What Is a Neuron?</h1>
+  <p class="subtitle">The smallest building block of every neural network</p>
+  <div style="display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-top:2.5rem;font-size:2.4rem;font-weight:900;letter-spacing:0.04em;">
+    <span style="color:#3b6df0;">x</span>
+    <span style="color:var(--text-muted);">&rarr;</span>
+    <span style="color:#3b6df0;">wx + b</span>
+    <span style="color:var(--text-muted);">&rarr;</span>
+    <span style="color:#10b981;">ŷ</span>
+  </div>
+</div>
+
+<!-- 2 ─── WHERE WE ARE GOING ─── -->
+<div class="slide"
+     data-say="Give learners the full map before zooming in. They need to see that a single neuron is not the destination — it is the foundation. Each layer in the diagram is a lesson or two away."
+     data-ask="At what layer in this progression do you think real intelligence starts to emerge?"
+     data-time="2 min">
+  <h2>One neuron is the first step to a GAN</h2>
+  <p style="color:var(--text-muted);max-width:600px;margin-bottom:2rem;">Our final goal is to build a GAN — two neural networks competing against each other. We start with the smallest piece and build up.</p>
+  <div class="diagram" style="flex-direction:column;align-items:flex-start;gap:0;margin:0 auto;max-width:520px;">
+    <div class="box" style="width:100%;border-color:#3b6df0;">
+      <strong style="color:#3b6df0;">One neuron</strong>
+      <span style="color:var(--text-muted);font-size:0.9rem;">&larr; you are here</span>
+    </div>
+    <div style="padding-left:2rem;color:var(--text-muted);font-size:1.3rem;line-height:1;">&#8595;</div>
+    <div class="box" style="width:100%;">
+      <strong>Many neurons (a layer)</strong>
+    </div>
+    <div style="padding-left:2rem;color:var(--text-muted);font-size:1.3rem;line-height:1;">&#8595;</div>
+    <div class="box" style="width:100%;">
+      <strong>Many layers (a deep network)</strong>
+    </div>
+    <div style="padding-left:2rem;color:var(--text-muted);font-size:1.3rem;line-height:1;">&#8595;</div>
+    <div class="box" style="width:100%;border-color:#10b981;">
+      <strong style="color:#10b981;">Two competing networks (a GAN)</strong>
+      <span style="color:var(--text-muted);font-size:0.9rem;">&larr; destination</span>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── WHAT DOES A NEURON DO ─── -->
+<div class="slide"
+     data-say="The key phrase is: takes numbers in, does a simple calculation, gives one number out. Repeat it. Everything else in this lesson is just naming the parts of that calculation."
+     data-ask="In the delivery example, what single number would you want the neuron to output?"
+     data-time="2 min">
+  <h2>A neuron takes numbers in and gives one number out</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.75rem;">A neuron does a simple calculation. That is all it does.</p>
+  <div class="vs-layout" style="margin-top:1rem;gap:2rem;">
+    <div class="card accent-blue" style="text-align:center;flex:1;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">EXAMPLE PROBLEM</div>
+      <strong style="font-size:1.2rem;">Predict delivery time from distance</strong>
+      <p style="color:var(--text-muted);margin-top:0.75rem;font-size:0.95rem;">We observe a pattern in real data:</p>
+    </div>
+    <div style="flex:1;">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Distance</th><th>Delivery time</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>1 km</strong></td><td>7 min</td></tr>
+          <tr><td><strong>2 km</strong></td><td>9 min</td></tr>
+          <tr><td><strong>3 km</strong></td><td>11 min</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;color:var(--text-muted);font-size:0.9rem;">Pattern: every km adds <strong style="color:#3b6df0;">2 minutes</strong>, plus a fixed <strong style="color:#10b981;">5 minutes</strong> prep.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── NEURON EQUATION ─── -->
+<div class="slide"
+     data-say="This is the most important slide in the lesson. Every term has a plain-English name and a concrete meaning in the delivery example. Do not rush past it."
+     data-ask="Before looking at the table, can you guess what w and b might stand for?"
+     data-time="3 min">
+  <h2>The neuron equation: ŷ = wx + b</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;margin-top:1.5rem;">
+    <div class="formula" style="font-size:2.4rem;gap:1rem;padding:1.25rem 3rem;">
+      <span style="color:#10b981;">ŷ</span>
+      <span style="color:var(--text-muted);">=</span>
+      <span style="color:#3b6df0;">w</span>
+      <span style="color:var(--text-muted);">&times;</span>
+      <span style="color:#3b6df0;">x</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="color:#8b5cf6;">b</span>
+    </div>
+    <table class="compare-table" style="max-width:580px;width:100%;">
+      <thead>
+        <tr><th>Symbol</th><th>Name</th><th>In our example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:#3b6df0;font-weight:700;">x</td><td><strong>Input</strong></td><td>Distance (km)</td></tr>
+        <tr><td style="color:#3b6df0;font-weight:700;">w</td><td><strong>Weight</strong></td><td>2 (minutes per km)</td></tr>
+        <tr><td style="color:#8b5cf6;font-weight:700;">b</td><td><strong>Bias</strong></td><td>5 (fixed preparation time)</td></tr>
+        <tr><td style="color:#10b981;font-weight:700;">ŷ</td><td><strong>Output</strong></td><td>Predicted delivery time</td></tr>
+      </tbody>
+    </table>
+    <div class="card" style="padding:0.9rem 1.75rem;font-size:1.05rem;">
+      For 4 km: &nbsp;<span class="formula" style="font-size:1.1rem;gap:0.5rem;">
+        <span style="color:#10b981;">ŷ</span>
+        <span>=</span>
+        <span style="color:#3b6df0;">2</span>
+        <span>&times;</span>
+        <span style="color:#3b6df0;">4</span>
+        <span>+</span>
+        <span style="color:#8b5cf6;">5</span>
+        <span>=</span>
+        <strong style="color:#10b981;">13 minutes</strong>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── SVG DIAGRAM ─── -->
+<div class="slide"
+     data-say="Use this diagram to reinforce the flow: input enters, the weight scales it, the bias shifts it, and the result leaves. The bias arrow comes from the side because it is independent of x."
+     data-ask="Which part of this diagram represents the 5-minute preparation time?"
+     data-time="2 min">
+  <h2>Data flows forward through the neuron</h2>
+  <div class="diagram" style="justify-content:center;align-items:center;margin-top:2rem;flex-wrap:wrap;gap:0;">
+
+    <!-- Input node -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="#eef2ff" stroke="#3b6df0" stroke-width="2.5"/>
+        <text x="40" y="36" text-anchor="middle" fill="#3b6df0" font-size="13" font-weight="700" font-family="monospace">Input</text>
+        <text x="40" y="53" text-anchor="middle" fill="#3b6df0" font-size="20" font-weight="900" font-family="monospace">x</text>
+      </svg>
+      <span style="font-size:0.8rem;color:var(--text-muted);">distance</span>
+    </div>
+
+    <!-- Weight label + arrow -->
+    <div style="display:flex;flex-direction:column;align-items:center;min-width:80px;">
+      <span style="font-size:0.8rem;font-weight:700;color:#3b6df0;margin-bottom:4px;">weight w</span>
+      <svg width="80" height="24" viewBox="0 0 80 24">
+        <line x1="0" y1="12" x2="68" y2="12" stroke="#3b6df0" stroke-width="2.5"/>
+        <polygon points="68,7 80,12 68,17" fill="#3b6df0"/>
+      </svg>
+      <span style="font-size:0.75rem;color:var(--text-muted);">&times; 2</span>
+    </div>
+
+    <!-- Neuron body with bias -->
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+      <!-- bias arrow from above -->
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:4px;">
+        <span style="font-size:0.8rem;font-weight:700;color:#8b5cf6;">bias b</span>
+        <svg width="24" height="36" viewBox="0 0 24 36">
+          <line x1="12" y1="0" x2="12" y2="24" stroke="#8b5cf6" stroke-width="2.5"/>
+          <polygon points="7,24 12,36 17,24" fill="#8b5cf6"/>
+        </svg>
+      </div>
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="50" fill="#eef2ff" stroke="#3b6df0" stroke-width="3"/>
+        <text x="55" y="47" text-anchor="middle" fill="#8b90a5" font-size="11" font-weight="700" font-family="monospace">NEURON</text>
+        <text x="55" y="65" text-anchor="middle" fill="#1a1d2e" font-size="16" font-weight="900" font-family="monospace">wx+b</text>
+      </svg>
+      <span style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">+ 5</span>
+    </div>
+
+    <!-- Output arrow -->
+    <div style="display:flex;flex-direction:column;align-items:center;min-width:80px;">
+      <span style="font-size:0.8rem;font-weight:700;color:#10b981;margin-bottom:4px;">output</span>
+      <svg width="80" height="24" viewBox="0 0 80 24">
+        <line x1="0" y1="12" x2="68" y2="12" stroke="#10b981" stroke-width="2.5"/>
+        <polygon points="68,7 80,12 68,17" fill="#10b981"/>
+      </svg>
+      <span style="font-size:0.75rem;color:var(--text-muted);">13 min</span>
+    </div>
+
+    <!-- Output node -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+        <text x="40" y="36" text-anchor="middle" fill="#10b981" font-size="13" font-weight="700" font-family="monospace">Output</text>
+        <text x="40" y="53" text-anchor="middle" fill="#10b981" font-size="20" font-weight="900" font-family="monospace">ŷ</text>
+      </svg>
+      <span style="font-size:0.8rem;color:var(--text-muted);">prediction</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- 6 ─── WHAT DOES THE WEIGHT DO ─── -->
+<div class="slide"
+     data-say="The volume-knob analogy is powerful: a high weight amplifies the input signal; zero weight mutes it entirely; a negative weight inverts it. Pause at w = 0 and w = -1."
+     data-ask="What would a negative weight mean in a real delivery system?"
+     data-time="2 min">
+  <h2>The weight is a volume knob on the input</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.75rem;">It controls how strongly the input affects the output. Turn it up, down, or all the way off.</p>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Weight w</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:#3b6df0;">w = 2</strong></td>
+        <td>Each km adds 2 min &mdash; matches reality</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#3b6df0;">w = 5</strong></td>
+        <td>Each km adds 5 min &mdash; steeper slope</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#8b5cf6;">w = 0</strong></td>
+        <td>Distance has <em>no effect</em> &mdash; output is always just b</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#ef4444;">w = &minus;1</strong></td>
+        <td>More distance = <em>less</em> time &mdash; input is inverted</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="card accent-blue" style="margin-top:1.5rem;padding:0.85rem 1.5rem;display:flex;align-items:center;gap:1rem;">
+    <span style="font-size:1.5rem;">&#127908;</span>
+    <span><strong>Analogy:</strong> weight is like a volume knob — it scales the signal from the input.</span>
+  </div>
+</div>
+
+<!-- 7 ─── WHAT DOES THE BIAS DO ─── -->
+<div class="slide"
+     data-say="The bias is a fixed vertical shift that happens regardless of the input. Even when x = 0, the bias still contributes. In the delivery example, it represents the preparation time that exists before any driving starts."
+     data-ask="What happens to every prediction if we change b from 5 to 10?"
+     data-time="2 min">
+  <h2>The bias is a fixed shift added to every prediction</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.75rem;">It slides the output up or down regardless of what the input is.</p>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Bias b</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:#8b5cf6;">b = 5</strong></td>
+        <td>5 min even at 0 km &mdash; preparation time</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#10b981;">b = 0</strong></td>
+        <td>No fixed cost &mdash; output is purely wx</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#3b6df0;">b = 10</strong></td>
+        <td>10 min base time &mdash; all predictions shift up by 5</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="card" style="margin-top:1.5rem;padding:0.85rem 1.5rem;border:1px solid #8b5cf6;">
+    <span><strong style="color:#8b5cf6;">Key insight:</strong> bias lets the line cross any point on the y-axis, not just the origin.</span>
+  </div>
+</div>
+
+<!-- 8 ─── TRY IT IN PYTHON ─── -->
+<div class="slide"
+     data-say="This is the first code slide. The calculation is exactly the equation we just saw. Point out that Python uses * for multiply and there is nothing new here — it is pure arithmetic."
+     data-ask="Before running this in your head, what answer do you expect? Say it out loud."
+     data-time="2 min">
+  <h2>Try it in Python — your first forward pass</h2>
+  <div class="two-col" style="margin-top:1.5rem;gap:1.5rem;align-items:start;">
+    <div>
+      <pre style="background:#0d0f1a;border:1px solid #2a2d3e;border-radius:0.6rem;padding:1.5rem;font-family:monospace;font-size:1rem;line-height:1.7;color:#e2e8f0;margin:0;"><span style="color:#8b90a5;"># parameters</span>
+<span style="color:#3b6df0;">distance</span> = <span style="color:#3b6df0;">4</span>
+<span style="color:#3b6df0;">weight</span>   = <span style="color:#3b6df0;">2</span>
+<span style="color:#8b5cf6;">bias</span>     = <span style="color:#8b5cf6;">5</span>
+
+<span style="color:#8b90a5;"># forward pass</span>
+prediction = <span style="color:#3b6df0;">weight</span> * <span style="color:#3b6df0;">distance</span> + <span style="color:#8b5cf6;">bias</span>
+print(<span style="color:#10b981;">"Predicted time:"</span>, prediction, <span style="color:#10b981;">"minutes"</span>)</pre>
+      <div style="background:#0d0f1a;border:1px solid #2a2d3e;border-top:none;border-radius:0 0 0.6rem 0.6rem;padding:0.75rem 1.5rem;font-family:monospace;font-size:0.95rem;color:#10b981;">
+        Predicted time: 13 minutes
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.9rem;">
+      <div class="card accent-green" style="padding:1rem 1.25rem;">
+        <strong>Forward pass</strong>
+        <p style="margin:0.4rem 0 0;color:var(--text-muted);font-size:0.9rem;">Data flows forward through the neuron to produce an output. This is all prediction is.</p>
+      </div>
+      <div class="card" style="padding:1rem 1.25rem;">
+        <span class="formula" style="font-size:1rem;gap:0.4rem;">
+          <span style="color:#3b6df0;">2</span>
+          <span>&times;</span>
+          <span style="color:#3b6df0;">4</span>
+          <span>+</span>
+          <span style="color:#8b5cf6;">5</span>
+          <span>=</span>
+          <strong style="color:#10b981;">13</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 ─── TRY DIFFERENT INPUTS ─── -->
+<div class="slide"
+     data-say="Now we loop. The same weight and bias are used every time. Only x changes. This shows that the neuron is a function: given x, it always produces the same output."
+     data-ask="What is the output for distance = 10? Can you compute it without running the code?"
+     data-time="2 min">
+  <h2>Same parameters, different inputs</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Keep w = 2 and b = 5. Loop over distances 1 through 5.</p>
+  <div class="two-col" style="gap:1.5rem;align-items:start;">
+    <pre style="background:#0d0f1a;border:1px solid #2a2d3e;border-radius:0.6rem;padding:1.25rem 1.5rem;font-family:monospace;font-size:0.95rem;line-height:1.7;color:#e2e8f0;margin:0;"><span style="color:#3b6df0;">weight</span> = <span style="color:#3b6df0;">2</span>
+<span style="color:#8b5cf6;">bias</span>   = <span style="color:#8b5cf6;">5</span>
+
+for <span style="color:#3b6df0;">distance</span> in [<span style="color:#3b6df0;">1, 2, 3, 4, 5</span>]:
+    prediction = <span style="color:#3b6df0;">weight</span> * <span style="color:#3b6df0;">distance</span> + <span style="color:#8b5cf6;">bias</span>
+    print(f<span style="color:#10b981;">"Distance: {distance} km → Time: {prediction} min"</span>)</pre>
+    <div>
+      <div style="background:#0d0f1a;border:1px solid #2a2d3e;border-radius:0.6rem;padding:1.25rem 1.5rem;font-family:monospace;font-size:0.9rem;line-height:1.9;color:#10b981;">
+        Distance: 1 km &rarr; Time: 7 min<br>
+        Distance: 2 km &rarr; Time: 9 min<br>
+        Distance: 3 km &rarr; Time: 11 min<br>
+        Distance: 4 km &rarr; Time: 13 min<br>
+        Distance: 5 km &rarr; Time: 15 min
+      </div>
+      <p style="margin-top:1rem;color:var(--text-muted);font-size:0.9rem;">Each extra km adds exactly <strong style="color:#3b6df0;">2 minutes</strong>. That is the weight doing its job.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── EXPERIMENT: CHANGE PARAMETERS ─── -->
+<div class="slide"
+     data-say="Ask learners to compute each answer in their head. Give them 30 seconds. Then press R to reveal the results. The highlight is experiment C: when w = 0, the input is irrelevant."
+     data-ask="Calculate each one: w × 4 + b = ?"
+     data-time="3 min">
+  <h2>Experiment: change the parameters</h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Keep distance = 4. Calculate each answer in your head first. Press <kbd style="background:#eef2ff;border:1px solid #ddd;border-radius:4px;padding:0.1rem 0.4rem;font-size:0.8rem;">R</kbd> to reveal.</p>
+  <table class="compare-table" style="margin-bottom:1.5rem;">
+    <thead>
+      <tr><th>Experiment</th><th>Weight w</th><th>Bias b</th><th>Formula</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>3</td>
+        <td>5</td>
+        <td style="color:var(--text-muted);">3 &times; 4 + 5 = ?</td>
+        <td class="answer" style="color:#3b6df0;font-weight:700;">17</td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>2</td>
+        <td>0</td>
+        <td style="color:var(--text-muted);">2 &times; 4 + 0 = ?</td>
+        <td class="answer" style="color:#10b981;font-weight:700;">8</td>
+      </tr>
+      <tr>
+        <td><strong>C</strong></td>
+        <td style="color:#ef4444;font-weight:700;">0</td>
+        <td>5</td>
+        <td style="color:var(--text-muted);">0 &times; 4 + 5 = ?</td>
+        <td class="answer" style="color:#ef4444;font-weight:700;">5</td>
+      </tr>
+      <tr>
+        <td><strong>D</strong></td>
+        <td>1</td>
+        <td>10</td>
+        <td style="color:var(--text-muted);">1 &times; 4 + 10 = ?</td>
+        <td class="answer" style="color:#8b5cf6;font-weight:700;">14</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="hint" style="text-align:center;">Think first, then press R to check your answers</p>
+  <div class="answer">
+    <div class="card" style="padding:0.85rem 1.5rem;border-left:3px solid #3b6df0;">
+      <strong style="color:#3b6df0;">Notice experiment C:</strong> when w = 0, the input doesn't matter at all. Output is always just the bias (5).
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── EXPERIMENT CODE ─── -->
+<div class="slide"
+     data-say="This is the code that verifies the mental-math answers. Walk through one iteration of the loop together, then let learners trace the rest."
+     data-ask="Which line of code would you change to try a different distance?"
+     data-time="2 min">
+  <h2>Verify with Python</h2>
+  <div class="two-col" style="gap:1.5rem;align-items:start;margin-top:1.5rem;">
+    <pre style="background:#0d0f1a;border:1px solid #2a2d3e;border-radius:0.6rem;padding:1.25rem 1.5rem;font-family:monospace;font-size:0.9rem;line-height:1.7;color:#e2e8f0;margin:0;"><span style="color:#3b6df0;">distance</span> = <span style="color:#3b6df0;">4</span>
+
+experiments = {
+    <span style="color:#10b981;">"A"</span>: (<span style="color:#3b6df0;">3</span>, <span style="color:#8b5cf6;">5</span>),
+    <span style="color:#10b981;">"B"</span>: (<span style="color:#3b6df0;">2</span>, <span style="color:#8b5cf6;">0</span>),
+    <span style="color:#10b981;">"C"</span>: (<span style="color:#3b6df0;">0</span>, <span style="color:#8b5cf6;">5</span>),
+    <span style="color:#10b981;">"D"</span>: (<span style="color:#3b6df0;">1</span>, <span style="color:#8b5cf6;">10</span>),
+}
+
+for name, (w, b) in experiments.items():
+    result = w * <span style="color:#3b6df0;">distance</span> + b
+    print(f<span style="color:#10b981;">"Experiment {name}: {w} × {distance} + {b} = {result}"</span>)</pre>
+    <div style="background:#0d0f1a;border:1px solid #2a2d3e;border-radius:0.6rem;padding:1.25rem 1.5rem;font-family:monospace;font-size:0.9rem;line-height:2;color:#10b981;">
+      Experiment A: 3 &times; 4 + 5 = 17<br>
+      Experiment B: 2 &times; 4 + 0 = 8<br>
+      <span style="color:#3b6df0;">Experiment C: 0 &times; 4 + 5 = 5</span><br>
+      Experiment D: 1 &times; 4 + 10 = 14
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── WE SET w AND b MANUALLY ─── -->
+<div class="slide"
+     data-say="This is the most important conceptual point in the entire lesson. We chose w = 2 and b = 5 because we already knew the answer. Real learning means finding those values automatically from data — and that is exactly what the rest of the course teaches."
+     data-ask="If you were given new data and had no idea what the right w and b were, how would you find them?"
+     data-time="2 min">
+  <h2>We set w and b manually — but learning finds them automatically</h2>
+  <div class="vs-layout" style="margin-top:2rem;gap:2rem;">
+    <div class="card" style="text-align:center;flex:1;border:2px solid #ef4444;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WHAT WE DID IN THIS LESSON</div>
+      <strong style="font-size:1.15rem;color:#ef4444;">Manual</strong>
+      <p style="color:var(--text-muted);margin-top:0.75rem;font-size:0.95rem;">We picked <code style="color:#3b6df0;">w = 2</code> and <code style="color:#8b5cf6;">b = 5</code> because we already knew the delivery pattern.</p>
+    </div>
+    <div style="font-size:2.5rem;font-weight:900;color:var(--text-muted);align-self:center;">&rarr;</div>
+    <div class="card accent-green" style="text-align:center;flex:1;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">WHAT LEARNING DOES</div>
+      <strong style="font-size:1.15rem;color:#10b981;">Automatic</strong>
+      <p style="color:var(--text-muted);margin-top:0.75rem;font-size:0.95rem;">Learning finds the right w and b by itself, using only data. No cheating required.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.5rem;padding:1rem 1.5rem;border-left:3px solid #10b981;text-align:center;">
+    <strong>Learning = finding w and b automatically from data.</strong> That is what the rest of this course teaches.
+  </div>
+</div>
+
+<!-- 13 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Give one full minute of silent think time before accepting answers. These four questions cover every concept from the lesson. They should be answerable without notes."
+     data-ask="Which of these four questions would be hardest to answer without notes?"
+     data-time="4 min">
+  <h2>🧠 Knowledge Check</h2>
+  <div class="two-col" style="margin-top:1.5rem;gap:1rem;">
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">01</div>
+      <p style="margin-bottom:0.75rem;">What is ŷ when w = 3, b = 2, x = 5?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first&hellip;</strong>
+      <strong class="answer" style="color:#10b981;">3 &times; 5 + 2 = 17</strong>
+    </div>
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">02</div>
+      <p style="margin-bottom:0.75rem;">If w = 0, does changing x change the output?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first&hellip;</strong>
+      <strong class="answer" style="color:#10b981;">No. Output is always just b.</strong>
+    </div>
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">03</div>
+      <p style="margin-bottom:0.75rem;">What does "forward pass" mean?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first&hellip;</strong>
+      <strong class="answer" style="color:#10b981;">Data flows forward through the neuron to produce a prediction.</strong>
+    </div>
+
+    <div class="revealable card" style="padding:1.25rem;">
+      <div style="font-size:1.2rem;font-weight:900;color:#3b6df0;margin-bottom:0.5rem;">04</div>
+      <p style="margin-bottom:0.75rem;">What does the bias represent in the delivery example?</p>
+      <strong class="hint" style="color:var(--text-muted);">Think first&hellip;</strong>
+      <strong class="answer" style="color:#10b981;">The fixed 5-minute preparation time — present even at 0 km.</strong>
+    </div>
+
+  </div>
+  <p style="text-align:center;margin-top:1rem;color:var(--text-muted);font-size:0.85rem;">Press <kbd>R</kbd> on any card to reveal the answer.</p>
+</div>
+
+<!-- 14 ─── RECAP ─── -->
+<div class="slide"
+     data-say="Summarise the five points in order. Have learners close their eyes and reconstruct: input → weight scales it → bias shifts it → output. Then add: we set w and b manually, learning finds them automatically."
+     data-ask="Explain ŷ = wx + b to the person next to you in one sentence, without using the word neuron."
+     data-time="2 min">
+  <h2>What you now know</h2>
+  <div class="card" style="max-width:640px;margin:1.5rem auto 0;padding:1.5rem 2rem;">
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.9rem;">
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">1.</span>
+        <span>A neuron takes a number in, does <strong>wx + b</strong>, and gives one number out.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">2.</span>
+        <span>The <strong style="color:#3b6df0;">weight w</strong> controls how strongly the input affects the output.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">3.</span>
+        <span>The <strong style="color:#8b5cf6;">bias b</strong> is a fixed shift added regardless of the input.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">4.</span>
+        <span>Running the equation once is called a <strong>forward pass</strong>.</span>
+      </li>
+      <li style="display:flex;gap:1rem;align-items:flex-start;">
+        <span style="color:#3b6df0;font-weight:700;min-width:20px;">5.</span>
+        <span><strong>Learning</strong> means finding w and b automatically from data — not choosing them by hand.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- 15 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="End with the open question. The neuron now knows how to predict. But does 13 minutes feel right, or is it badly wrong? We cannot tell without a way to measure the mistake. That measurement is called a loss function."
+     data-ask="If the actual delivery time was 20 minutes and we predicted 13, is that a small error or a large one? How would you measure it?"
+     data-time="1 min">
+  <div class="lesson-number">NEXT &bull; LESSON 02</div>
+  <h1>How wrong is the prediction?</h1>
+  <p class="subtitle">We predicted 13 minutes — but is that good or bad?</p>
+  <div style="display:flex;gap:2rem;justify-content:center;align-items:center;margin-top:2.5rem;flex-wrap:wrap;">
+    <div class="card" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">PREDICTION</div>
+      <strong style="font-size:1.4rem;color:#3b6df0;">ŷ = 13 min</strong>
+    </div>
+    <div style="font-size:3rem;font-weight:900;color:#3b6df0;">?</div>
+    <div class="card" style="text-align:center;min-width:160px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;margin-bottom:0.75rem;">ACTUAL</div>
+      <strong style="font-size:1.4rem;color:#10b981;">y = ???</strong>
+    </div>
+  </div>
+  <p style="margin-top:2rem;font-size:1.1rem;color:var(--text-muted);">Lesson 2 gives us a single number that measures how wrong we are. That number is called a <strong style="color:#3b6df0;">loss function</strong>.</p>
+</div>
+
+
+<div class="slide" data-say="Click the button to continue." data-ask="" data-time="30 sec" style="justify-content:center;align-items:center;text-align:center;">
+  <h2>Ready for the next lesson?</h2>
+  <a href="NN-L02.html" style="display:inline-block;margin-top:1.5rem;padding:1rem 2.5rem;background:#3b6df0;color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;">
+    Start L02 →
+  </a>
+  <p style="margin-top:1rem;color:#8b90a5;font-size:0.85rem;">or <a href="../../../../index.html#unit-1" style="color:#3b6df0;">back to Unit 1</a></p>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="notes-panel">
+  <h4>Presenter Notes</h4>
+  <span class="note-time"></span>
+  <p class="note-say"></p>
+  <p class="note-ask"></p>
+</div>
+
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

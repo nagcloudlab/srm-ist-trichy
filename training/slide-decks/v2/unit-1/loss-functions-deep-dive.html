@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Network Loss Functions — Deep Dive</title>
+<link rel="stylesheet" href="../../v1/unit-1/deck.css">
+</head>
+<body data-lesson="LossFunctions">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="../../../index.html#unit-1" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; Unit 1</a><a href="#" style="color:#1a1d2e;text-decoration:none;font-weight:700;">Loss Functions</a><a href="../../../index.html#unit-2" style="color:#3b6df0;text-decoration:none;font-weight:600;">Unit 2 &rarr;</a></div>
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }
+.fn-chart { max-width: 480px; margin: 0 auto; }
+.fn-chart svg { width: 100%; max-height: 50vh; }
+.fn-formula { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; text-align: center; padding: 0.6rem 1rem; background: #f8f9fb; border-radius: 10px; border: 1px solid #e2e5ef; margin: 0.5rem auto; max-width: 560px; color: #1a1d2e; white-space: nowrap; }
+.fn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+</style>
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Loss functions are the compass of learning. They measure how wrong the network is and provide the gradient signal that drives all weight updates. Without loss, there is no learning."
+     data-ask="What does a neural network actually minimize during training?"
+     data-time="1 min">
+  <div class="lesson-number">Deep Dive</div>
+  <h1>Loss Functions</h1>
+  <p class="subtitle">The compass that tells a neural network how wrong it is</p>
+</div>
+
+<!-- 2 ─── WHY LOSS MATTERS ─── -->
+<div class="slide"
+     data-say="A neural network learns by reducing a single number: the loss. This number must capture everything we care about — accuracy, confidence, distance from truth — in one scalar. The gradient of this number with respect to every weight is what drives learning."
+     data-ask="Why must loss be a single number, not a vector?"
+     data-time="2 min">
+  <h2>Why Loss Matters</h2>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;">
+    <div class="card" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">PREDICTION</div>
+      <strong>ŷ</strong>
+    </div>
+    <span style="font-size:1.3rem;color:#4a5068;">vs</span>
+    <div class="card" style="text-align:center;min-width:110px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;letter-spacing:0.08em;">TARGET</div>
+      <strong>y</strong>
+    </div>
+    <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+    <div class="card accent-red" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;letter-spacing:0.08em;">LOSS</div>
+      <strong>L(ŷ, y)</strong>
+    </div>
+    <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+    <div class="card accent-blue" style="text-align:center;min-width:130px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#3b6df0;letter-spacing:0.08em;">GRADIENT</div>
+      <strong>&part;L/&part;w</strong>
+    </div>
+    <span style="font-size:1.5rem;color:#4a5068;">&rarr;</span>
+    <div class="card accent-green" style="text-align:center;min-width:120px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#10b981;letter-spacing:0.08em;">UPDATE</div>
+      <strong>w &minus; &eta;&nabla;L</strong>
+    </div>
+  </div>
+  <div class="fn-grid" style="max-width:700px;margin:0.5rem auto 0;grid-template-columns:repeat(3,1fr);">
+    <div class="card" style="text-align:center;">
+      <h4>One number</h4>
+      <p style="font-size:0.85rem;">Scalar that summarizes all mistakes</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>Differentiable</h4>
+      <p style="font-size:0.85rem;">Must have a gradient for backprop</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <h4>Task-specific</h4>
+      <p style="font-size:0.85rem;">Different tasks need different losses</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── LOSS LANDSCAPE ─── -->
+<div class="slide"
+     data-say="Think of loss as a landscape. Every possible combination of weights creates a point on this surface. Training is hiking downhill — the gradient tells you which direction is steepest. The goal is to reach the lowest valley."
+     data-ask="Can there be multiple valleys? What happens then?"
+     data-time="2 min">
+  <h2>The Loss Landscape</h2>
+  <div class="two-col align-center">
+    <div class="fn-chart">
+      <svg viewBox="0 0 500 300">
+        <rect x="30" y="20" width="440" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+        <!-- U-shaped loss curve -->
+        <polyline points="50,40 70,60 90,85 110,112 130,140 150,168 170,195 190,218 210,236 230,248 250,254 270,248 290,236 310,218 330,195 350,168 370,140 390,112 410,85 430,60 450,40" fill="none" stroke="#3b6df0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- gradient arrow at left -->
+        <line x1="110" y1="112" x2="160" y2="155" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+        <text x="100" y="100" font-family="Inter" font-size="10" fill="#10b981" font-weight="600">gradient</text>
+        <!-- current position -->
+        <circle cx="110" cy="112" r="6" fill="#ef4444"/>
+        <text x="85" y="130" font-family="Inter" font-size="9" fill="#ef4444" font-weight="600">current</text>
+        <!-- minimum -->
+        <circle cx="250" cy="254" r="6" fill="#10b981"/>
+        <text x="235" y="275" font-family="Inter" font-size="10" fill="#10b981" font-weight="600">minimum</text>
+        <!-- axes -->
+        <text x="250" y="295" font-family="Inter" font-size="10" fill="#8b90a5" text-anchor="middle">weights</text>
+        <text x="20" y="150" font-family="Inter" font-size="10" fill="#8b90a5" transform="rotate(-90,20,150)">loss</text>
+        <defs><marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#10b981"/></marker></defs>
+      </svg>
+    </div>
+    <div>
+      <div class="card" style="background:#f0f4ff;">
+        <h4>Training = Downhill Hiking</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Loss</strong> = altitude (lower is better)</li>
+          <li><strong>Gradient</strong> = slope direction (steepest descent)</li>
+          <li><strong>Learning rate</strong> = step size</li>
+          <li><strong>Minimum</strong> = best weights found</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Local vs Global Minima</h4>
+        <p style="font-size:0.88rem;">Real loss landscapes have many valleys. SGD + momentum help escape shallow local minima.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── TAXONOMY ─── -->
+<div class="slide"
+     data-say="Loss functions fall into three families: regression (predicting numbers), classification (predicting categories), and adversarial (GANs). We'll go through each family, starting with the simplest."
+     data-ask="Which family does a GAN loss belong to?"
+     data-time="2 min">
+  <h2>Three Families of Loss</h2>
+  <div class="fn-grid" style="grid-template-columns:repeat(3,1fr);max-width:850px;margin:1rem auto;">
+    <div class="card accent-blue" style="text-align:center;">
+      <h4>Regression</h4>
+      <p style="font-size:0.88rem;">Predict a <strong>number</strong></p>
+      <p style="font-size:0.82rem;color:#8b90a5;margin-top:0.3rem;">House price, temperature, delivery time</p>
+      <div style="margin-top:0.5rem;">
+        <span class="pill blue" style="font-size:0.75rem;">MAE</span>
+        <span class="pill blue" style="font-size:0.75rem;">MSE</span>
+        <span class="pill blue" style="font-size:0.75rem;">Huber</span>
+      </div>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <h4>Classification</h4>
+      <p style="font-size:0.88rem;">Predict a <strong>category</strong></p>
+      <p style="font-size:0.82rem;color:#8b90a5;margin-top:0.3rem;">Cat/dog, spam/not, digit 0-9</p>
+      <div style="margin-top:0.5rem;">
+        <span class="pill green" style="font-size:0.75rem;">BCE</span>
+        <span class="pill green" style="font-size:0.75rem;">CE</span>
+        <span class="pill green" style="font-size:0.75rem;">Focal</span>
+      </div>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <h4>Adversarial</h4>
+      <p style="font-size:0.88rem;">Two networks <strong>compete</strong></p>
+      <p style="font-size:0.82rem;color:#8b90a5;margin-top:0.3rem;">GANs: Generator vs Discriminator</p>
+      <div style="margin-top:0.5rem;">
+        <span class="pill purple" style="font-size:0.75rem;">BCE GAN</span>
+        <span class="pill purple" style="font-size:0.75rem;">WGAN</span>
+        <span class="pill purple" style="font-size:0.75rem;">Hinge</span>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="text-align:center;background:#f8f9fb;max-width:700px;margin:0.5rem auto 0;">
+    <p><strong>Wrong loss = wrong learning.</strong> A regression loss on a classification task gives useless gradients.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     REGRESSION LOSSES
+     ═══════════════════════════════════════════ -->
+
+<!-- 5 ─── MAE ─── -->
+<div class="slide"
+     data-say="MAE is the simplest loss: the average absolute difference. It treats all errors equally — a mistake of 10 is exactly twice as bad as a mistake of 5. Robust to outliers because it doesn't square."
+     data-ask="If you have errors of -3, +1, -2, what is the MAE?"
+     data-time="3 min">
+  <h2>MAE &mdash; Mean Absolute Error</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">MAE = (1/n) &Sigma; |ŷ<sub>i</sub> &minus; y<sub>i</sub>|</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <line x1="50" y1="270" x2="450" y2="270" stroke="#4a5068" stroke-width="1.5"/>
+          <text x="250" y="295" font-family="Inter" font-size="10" fill="#8b90a5" text-anchor="middle">error (ŷ &minus; y)</text>
+          <text x="20" y="150" font-family="Inter" font-size="10" fill="#8b90a5" transform="rotate(-90,20,150)">loss</text>
+          <!-- V-shape: |error| -->
+          <polyline points="50,30 90,78 130,126 170,174 210,222 250,270 290,222 330,174 370,126 410,78 450,30" fill="none" stroke="#3b6df0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="250" cy="270" r="5" fill="#3b6df0"/>
+          <text x="260" y="265" font-family="Inter" font-size="10" fill="#3b6df0" font-weight="600">perfect</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Strengths</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Robust to outliers</strong> &mdash; large errors don't dominate</li>
+          <li>Intuitive: average distance in original units</li>
+          <li>Constant gradient magnitude (&plusmn;1)</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Weaknesses</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Not differentiable at 0</strong> &mdash; gradient undefined at exact prediction</li>
+          <li>Constant gradient even for tiny errors &rarr; can oscillate near minimum</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>Worked Example</h4>
+        <p style="font-size:0.85rem;">Errors: &minus;3, +1, &minus;2</p>
+        <p style="font-size:0.85rem;">|&minus;3| + |+1| + |&minus;2| = 3 + 1 + 2 = 6</p>
+        <p style="font-size:0.85rem;"><strong>MAE = 6 / 3 = 2.0</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── MSE ─── -->
+<div class="slide"
+     data-say="MSE squares each error before averaging. This does two things: eliminates sign (like absolute value) and amplifies large errors. A mistake of 10 is 100 times worse than a mistake of 1. The gradient shrinks near zero, which helps convergence."
+     data-ask="Why does squaring help near the minimum but hurt with outliers?"
+     data-time="3 min">
+  <h2>MSE &mdash; Mean Squared Error</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">MSE = (1/n) &Sigma; (ŷ<sub>i</sub> &minus; y<sub>i</sub>)&sup2;</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <line x1="50" y1="270" x2="450" y2="270" stroke="#4a5068" stroke-width="1.5"/>
+          <text x="250" y="295" font-family="Inter" font-size="10" fill="#8b90a5" text-anchor="middle">error</text>
+          <!-- U-shape: error^2 (parabola, 20 computed points) -->
+          <polyline points="50,20 70,38 90,58 110,82 130,108 150,136 170,162 190,190 210,216 230,242 250,270 270,242 290,216 310,190 330,162 350,136 370,108 390,82 410,58 430,38 450,20" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="250" cy="270" r="5" fill="#10b981"/>
+          <!-- comparison: MAE dashed -->
+          <polyline points="50,30 250,270 450,30" fill="none" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,4" opacity="0.4"/>
+          <text x="400" y="50" font-family="Inter" font-size="9" fill="#3b6df0">MAE</text>
+          <text x="400" y="65" font-family="Inter" font-size="9" fill="#10b981" font-weight="600">MSE</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Strengths</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Differentiable everywhere</strong> (smooth parabola)</li>
+          <li>Gradient shrinks near minimum &rarr; smooth convergence</li>
+          <li>Amplifies large errors &rarr; strong learning signal</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Weaknesses</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Sensitive to outliers</strong> &mdash; one large error dominates</li>
+          <li>Units are squared (MSE=4 means error&asymp;2)</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>Worked Example</h4>
+        <p style="font-size:0.85rem;">Errors: &minus;3, +1, &minus;2</p>
+        <p style="font-size:0.85rem;">(&minus;3)&sup2; + 1&sup2; + (&minus;2)&sup2; = 9 + 1 + 4 = 14</p>
+        <p style="font-size:0.85rem;"><strong>MSE = 14 / 3 = 4.67</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── HUBER LOSS ─── -->
+<div class="slide"
+     data-say="Huber loss is the best of both worlds. For small errors (within delta), it behaves like MSE — smooth, shrinking gradient. For large errors (beyond delta), it behaves like MAE — linear, robust to outliers."
+     data-ask="What value of delta makes Huber identical to MSE?"
+     data-time="2 min">
+  <h2>Huber Loss &mdash; Best of Both</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula" style="font-size:0.9rem;">L = &frac12;(ŷ&minus;y)&sup2; if |ŷ&minus;y| &le; &delta;, else &delta;|ŷ&minus;y| &minus; &frac12;&delta;&sup2;</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="250" y1="20" x2="250" y2="280" stroke="#4a5068" stroke-width="1"/>
+          <line x1="50" y1="270" x2="450" y2="270" stroke="#4a5068" stroke-width="1.5"/>
+          <!-- Huber: quadratic center, linear tails (delta=2) -->
+          <!-- Linear left tail -->
+          <polyline points="50,46 90,94 130,142 150,166" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Quadratic center -->
+          <polyline points="150,166 170,198 190,222 210,242 230,258 250,270 270,258 290,242 310,222 330,198 350,166" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Linear right tail -->
+          <polyline points="350,166 370,142 410,94 450,46" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- delta markers -->
+          <line x1="150" y1="265" x2="150" y2="275" stroke="#8b5cf6" stroke-width="2"/>
+          <line x1="350" y1="265" x2="350" y2="275" stroke="#8b5cf6" stroke-width="2"/>
+          <text x="150" y="290" font-family="JetBrains Mono" font-size="9" fill="#8b5cf6" text-anchor="middle">&minus;&delta;</text>
+          <text x="350" y="290" font-family="JetBrains Mono" font-size="9" fill="#8b5cf6" text-anchor="middle">+&delta;</text>
+          <!-- zone labels -->
+          <text x="90" y="80" font-family="Inter" font-size="9" fill="#8b5cf6" font-weight="600">linear</text>
+          <text x="250" y="210" font-family="Inter" font-size="9" fill="#8b5cf6" font-weight="600" text-anchor="middle">quadratic</text>
+          <text x="410" y="80" font-family="Inter" font-size="9" fill="#8b5cf6" font-weight="600">linear</text>
+          <circle cx="250" cy="270" r="5" fill="#8b5cf6"/>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <table class="compare-table" style="font-size:0.85rem;">
+        <tr><th>Zone</th><th>Behavior</th><th>Like</th></tr>
+        <tr><td>|error| &le; &delta;</td><td>Quadratic</td><td>MSE</td></tr>
+        <tr><td>|error| &gt; &delta;</td><td>Linear</td><td>MAE</td></tr>
+      </table>
+      <div class="card mt-1" style="background:#ecfdf5;">
+        <h4>Why Huber?</h4>
+        <ul style="font-size:0.88rem;">
+          <li>MSE-smooth near minimum (no oscillation)</li>
+          <li>MAE-robust far from minimum (outlier protection)</li>
+          <li>&delta; controls the transition point</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>PyTorch</h4>
+        <div class="formula" style="font-size:0.85rem;">nn.HuberLoss(delta=1.0)</div>
+        <div class="formula mt-1" style="font-size:0.85rem;">nn.SmoothL1Loss()  # Huber with &delta;=1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 ─── MAE vs MSE vs HUBER ─── -->
+<div class="slide"
+     data-say="Let's compare all three regression losses side by side. For normal data, MSE works best. If you have outliers, use MAE or Huber. Huber is the safe default."
+     data-ask="Your dataset has a few extreme outliers. Which loss?"
+     data-time="2 min">
+  <h2>Regression Losses Compared</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <table class="compare-table" style="font-size:0.85rem;">
+      <tr><th>Property</th><th>MAE</th><th>MSE</th><th>Huber</th></tr>
+      <tr><td><strong>Formula</strong></td><td>|error|</td><td>error&sup2;</td><td>Hybrid</td></tr>
+      <tr><td><strong>Outlier robust</strong></td><td style="color:#10b981;font-weight:700;">Yes</td><td style="color:#ef4444;">No</td><td style="color:#10b981;font-weight:700;">Yes</td></tr>
+      <tr><td><strong>Smooth at 0</strong></td><td style="color:#ef4444;">No (V-shape)</td><td style="color:#10b981;font-weight:700;">Yes (U-shape)</td><td style="color:#10b981;font-weight:700;">Yes</td></tr>
+      <tr><td><strong>Gradient near 0</strong></td><td>Constant (&plusmn;1)</td><td>Shrinks &rarr; 0</td><td>Shrinks &rarr; 0</td></tr>
+      <tr><td><strong>Large error gradient</strong></td><td>Constant</td><td style="color:#ef4444;">Explodes</td><td>Constant</td></tr>
+      <tr><td><strong>PyTorch</strong></td><td>nn.L1Loss()</td><td>nn.MSELoss()</td><td>nn.HuberLoss()</td></tr>
+    </table>
+    <div class="card mt-1" style="text-align:center;background:#f0f4ff;">
+      <p><strong>Rule of thumb:</strong> Start with MSE. Switch to Huber if outliers cause instability. Use MAE for median-focused predictions.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CLASSIFICATION LOSSES
+     ═══════════════════════════════════════════ -->
+
+<!-- 9 ─── BCE ─── -->
+<div class="slide"
+     data-say="Binary Cross-Entropy is the loss for yes/no decisions. It measures how well a predicted probability matches a binary target. When the prediction is confident and correct, loss is near zero. When confident and WRONG, loss shoots toward infinity."
+     data-ask="Why is -log(0.01) much larger than -log(0.5)?"
+     data-time="3 min">
+  <h2>BCE &mdash; Binary Cross-Entropy</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula">BCE = &minus;[y&middot;log(p) + (1&minus;y)&middot;log(1&minus;p)]</div>
+      <div class="fn-chart">
+        <svg viewBox="0 0 500 300">
+          <rect x="50" y="20" width="400" height="260" rx="12" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+          <line x1="50" y1="270" x2="450" y2="270" stroke="#4a5068" stroke-width="1.5"/>
+          <line x1="50" y1="20" x2="50" y2="275" stroke="#4a5068" stroke-width="1"/>
+          <text x="250" y="295" font-family="Inter" font-size="10" fill="#8b90a5" text-anchor="middle">p (predicted probability)</text>
+          <text x="30" y="150" font-family="Inter" font-size="10" fill="#8b90a5" transform="rotate(-90,30,150)">loss</text>
+          <text x="55" y="290" font-family="JetBrains Mono" font-size="9" fill="#8b90a5">0</text>
+          <text x="250" y="290" font-family="JetBrains Mono" font-size="9" fill="#8b90a5" text-anchor="middle">0.5</text>
+          <text x="445" y="290" font-family="JetBrains Mono" font-size="9" fill="#8b90a5" text-anchor="end">1</text>
+          <!-- -log(p): target=1, 20 computed points -->
+          <polyline points="55,24 71,60 91,88 111,108 131,124 151,138 171,150 191,160 211,168 231,175 251,182 271,188 291,194 311,200 331,206 351,212 371,220 391,230 411,242 431,254 450,270" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- -log(1-p): target=0, 20 computed points -->
+          <polyline points="50,270 71,254 91,242 111,230 131,220 151,212 171,206 191,200 211,194 231,188 251,182 271,175 291,168 311,160 331,150 351,138 371,124 391,108 411,88 431,60 445,24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- labels -->
+          <text x="100" y="50" font-family="JetBrains Mono" font-size="10" fill="#10b981" font-weight="600">&minus;log(p)</text>
+          <text x="100" y="65" font-family="Inter" font-size="9" fill="#10b981">target = 1</text>
+          <text x="350" y="50" font-family="JetBrains Mono" font-size="10" fill="#ef4444" font-weight="600">&minus;log(1&minus;p)</text>
+          <text x="350" y="65" font-family="Inter" font-size="9" fill="#ef4444">target = 0</text>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>When y = 1 (real)</h4>
+        <table class="compare-table" style="font-size:0.82rem;">
+          <tr><th>p</th><th>Loss</th><th>Meaning</th></tr>
+          <tr><td>0.99</td><td style="color:#10b981;">0.01</td><td>Confident, correct</td></tr>
+          <tr><td>0.50</td><td>0.69</td><td>Uncertain</td></tr>
+          <tr><td>0.01</td><td style="color:#ef4444;font-weight:700;">4.61</td><td>Confident, WRONG</td></tr>
+        </table>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>Key Insight</h4>
+        <p style="font-size:0.88rem;">BCE <strong>harshly punishes confident wrong answers</strong>. This drives fast learning for classification.</p>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>PyTorch</h4>
+        <div class="formula" style="font-size:0.85rem;">nn.BCELoss()  # after Sigmoid</div>
+        <div class="formula mt-1" style="font-size:0.85rem;">nn.BCEWithLogitsLoss()  # more stable</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── CROSS-ENTROPY ─── -->
+<div class="slide"
+     data-say="Cross-Entropy generalizes BCE to multiple classes. Instead of one probability, we have a probability distribution over K classes. The loss is -log of the probability assigned to the correct class."
+     data-ask="If the correct class has probability 0.001, how large is the CE loss?"
+     data-time="3 min">
+  <h2>Cross-Entropy &mdash; Multi-Class</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="fn-formula">CE = &minus;&Sigma; y<sub>k</sub> &middot; log(p<sub>k</sub>) = &minus;log(p<sub>correct</sub>)</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:1rem 0;flex-wrap:wrap;">
+      <div class="card" style="text-align:center;min-width:130px;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;">RAW SCORES</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;">[2.0, 1.0, 0.1]</div>
+      </div>
+      <span style="font-size:1.3rem;color:#4a5068;">&rarr;</span>
+      <div class="card accent-purple" style="text-align:center;min-width:100px;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b5cf6;">SOFTMAX</div>
+      </div>
+      <span style="font-size:1.3rem;color:#4a5068;">&rarr;</span>
+      <div class="card" style="text-align:center;min-width:160px;">
+        <div style="font-size:0.7rem;font-weight:700;color:#8b90a5;">PROBABILITIES</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;">[<strong style="color:#10b981;">0.66</strong>, 0.24, 0.10]</div>
+      </div>
+      <span style="font-size:1.3rem;color:#4a5068;">&rarr;</span>
+      <div class="card accent-red" style="text-align:center;min-width:120px;">
+        <div style="font-size:0.7rem;font-weight:700;color:#ef4444;">CE LOSS</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;">&minus;log(0.66) = <strong>0.42</strong></div>
+      </div>
+    </div>
+    <div class="fn-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card" style="background:#ecfdf5;">
+        <h4>BCE vs CE</h4>
+        <table class="compare-table" style="font-size:0.82rem;">
+          <tr><th></th><th>BCE</th><th>CE</th></tr>
+          <tr><td><strong>Classes</strong></td><td>2 (binary)</td><td>K (any)</td></tr>
+          <tr><td><strong>Output</strong></td><td>Sigmoid</td><td>Softmax</td></tr>
+          <tr><td><strong>Target</strong></td><td>0 or 1</td><td>One-hot or index</td></tr>
+        </table>
+      </div>
+      <div class="card" style="background:#f0f4ff;">
+        <h4>PyTorch</h4>
+        <div class="formula" style="font-size:0.82rem;">nn.CrossEntropyLoss()</div>
+        <p style="font-size:0.82rem;margin-top:0.3rem;">Combines Softmax + CE in one step (numerically stable). Input: raw logits, not probabilities.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── FOCAL LOSS ─── -->
+<div class="slide"
+     data-say="Focal loss down-weights easy examples and focuses on hard ones. Created for object detection where 99% of regions are background (easy negatives). Without focal loss, the easy examples overwhelm the gradient."
+     data-ask="In MNIST, are all classes equally hard? What about real-world datasets?"
+     data-time="2 min">
+  <h2>Focal Loss &mdash; Focus on Hard Examples</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="fn-formula" style="font-size:0.95rem;">FL = &minus;&alpha;(1 &minus; p<sub>t</sub>)<sup>&gamma;</sup> log(p<sub>t</sub>)</div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>How It Works</h4>
+        <table class="compare-table" style="font-size:0.82rem;">
+          <tr><th>p<sub>t</sub></th><th>(1&minus;p<sub>t</sub>)<sup>2</sup></th><th>Effect</th></tr>
+          <tr><td>0.9 (easy)</td><td>0.01</td><td style="color:#8b90a5;">Loss &times; 0.01 &rarr; <strong>ignored</strong></td></tr>
+          <tr><td>0.5 (medium)</td><td>0.25</td><td>Loss &times; 0.25 &rarr; reduced</td></tr>
+          <tr><td>0.1 (hard)</td><td>0.81</td><td style="color:#ef4444;font-weight:600;">Loss &times; 0.81 &rarr; <strong>full signal</strong></td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>When to Use</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>Imbalanced classes</strong> (99% negative, 1% positive)</li>
+          <li>Object detection (RetinaNet)</li>
+          <li>Medical imaging (rare disease detection)</li>
+        </ul>
+      </div>
+      <div class="card mt-1" style="background:#f0f4ff;">
+        <h4>Parameters</h4>
+        <ul style="font-size:0.88rem;">
+          <li><strong>&gamma;</strong> = focusing power (typically 2)</li>
+          <li><strong>&alpha;</strong> = class weight balance</li>
+          <li>&gamma;=0 &rarr; standard Cross-Entropy</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ADVERSARIAL / GAN LOSSES
+     ═══════════════════════════════════════════ -->
+
+<!-- 12 ─── GAN LOSSES OVERVIEW ─── -->
+<div class="slide"
+     data-say="GAN losses are unique because there's no single target. Two networks compete, each with its own loss. The loss must capture the quality of generated samples AND the discriminator's ability to tell real from fake."
+     data-ask="Why can't we just use MSE for GANs?"
+     data-time="2 min">
+  <h2>GAN Losses &mdash; A Different Beast</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="card" style="text-align:center;background:#f0f4ff;margin-bottom:0.75rem;">
+      <p><strong>Normal loss:</strong> Compare prediction to fixed target. &nbsp;&nbsp;<strong>GAN loss:</strong> Two networks define each other's loss.</p>
+    </div>
+    <div class="two-col">
+      <div class="card" style="background:#fef2f2;text-align:center;">
+        <h4 style="color:#ef4444;">Discriminator Loss</h4>
+        <p style="font-size:0.88rem;">Classify <strong>real</strong> images as 1</p>
+        <p style="font-size:0.88rem;">Classify <strong>fake</strong> images as 0</p>
+        <p class="mt-1" style="font-size:0.85rem;color:#8b90a5;">D wants to <strong>maximize</strong> separation</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;text-align:center;">
+        <h4 style="color:#10b981;">Generator Loss</h4>
+        <p style="font-size:0.88rem;">Make D classify fakes as <strong>1</strong></p>
+        <p style="font-size:0.88rem;">D's mistakes = G's success</p>
+        <p class="mt-1" style="font-size:0.85rem;color:#8b90a5;">G wants to <strong>fool</strong> D</p>
+      </div>
+    </div>
+    <div class="fn-grid" style="grid-template-columns:repeat(3,1fr);margin-top:0.75rem;">
+      <div class="card" style="text-align:center;border:2px solid #3b6df0;">
+        <h4>BCE GAN</h4>
+        <p style="font-size:0.82rem;">Original (2014)</p>
+      </div>
+      <div class="card" style="text-align:center;border:2px solid #8b5cf6;">
+        <h4>WGAN</h4>
+        <p style="font-size:0.82rem;">Wasserstein (2017)</p>
+      </div>
+      <div class="card" style="text-align:center;border:2px solid #0ea5e9;">
+        <h4>Hinge</h4>
+        <p style="font-size:0.82rem;">Spectral Norm (2018)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── BCE GAN LOSS ─── -->
+<div class="slide"
+     data-say="The original GAN uses BCE loss on both sides. D maximizes log D(x) + log(1-D(G(z))). G minimizes -log D(G(z)). The problem: when D is too strong, the gradient for G vanishes."
+     data-ask="What is G's gradient when D outputs 0.001 for all fakes?"
+     data-time="3 min">
+  <h2>BCE GAN Loss (Goodfellow 2014)</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="fn-formula" style="font-size:1rem;">min<sub>G</sub> max<sub>D</sub> &nbsp; E[log D(x)] + E[log(1 &minus; D(G(z)))]</div>
+    <div class="two-col" style="margin-top:0.75rem;">
+      <div class="card" style="background:#fef2f2;">
+        <h4>D Loss</h4>
+        <div class="formula" style="font-size:0.85rem;text-align:left;background:transparent;border:none;padding:0;">L<sub>D</sub> = BCE(D(real), 1) + BCE(D(fake), 0)</div>
+        <p class="mt-1" style="font-size:0.85rem;">D wants: D(real) &rarr; 1, D(fake) &rarr; 0</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>G Loss</h4>
+        <div class="formula" style="font-size:0.85rem;text-align:left;background:transparent;border:none;padding:0;">L<sub>G</sub> = BCE(D(fake), 1) = &minus;log D(G(z))</div>
+        <p class="mt-1" style="font-size:0.85rem;">G wants: D(fake) &rarr; 1 (fool D)</p>
+      </div>
+    </div>
+    <div class="card mt-1" style="background:#fef2f2;text-align:center;">
+      <h4>The Problem: Vanishing Gradient</h4>
+      <p style="font-size:0.88rem;">When D is perfect (D(fake) &asymp; 0): &nabla;G = &minus;1/D(G(z)) &rarr; undefined, but sigmoid saturation means <strong>gradient is vanishingly small</strong>. G receives no useful signal. Training stalls.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── WASSERSTEIN LOSS ─── -->
+<div class="slide"
+     data-say="WGAN replaces the Discriminator with a Critic that outputs an unbounded score. Instead of classifying real vs fake, it measures the distance between distributions. The gradient never vanishes — it's always proportional to the actual distance."
+     data-ask="Why does removing Sigmoid from the Critic help?"
+     data-time="3 min">
+  <h2>Wasserstein Loss (WGAN 2017)</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="two-col">
+      <div class="card" style="background:#fef2f2;">
+        <h4>Critic Loss</h4>
+        <div class="fn-formula" style="font-size:0.9rem;">L<sub>C</sub> = &minus;E[C(x)] + E[C(G(z))]</div>
+        <p class="mt-1" style="font-size:0.85rem;">Maximize: score real high, score fake low</p>
+        <p style="font-size:0.85rem;">No Sigmoid &rarr; unbounded output</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Generator Loss</h4>
+        <div class="fn-formula" style="font-size:0.9rem;">L<sub>G</sub> = &minus;E[C(G(z))]</div>
+        <p class="mt-1" style="font-size:0.85rem;">Maximize: make Critic score fakes higher</p>
+        <p style="font-size:0.85rem;">Simple mean subtraction</p>
+      </div>
+    </div>
+    <div class="card mt-1" style="background:#f0f4ff;">
+      <h4>Why Wasserstein Is Better</h4>
+      <table class="compare-table" style="font-size:0.82rem;">
+        <tr><th></th><th>BCE GAN</th><th>WGAN</th></tr>
+        <tr><td><strong>Output</strong></td><td>[0, 1] via Sigmoid</td><td>(&minus;&infin;, +&infin;) unbounded</td></tr>
+        <tr><td><strong>Gradient</strong></td><td style="color:#ef4444;">Vanishes when D wins</td><td style="color:#10b981;font-weight:700;">Always meaningful</td></tr>
+        <tr><td><strong>Loss correlates</strong></td><td style="color:#ef4444;">Not with image quality</td><td style="color:#10b981;font-weight:700;">Yes &mdash; lower = better</td></tr>
+        <tr><td><strong>Constraint</strong></td><td>None</td><td>1-Lipschitz (weight clip or GP)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── HINGE LOSS ─── -->
+<div class="slide"
+     data-say="Hinge loss is used in SNGAN and BigGAN. D only penalizes real images scored below +1 and fake images scored above -1. Once an image is clearly classified, the gradient stops — no need to push further."
+     data-ask="What advantage does the margin give compared to always pushing scores apart?"
+     data-time="2 min">
+  <h2>Hinge Loss (SNGAN / BigGAN)</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="two-col">
+      <div class="card" style="background:#fef2f2;">
+        <h4>D Loss</h4>
+        <div class="fn-formula" style="font-size:0.85rem;">L<sub>D</sub> = E[max(0, 1 &minus; D(x))] + E[max(0, 1 + D(G(z)))]</div>
+        <p class="mt-1" style="font-size:0.85rem;">Real: penalize if D(x) &lt; 1</p>
+        <p style="font-size:0.85rem;">Fake: penalize if D(G(z)) &gt; &minus;1</p>
+      </div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>G Loss</h4>
+        <div class="fn-formula" style="font-size:0.85rem;">L<sub>G</sub> = &minus;E[D(G(z))]</div>
+        <p class="mt-1" style="font-size:0.85rem;">Same as WGAN &mdash; push fake scores up</p>
+      </div>
+    </div>
+    <div class="card mt-1" style="background:#f0f4ff;">
+      <h4>The Margin Advantage</h4>
+      <p style="font-size:0.88rem;">Once D(real) &gt; 1 or D(fake) &lt; &minus;1, gradient = 0. D stops wasting capacity on already-classified samples and focuses on <strong>borderline cases</strong>.</p>
+    </div>
+    <div class="card mt-1" style="background:#f8f9fb;text-align:center;">
+      <p style="font-size:0.85rem;">Used in: <strong>SNGAN</strong> (Miyato 2018), <strong>BigGAN</strong> (Brock 2019), <strong>StyleGAN2</strong> (Karras 2020)</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── GAN LOSSES COMPARED ─── -->
+<div class="slide"
+     data-say="Here's the full comparison of GAN losses. BCE is simplest but unstable. WGAN gives meaningful loss curves. Hinge is the modern default for large-scale image generation."
+     data-ask="Which GAN loss would you choose for a new project?"
+     data-time="2 min">
+  <h2>GAN Losses Compared</h2>
+  <div style="overflow-x:auto;max-width:900px;margin:0 auto;">
+    <table class="compare-table" style="font-size:0.82rem;">
+      <tr><th>Loss</th><th>D Output</th><th>Gradient Signal</th><th>Loss = Quality?</th><th>Stability</th><th>Used In</th></tr>
+      <tr><td><strong>BCE</strong></td><td>[0,1] Sigmoid</td><td style="color:#ef4444;">Vanishes</td><td style="color:#ef4444;">No</td><td style="color:#ef4444;">Fragile</td><td>DCGAN</td></tr>
+      <tr style="background:#f0f4ff;"><td><strong>WGAN</strong></td><td>Unbounded</td><td style="color:#10b981;font-weight:700;">Always</td><td style="color:#10b981;font-weight:700;">Yes</td><td>Good</td><td>WGAN, WGAN-GP</td></tr>
+      <tr style="background:#ecfdf5;"><td><strong>Hinge</strong></td><td>Unbounded</td><td style="color:#10b981;font-weight:700;">Focused</td><td>Partially</td><td style="color:#10b981;font-weight:700;">Best</td><td>SNGAN, BigGAN, StyleGAN2</td></tr>
+      <tr><td><strong>Least Squares</strong></td><td>Unbounded</td><td>Good</td><td>Partially</td><td>Good</td><td>LSGAN</td></tr>
+    </table>
+  </div>
+  <div class="card mt-1" style="text-align:center;background:#f0f4ff;max-width:700px;margin:0.5rem auto 0;">
+    <p><strong>Evolution:</strong> BCE (2014) &rarr; WGAN (2017) &rarr; Hinge + Spectral Norm (2018) &rarr; modern default</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SPECIAL / ADVANCED
+     ═══════════════════════════════════════════ -->
+
+<!-- 17 ─── PERCEPTUAL & RECONSTRUCTION ─── -->
+<div class="slide"
+     data-say="Sometimes pixel-level loss isn't enough. Perceptual loss compares images through the eyes of a pretrained network. Two images can look similar to humans but have high MSE. Perceptual loss captures structural similarity."
+     data-ask="Why might two visually similar images have high MSE?"
+     data-time="2 min">
+  <h2>Beyond Pixel Loss</h2>
+  <div class="fn-grid" style="grid-template-columns:1fr 1fr;max-width:800px;margin:0.5rem auto;">
+    <div class="card accent-blue">
+      <h4>Perceptual Loss (VGG Loss)</h4>
+      <div class="fn-formula" style="font-size:0.82rem;">L = ||VGG(ŷ) &minus; VGG(y)||&sup2;</div>
+      <p class="mt-1" style="font-size:0.85rem;">Compare feature maps from a pretrained VGG, not raw pixels. Captures texture, edges, structure.</p>
+      <p class="mt-1" style="font-size:0.82rem;color:#8b90a5;">Used in: style transfer, super-resolution, pix2pix</p>
+    </div>
+    <div class="card accent-purple">
+      <h4>Reconstruction Loss</h4>
+      <div class="fn-formula" style="font-size:0.82rem;">L = ||G(E(x)) &minus; x||&sup2;</div>
+      <p class="mt-1" style="font-size:0.85rem;">Encode then decode &mdash; output should match input. Used in autoencoders and VAEs.</p>
+      <p class="mt-1" style="font-size:0.82rem;color:#8b90a5;">Often combined with KL divergence for VAEs</p>
+    </div>
+    <div class="card accent-green">
+      <h4>SSIM Loss</h4>
+      <div class="fn-formula" style="font-size:0.82rem;">L = 1 &minus; SSIM(ŷ, y)</div>
+      <p class="mt-1" style="font-size:0.85rem;">Structural Similarity Index &mdash; measures luminance, contrast, structure. Better than MSE for image quality.</p>
+    </div>
+    <div class="card accent-red">
+      <h4>LPIPS</h4>
+      <div class="fn-formula" style="font-size:0.82rem;">L = d(F(ŷ), F(y))</div>
+      <p class="mt-1" style="font-size:0.85rem;">Learned Perceptual Image Patch Similarity. Trained on human judgments of similarity. Most human-aligned.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 18 ─── COMBINING LOSSES ─── -->
+<div class="slide"
+     data-say="Real systems combine multiple losses. A GAN might use adversarial loss plus perceptual loss plus L1 reconstruction. Each loss captures a different aspect of quality. The weights between losses are critical hyperparameters."
+     data-ask="What goes wrong if the adversarial weight is too high relative to reconstruction?"
+     data-time="2 min">
+  <h2>Combining Losses in Practice</h2>
+  <div style="max-width:800px;margin:0 auto;">
+    <div class="fn-formula" style="font-size:0.95rem;">L<sub>total</sub> = &lambda;<sub>1</sub> L<sub>adv</sub> + &lambda;<sub>2</sub> L<sub>recon</sub> + &lambda;<sub>3</sub> L<sub>percep</sub></div>
+    <div class="fn-grid" style="margin-top:0.75rem;">
+      <div class="card" style="text-align:center;">
+        <h4>Pix2Pix</h4>
+        <p style="font-size:0.82rem;">L<sub>GAN</sub> + 100 &times; L<sub>L1</sub></p>
+        <p style="font-size:0.78rem;color:#8b90a5;">Heavy L1 keeps structure; GAN adds sharpness</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h4>SRGAN</h4>
+        <p style="font-size:0.82rem;">L<sub>GAN</sub> + 0.006 &times; L<sub>VGG</sub></p>
+        <p style="font-size:0.78rem;color:#8b90a5;">Small VGG weight prevents artifacts</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h4>StyleGAN2</h4>
+        <p style="font-size:0.82rem;">L<sub>hinge</sub> + R<sub>1</sub> penalty</p>
+        <p style="font-size:0.78rem;color:#8b90a5;">R1 regularization keeps D smooth</p>
+      </div>
+    </div>
+    <div class="card mt-1" style="background:#fef2f2;text-align:center;">
+      <h4>The Balancing Act</h4>
+      <p style="font-size:0.88rem;"><strong>Too much adversarial:</strong> artifacts, instability. <strong>Too much reconstruction:</strong> blurry, safe outputs. <strong>Right balance:</strong> sharp AND faithful.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 19 ─── CHOOSING THE RIGHT LOSS ─── -->
+<div class="slide"
+     data-say="This is your decision tree. Start with the task type, then pick the loss. For most projects, the default choice works. Only change if you have a specific problem like outliers, class imbalance, or GAN instability."
+     data-ask="You're building a GAN for medical image synthesis. Which losses?"
+     data-time="2 min">
+  <h2>Choosing the Right Loss</h2>
+  <div style="max-width:850px;margin:0 auto;">
+    <table class="compare-table" style="font-size:0.82rem;">
+      <tr><th>Task</th><th>Default Loss</th><th>Alternative</th><th>PyTorch</th></tr>
+      <tr><td><strong>Regression</strong></td><td>MSE</td><td>Huber (outliers)</td><td>nn.MSELoss()</td></tr>
+      <tr><td><strong>Binary classification</strong></td><td>BCE</td><td>Focal (imbalanced)</td><td>nn.BCEWithLogitsLoss()</td></tr>
+      <tr><td><strong>Multi-class</strong></td><td>Cross-Entropy</td><td>Focal, Label Smoothing</td><td>nn.CrossEntropyLoss()</td></tr>
+      <tr><td><strong>GAN (basic)</strong></td><td>BCE</td><td>WGAN, Hinge</td><td>nn.BCELoss()</td></tr>
+      <tr><td><strong>GAN (stable)</strong></td><td>WGAN-GP</td><td>Hinge + SN</td><td>Manual (mean)</td></tr>
+      <tr><td><strong>GAN (SOTA)</strong></td><td>Hinge + R1</td><td>&mdash;</td><td>Manual</td></tr>
+      <tr><td><strong>Image quality</strong></td><td>L1 + Perceptual</td><td>SSIM, LPIPS</td><td>Manual + torchvision</td></tr>
+      <tr><td><strong>Style transfer</strong></td><td>Content + Style (VGG)</td><td>&mdash;</td><td>Manual</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 20 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Let's recap the key takeaways about loss functions."
+     data-ask="What's the most important thing about choosing a loss function?"
+     data-time="2 min">
+  <h2>Summary</h2>
+  <div class="fn-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));max-width:900px;margin:0 auto;">
+    <div class="card accent-blue" style="text-align:center;">
+      <h4>Loss = Compass</h4>
+      <p style="font-size:0.85rem;">One scalar number that drives all learning. No loss, no gradient, no update.</p>
+    </div>
+    <div class="card accent-green" style="text-align:center;">
+      <h4>Match Task to Loss</h4>
+      <p style="font-size:0.85rem;">Regression &rarr; MSE. Classification &rarr; CE. GANs &rarr; WGAN or Hinge.</p>
+    </div>
+    <div class="card accent-purple" style="text-align:center;">
+      <h4>GAN Losses Evolved</h4>
+      <p style="font-size:0.85rem;">BCE (vanishing) &rarr; WGAN (meaningful) &rarr; Hinge (stable, modern).</p>
+    </div>
+    <div class="card accent-red" style="text-align:center;">
+      <h4>Combine for Quality</h4>
+      <p style="font-size:0.85rem;">Real systems blend adversarial + perceptual + reconstruction. Balance is key.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 21 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Test your understanding with these questions."
+     data-ask=""
+     data-time="5 min">
+  <h2>Knowledge Check</h2>
+  <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:800px;margin:0 auto;">
+    <div class="revealable card">
+      <h4>Q1: Your regression model predicts house prices. Training data has a few mansions at $10M+. MSE loss explodes. What do you switch to?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p><strong>Huber loss.</strong> It behaves like MSE for normal errors but switches to MAE for large errors (beyond &delta;), preventing the $10M outliers from dominating the gradient. Alternatively, MAE (L1Loss) works but converges less smoothly.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q2: Why does BCE GAN loss cause vanishing gradients but WGAN doesn't?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>BCE uses Sigmoid, which <strong>saturates</strong> near 0 and 1. When D confidently classifies fakes (D(G(z))&asymp;0), the Sigmoid gradient is near zero &mdash; G receives no signal. WGAN removes Sigmoid entirely. The Critic outputs unbounded scores, so the gradient is always <strong>proportional to the actual distance</strong> between distributions.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q3: In Pix2Pix, the loss is L_GAN + 100 &times; L1. Why is the L1 weight 100&times; larger?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>L1 (reconstruction) ensures the output matches the input structure &mdash; correct shapes, colors, layout. GAN loss adds <strong>sharpness and detail</strong>. Without the heavy L1 weight, the GAN would generate sharp but <strong>hallucinated</strong> content unrelated to the input. The 100&times; weight anchors the output to reality while letting GAN loss refine the details.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q4: Cross-Entropy loss uses Softmax output. Why can't you use Sigmoid for multi-class?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>Sigmoid treats each class independently &mdash; probabilities don't sum to 1. A network could output 0.9 for both "cat" and "dog." Softmax <strong>normalizes</strong> across all classes, ensuring they sum to 1. This creates competition: increasing one class's probability must decrease another's.</p>
+      </div>
+    </div>
+    <div class="revealable card">
+      <h4>Q5: Hinge loss stops penalizing D once D(real) > 1 and D(fake) < -1. Why is this beneficial?</h4>
+      <div class="hint">Click to reveal</div>
+      <div class="answer">
+        <p>Once samples are clearly classified (beyond the margin), further pushing is <strong>wasted capacity</strong>. Hinge loss redirects D's learning to <strong>borderline cases</strong> &mdash; the hard examples where real and fake are similar. This prevents D from becoming overconfident and helps maintain the balance with G.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .deck -->
+
+<script src="../../v1/unit-1/deck.js"></script>
+</body>
+</html>

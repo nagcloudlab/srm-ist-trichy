@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L19 — CycleGAN: Unpaired Translation</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L19">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="../unit-4/L18.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L18</a><a href="../../../index.html#unit-5" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L19 &bull; Unit 5</a><a href="L20.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">L20 &rarr;</a></div>
+
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-5">Unit 5</a> &bull; L19</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="Welcome to Unit 5. Unit 4 ended with Pix2Pix, which needs paired data. But what if you just have a pile of horse photos and a pile of zebra photos? No horse matches any zebra. CycleGAN says: I can still translate between them. And the trick is beautiful."
+     data-ask="How can you learn to translate without ever seeing the 'right answer'?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 19</div>
+  <h1>CycleGAN: Unpaired Translation</h1>
+  <p class="subtitle">No matching pairs needed &mdash; just two collections of images</p>
+</div>
+
+<!-- 2 ─── THE UNPAIRED PROBLEM ─── -->
+<div class="slide"
+     data-say="We have two piles: horses and zebras. No horse corresponds to any specific zebra. If we just train G to fool D_zebra, G could ignore the input entirely and produce any random zebra. The pose, background, composition — all lost."
+     data-ask="If G only needs to fool D, why would it bother looking at the input horse?"
+     data-time="2 min">
+  <h2>The Unpaired Problem</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>What we have</h4>
+        <p>Domain A: horse_1, horse_2, horse_3, ...<br>
+        Domain B: zebra_1, zebra_2, zebra_3, ...</p>
+        <p class="mt-1"><strong>No pairing.</strong> horse_1 has nothing to do with zebra_1.</p>
+      </div>
+      <div class="card mt-1" style="background:#fef2f2;">
+        <h4>Why Pix2Pix can't help</h4>
+        <p>G(horse_1) should look like <strong>???</strong></p>
+        <p>There's no target! Can't compute L1 loss without a target.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>What goes wrong without constraints</h4>
+        <p>If we just train G to fool D_B:</p>
+        <ul>
+          <li class="step">Input: horse running in a field</li>
+          <li class="step">Output: zebra standing in a zoo</li>
+          <li class="step">D_B says "looks like a real zebra!"</li>
+          <li class="step">But the CONTENT is completely wrong</li>
+        </ul>
+        <p class="mt-1 step" style="font-weight:600;">G needs a reason to preserve content.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── CYCLE CONSISTENCY ─── -->
+<div class="slide"
+     data-say="The brilliant trick: if you translate horse to zebra and BACK to horse, you should get the original horse. This is cycle consistency. If G destroys the content, the round trip fails and the loss goes up."
+     data-ask="Why does this force G to preserve content?"
+     data-time="3 min">
+  <h2>The Cycle Consistency Trick</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 700 300" style="width:100%;max-width:700px;">
+      <!-- FORWARD CYCLE -->
+      <text x="350" y="25" text-anchor="middle" font-size="14" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">FORWARD CYCLE</text>
+      <!-- Horse -->
+      <rect x="30" y="50" width="100" height="55" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="80" y="73" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Real Horse</text>
+      <text x="80" y="92" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">original</text>
+      <!-- Arrow -->
+      <line x1="130" y1="77" x2="170" y2="77" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="167,73 173,77 167,81" fill="#4a5068"/>
+      <!-- G_AB -->
+      <rect x="173" y="55" width="90" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="218" y="82" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">G_AB</text>
+      <!-- Arrow -->
+      <line x1="263" y1="77" x2="303" y2="77" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="300,73 306,77 300,81" fill="#4a5068"/>
+      <!-- Fake Zebra -->
+      <rect x="306" y="50" width="100" height="55" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="356" y="73" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Fake Zebra</text>
+      <text x="356" y="92" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">generated</text>
+      <!-- Arrow -->
+      <line x1="406" y1="77" x2="446" y2="77" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="443,73 449,77 443,81" fill="#4a5068"/>
+      <!-- G_BA -->
+      <rect x="449" y="55" width="90" height="45" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="494" y="82" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">G_BA</text>
+      <!-- Arrow -->
+      <line x1="539" y1="77" x2="579" y2="77" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="576,73 582,77 576,81" fill="#4a5068"/>
+      <!-- Reconstructed Horse -->
+      <rect x="582" y="50" width="100" height="55" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="632" y="73" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Reconstructed</text>
+      <text x="632" y="92" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#3b6df0">Horse</text>
+      <!-- Comparison arrow -->
+      <path d="M80,105 Q80,140 350,140 Q620,140 632,110" fill="none" stroke="#3b6df0" stroke-width="2" stroke-dasharray="6,3" class="flow-arrow"/>
+      <text x="350" y="157" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="700" fill="#3b6df0">Should match original!</text>
+      <text x="350" y="175" text-anchor="middle" font-size="11" font-family="JetBrains Mono,monospace" fill="#3b6df0">L_cycle = |reconstructed - original|</text>
+
+      <!-- BACKWARD CYCLE (simplified) -->
+      <text x="350" y="210" text-anchor="middle" font-size="14" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">BACKWARD CYCLE</text>
+      <rect x="30" y="225" width="100" height="40" rx="8" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="80" y="250" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Real Zebra</text>
+      <line x1="130" y1="245" x2="170" y2="245" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="167,241 173,245 167,249" fill="#4a5068"/>
+      <rect x="173" y="228" width="60" height="35" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="203" y="250" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">G_BA</text>
+      <line x1="233" y1="245" x2="270" y2="245" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="267,241 273,245 267,249" fill="#4a5068"/>
+      <rect x="273" y="225" width="90" height="40" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="318" y="250" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Fake Horse</text>
+      <line x1="363" y1="245" x2="400" y2="245" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="397,241 403,245 397,249" fill="#4a5068"/>
+      <rect x="403" y="228" width="60" height="35" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+      <text x="433" y="250" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">G_AB</text>
+      <line x1="463" y1="245" x2="500" y2="245" stroke="#4a5068" stroke-width="1.5"/>
+      <polygon points="497,241 503,245 497,249" fill="#4a5068"/>
+      <rect x="503" y="225" width="100" height="40" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="553" y="250" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#3b6df0">Recon. Zebra</text>
+      <!-- Match label -->
+      <text x="610" y="250" font-size="14" fill="#3b6df0" font-weight="700">= ?</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 4 ─── WHY CYCLE WORKS ─── -->
+<div class="slide"
+     data-say="The analogy: English to French to English. If the French translation is bad, translating back won't give the original sentence. Cycle consistency forces both translators to preserve meaning."
+     data-ask="What happens if G_AB changes the pose of the horse?"
+     data-time="2 min">
+  <h2>Why Cycle Consistency Preserves Content</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Without cycle consistency</h4>
+        <p>G_AB could map ALL horses to the same zebra. Content is destroyed &mdash; no way to recover the original.</p>
+        <p class="mt-1">If G_AB changes the pose, background, or shape, G_BA <strong>can't undo it</strong>.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>With cycle consistency</h4>
+        <p>G_BA must UNDO what G_AB did. This is only possible if G_AB <strong>preserves content</strong>.</p>
+        <p class="mt-1">G_AB learns to ONLY change what's necessary:</p>
+        <ul>
+          <li>Horse texture &rarr; zebra stripes</li>
+          <li>Horse color &rarr; zebra color</li>
+          <li>Everything else stays the same</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <blockquote class="step" style="margin:1rem auto 0;max-width:650px;padding:1rem 1.5rem;border-left:5px solid #1a1d2e;background:#f8f9fb;border-radius:0 12px 12px 0;font-style:italic;">
+    &ldquo;English &rarr; French &rarr; English. If the French translation is bad, the round trip fails. Cycle consistency forces <strong>both</strong> translators to preserve meaning.&rdquo;
+  </blockquote>
+</div>
+
+<!-- 5 ─── FOUR LOSSES ─── -->
+<div class="slide"
+     data-say="CycleGAN has four losses. Two GAN losses (one per direction) plus two cycle losses (forward and backward). Lambda_cyc=10 means cycle consistency matters A LOT."
+     data-ask="Can you name all four losses?"
+     data-time="2 min">
+  <h2>The Full CycleGAN Loss</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#ecfdf5;">
+      <h4>1. GAN Loss (A &rarr; B)</h4>
+      <p>G_AB should fool D_B</p>
+      <p class="text-muted">"Fake zebras should look like real zebras"</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>2. GAN Loss (B &rarr; A)</h4>
+      <p>G_BA should fool D_A</p>
+      <p class="text-muted">"Fake horses should look like real horses"</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>3. Cycle Loss (forward)</h4>
+      <p>|G_BA(G_AB(horse)) - horse|</p>
+      <p class="text-muted">"horse &rarr; zebra &rarr; horse = original horse"</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>4. Cycle Loss (backward)</h4>
+      <p>|G_AB(G_BA(zebra)) - zebra|</p>
+      <p class="text-muted">"zebra &rarr; horse &rarr; zebra = original zebra"</p>
+    </div>
+  </div>
+  <div class="formula mt-1" style="font-size:0.95rem;">
+    L_total = L_GAN(G_AB, D_B) + L_GAN(G_BA, D_A) + <strong>10</strong> &times; L_cycle
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · TERM BY TERM ─── -->
+<div class="slide"
+     data-say="The paper writes the two generators as G: X to Y and F: Y to X — our G_AB and G_BA. Read the objective term by term. Unlike Pix2Pix there is no target image y for a given x: the only pixel-level signal is the round trip back to x itself."
+     data-ask="Which term would you delete to get 'any zebra, regardless of the horse'?"
+     data-time="3 min">
+  <h2>The CycleGAN objective <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· term by term</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-eq">L = L<sub>GAN</sub>(G, D<sub>Y</sub>) + L<sub>GAN</sub>(F, D<sub>X</sub>) + λ · L<sub>cyc</sub>(G, F) + 0.5λ · L<sub>id</sub></div>
+    <div class="fx-read">Read it: each fake must fool its domain&rsquo;s critic, and each round trip must come back to the start — λ = 10</div>
+    <div class="fx-terms" style="--fx-cols:2;">
+      <div class="fx-term fx-blue"><span class="fx-sym">x, y</span><div><strong>Real images</strong><span class="fx-job">x from domain X (horses), y from domain Y (zebras) — unpaired</span></div><span class="fx-chip">no pairs</span></div>
+      <div class="fx-term fx-green"><span class="fx-sym">G, F</span><div><strong>Two generators</strong><span class="fx-job">G: X → Y (G_AB), F: Y → X (G_BA)</span></div><span class="fx-chip">ResNet</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">D<sub>X</sub>, D<sub>Y</sub></span><div><strong>Two critics</strong><span class="fx-job">PatchGAN on one image: is it a real member of my domain?</span></div><span class="fx-chip">30×30 grid</span></div>
+      <div class="fx-term fx-red"><span class="fx-sym">L<sub>GAN</sub></span><div><strong>Least-squares GAN loss</strong><span class="fx-job">G minimizes (D<sub>Y</sub>(G(x)) − 1)²</span></div><span class="fx-chip">realism</span></div>
+      <div class="fx-term fx-purple"><span class="fx-sym">L<sub>cyc</sub></span><div><strong>Cycle consistency</strong><span class="fx-job">|F(G(x)) − x| + |G(F(y)) − y|</span></div><span class="fx-chip">λ = 10</span></div>
+      <div class="fx-term fx-cyan"><span class="fx-sym">L<sub>id</sub></span><div><strong>Identity (optional)</strong><span class="fx-job">|G(y) − y| + |F(x) − x| — keep colours</span></div><span class="fx-chip">0.5λ = 5</span></div>
+    </div>
+    <div class="fx-key">Pix2Pix compares G(x) with a target y; CycleGAN can only compare F(G(x)) with x itself.</div>
+  </div>
+</div>
+
+<!-- fx ─── FORMULA · WORKED EXAMPLE ─── -->
+<div class="slide"
+     data-say="One generator step with made-up but realistic numbers. The cycle term is the biggest contributor — that is what λ = 10 is for."
+     data-ask="If D_Y gave the fake zebra 1.0, what would its GAN term be?"
+     data-time="3 min">
+  <h2>One generator step: the cycle term carries the most weight <span style="font-size:0.5em;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;">· worked example</span></h2>
+  <div class="fx-wrap">
+    <div class="fx-worked">
+      <div class="fx-given"><small>GIVEN</small><ul><li>D<sub>Y</sub>(G(x)) = 0.6</li><li>D<sub>X</sub>(F(y)) = 0.3</li><li>cycle L1: 0.05 and 0.07</li><li>identity L1: 0.04 and 0.06</li></ul></div>
+      <ol class="fx-steps">
+        <li><span class="fx-n">1</span><span class="fx-m">(0.6 − 1)² = 0.16</span><span class="fx-note">fake zebra vs D_Y</span></li>
+        <li><span class="fx-n">2</span><span class="fx-m">(0.3 − 1)² = 0.49</span><span class="fx-note">fake horse vs D_X</span></li>
+        <li><span class="fx-n">3</span><span class="fx-m">10 × (0.05 + 0.07) = 1.20</span><span class="fx-note">both round trips</span></li>
+        <li><span class="fx-n">4</span><span class="fx-m">5 × (0.04 + 0.06) = 0.50</span><span class="fx-note">identity, optional</span></li>
+        <li class="fx-res"><span class="fx-n">=</span><span class="fx-m">L<sub>G</sub> = 0.16 + 0.49 + 1.20 + 0.50 = 2.35</span><span class="fx-note"></span></li>
+      </ol>
+    </div>
+    <div class="fx-key">Without the cycle term, nothing ties the zebra to the horse it came from.</div>
+  </div>
+</div>
+
+<!-- 6 ─── IDENTITY LOSS ─── -->
+<div class="slide"
+     data-say="Optional but helpful: identity loss. If you give G_AB a ZEBRA, it should do nothing — the input is already in domain B. This helps preserve colors. Without it, a sunset horse might become a green-tinted zebra."
+     data-ask="Why might identity loss help with color preservation?"
+     data-time="2 min">
+  <h2>Identity Loss: Extra Regularization</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>The Idea</h4>
+        <p>If you give G_AB a <strong>zebra</strong> (already in domain B), it should do <strong>nothing</strong>.</p>
+        <div class="formula mt-1" style="font-size:0.85rem;">L_id = |G_AB(zebra) - zebra| + |G_BA(horse) - horse|</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Why It Helps</h4>
+        <ul>
+          <li><strong>Without:</strong> G_AB might change colors even when input is already a zebra</li>
+          <li><strong>With:</strong> G_AB learns "if it already has stripes, leave it alone"</li>
+          <li>Especially important for <strong>color preservation</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="formula mt-1" style="font-size:0.95rem;">
+    L_total = L_GAN_AB + L_GAN_BA + 10 &times; L_cycle + <strong>5 &times; L_identity</strong>
+  </div>
+</div>
+
+<!-- 7 ─── SO FAR ─── -->
+<div class="slide"
+     data-say="Recap before we look at the architecture. The losses are the key innovation — especially cycle consistency."
+     data-ask="Which loss is the most important and why?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Loss</th><th>What It Enforces</th><th>Weight</th></tr>
+    <tr><td><strong>GAN (A&rarr;B)</strong></td><td>Fake zebras look real</td><td>1</td></tr>
+    <tr><td><strong>GAN (B&rarr;A)</strong></td><td>Fake horses look real</td><td>1</td></tr>
+    <tr class="highlight-row"><td><strong>Cycle</strong></td><td>Round trip preserves content</td><td><strong>10</strong></td></tr>
+    <tr><td><strong>Identity</strong></td><td>Don't change what's already right</td><td>5</td></tr>
+  </table>
+  <p class="text-center mt-1" style="font-weight:600;">Next: the architecture that makes it work</p>
+</div>
+
+<!-- 8 ─── RESNET GENERATOR ─── -->
+<div class="slide"
+     data-say="CycleGAN uses ResNet generators, not U-Net. Why? Horse and zebra have the same shape — different texture. The generator only needs to learn the DIFFERENCE. Residual blocks: output = input + learned changes."
+     data-ask="Why is ResNet better than U-Net for horse-to-zebra?"
+     data-time="3 min">
+  <h2>ResNet Generator (Not U-Net)</h2>
+  <div class="two-col">
+    <div>
+      <div class="card mb-1" style="background:#f8f9fb;">
+        <h4>Why not U-Net?</h4>
+        <p><strong>U-Net</strong> (Pix2Pix): skip connections pass spatial info directly. Great when input and output are <strong>aligned</strong> (edges &rarr; photo).</p>
+        <p class="mt-1"><strong>ResNet</strong> (CycleGAN): residual blocks learn <strong>output = input + changes</strong>. Better for style/texture changes where shape stays the same.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>ResNet Generator Structure</h4>
+        <table class="compare-table">
+          <tr><td><strong>Downsample</strong></td><td>3 conv layers (256&rarr;64)</td></tr>
+          <tr class="highlight-row"><td><strong>9 ResBlocks</strong></td><td>Transform at 64x64 (the magic)</td></tr>
+          <tr><td><strong>Upsample</strong></td><td>3 conv layers (64&rarr;256)</td></tr>
+        </table>
+        <p class="mt-1 text-muted">All "translation work" happens in the residual blocks</p>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-1" style="background:#f8f9fb;">
+    <h4>Residual Block</h4>
+    <p style="font-family:var(--font-mono);font-size:0.9rem;">output = x + block(x) &nbsp;&mdash;&nbsp; only learn the <strong>difference</strong> between horse and zebra</p>
+    <p class="text-muted">For horse &rarr; zebra: the difference is mostly stripes and color. Everything else passes through unchanged.</p>
+  </div>
+</div>
+
+<!-- 9 ─── INSTANCENORM + LSGAN ─── -->
+<div class="slide"
+     data-say="Two important technical choices. InstanceNorm: normalize each image separately (not across the batch) — better for style transfer. LSGAN: least squares loss instead of BCE — smoother gradients, more stable."
+     data-ask="Why normalize each image independently instead of across the batch?"
+     data-time="2 min">
+  <h2>InstanceNorm &amp; LSGAN</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>InstanceNorm (not BatchNorm)</h4>
+        <p><strong>BatchNorm:</strong> normalize across the batch. A dark horse and bright horse normalize together &mdash; bad for style.</p>
+        <p class="mt-1"><strong>InstanceNorm:</strong> normalize each image separately. Each image keeps its own style.</p>
+        <p class="mt-1 text-muted">Introduced for fast style transfer (Ulyanov et al., 2016); the L09 lab critic used it too.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>LSGAN Loss (not BCE)</h4>
+        <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:2;">
+          D_real: (D(x) - 1)&sup2;<br>
+          D_fake: (D(G(z)))&sup2;<br>
+          G: &nbsp;&nbsp;&nbsp;&nbsp;(D(G(z)) - 1)&sup2;
+        </p>
+        <p class="mt-1">Smoother gradients, more stable training, still penalizes fakes that sit on the correct side of the boundary but far from it (Mao et al., 2017).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── PATCHGAN + D DIFFERENCE ─── -->
+<div class="slide"
+     data-say="CycleGAN uses the same 70x70 PatchGAN from Pix2Pix, but with a key difference: D sees OUTPUT ONLY, not input+output. Why? Because there's no paired input to condition on."
+     data-ask="Why can't CycleGAN's D be conditional like Pix2Pix?"
+     data-time="2 min">
+  <h2>Discriminator: PatchGAN (Again!)</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Same Architecture</h4>
+        <p>Two PatchGAN discriminators:</p>
+        <ul>
+          <li><strong>D_A:</strong> "Is this a real horse?"</li>
+          <li><strong>D_B:</strong> "Is this a real zebra?"</li>
+        </ul>
+        <p class="mt-1">Both output 30x30 grid of scores</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Key Difference from Pix2Pix</h4>
+        <table class="compare-table">
+          <tr><th>Pix2Pix D</th><th>CycleGAN D</th></tr>
+          <tr><td>Sees input + output (6ch)</td><td>Sees output ONLY (3ch)</td></tr>
+          <tr><td>"Does this match?"</td><td>"Does this look real?"</td></tr>
+        </table>
+        <p class="mt-1 text-muted">No paired input to condition on &mdash; D just judges domain membership.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ─── TRAINING TRICKS ─── -->
+<div class="slide"
+     data-say="Two training tricks. Replay buffer: keep 50 old fakes so D doesn't forget them. Learning rate schedule: constant for 100 epochs, then linear decay to 0 over the next 100."
+     data-ask="What problem does the replay buffer solve?"
+     data-time="2 min">
+  <h2>Training Tricks</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Replay Buffer (50 images)</h4>
+        <p><strong>Problem:</strong> If D only sees the latest fakes, it forgets old ones. G can revert to old patterns.</p>
+        <p class="mt-1"><strong>Fix:</strong> Keep a buffer of 50 recent fakes. When training D, randomly show some old ones.</p>
+        <p class="mt-1 text-muted">50% chance: use new fake. 50% chance: swap with old fake from buffer.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Learning Rate Schedule</h4>
+        <table class="compare-table">
+          <tr><td><strong>Epochs 1-100</strong></td><td>Constant lr = 2e-4</td></tr>
+          <tr><td><strong>Epochs 101-200</strong></td><td>Linear decay to 0</td></tr>
+        </table>
+        <p class="mt-1">Learn for 100 epochs, then fine-tune by gradually reducing the learning rate.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── FULL RECIPE ─── -->
+<div class="slide"
+     data-say="The complete CycleGAN recipe in one slide. Four networks total: 2 generators + 2 discriminators. All using InstanceNorm and LSGAN loss."
+     data-ask="How many trainable networks does CycleGAN have?"
+     data-time="2 min">
+  <h2>The Full CycleGAN Recipe</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Architecture</h4>
+        <table class="compare-table">
+          <tr><td><strong>G_AB, G_BA</strong></td><td>ResNet (9 blocks, 256x256)</td></tr>
+          <tr><td><strong>D_A, D_B</strong></td><td>70x70 PatchGAN</td></tr>
+          <tr><td><strong>Normalization</strong></td><td>InstanceNorm everywhere</td></tr>
+        </table>
+      </div>
+      <div class="card mt-1" style="background:#f8f9fb;">
+        <h4>Losses</h4>
+        <table class="compare-table">
+          <tr><td><strong>GAN loss</strong></td><td>LSGAN (least squares)</td></tr>
+          <tr><td><strong>Cycle loss</strong></td><td>L1, weight = 10</td></tr>
+          <tr><td><strong>Identity loss</strong></td><td>L1, weight 0.5&middot;&lambda; = 5 (optional, e.g. photo&harr;painting)</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Training</h4>
+        <table class="compare-table">
+          <tr><td><strong>Optimizer</strong></td><td>Adam(2e-4, betas=(0.5, 0.999))</td></tr>
+          <tr><td><strong>Batch size</strong></td><td>1</td></tr>
+          <tr><td><strong>Epochs</strong></td><td>200 (decay after 100)</td></tr>
+          <tr><td><strong>Buffer</strong></td><td>50 images per D</td></tr>
+          <tr><td><strong>Images</strong></td><td>286&rarr;crop 256, random flip</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── APPLICATIONS ─── -->
+<div class="slide"
+     data-say="CycleGAN's applications: style transfer, animal translation, season transfer, domain adaptation for robotics, medical cross-modality. But it has real limitations."
+     data-ask="Which application is most impressive to you?"
+     data-time="2 min">
+  <h2>CycleGAN Applications &amp; Limitations</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Applications</h4>
+        <ul>
+          <li><strong>Style:</strong> Photo &rarr; Monet / Van Gogh</li>
+          <li><strong>Animals:</strong> Horse &harr; Zebra</li>
+          <li><strong>Seasons:</strong> Summer &harr; Winter</li>
+          <li><strong>Sim2Real:</strong> Simulated &rarr; Real (robotics)</li>
+          <li><strong>Medical:</strong> CT &harr; MRI</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>Limitations</h4>
+        <ul>
+          <li><strong>Shape changes:</strong> Horse&rarr;zebra works (same shape). Cat&rarr;dog fails (different proportions)</li>
+          <li><strong>Geometric:</strong> Can't rotate, resize, restructure</li>
+          <li><strong>Large gaps:</strong> Photo&rarr;abstract art too different</li>
+          <li><strong>Mode collapse:</strong> May add same pattern everywhere</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── PIX2PIX VS CYCLEGAN ─── -->
+<div class="slide"
+     data-say="When to use which? Simple rule: have paired data, use Pix2Pix (better quality). No paired data, use CycleGAN (only option). Can create pairs? Create them and use Pix2Pix."
+     data-ask="For satellite-to-map, which would you use and why?"
+     data-time="2 min">
+  <h2>Pix2Pix vs CycleGAN: When to Use Which</h2>
+  <table class="compare-table">
+    <tr><th>Feature</th><th>Pix2Pix</th><th>CycleGAN</th></tr>
+    <tr><td><strong>Data needed</strong></td><td>Paired</td><td>Unpaired</td></tr>
+    <tr><td><strong>Supervision</strong></td><td>Strong (exact target)</td><td>Weak (domain only)</td></tr>
+    <tr><td><strong>Quality</strong></td><td><strong>Higher</strong></td><td>Lower</td></tr>
+    <tr><td><strong>Generator</strong></td><td>U-Net</td><td>ResNet</td></tr>
+    <tr><td><strong>D input</strong></td><td>input + output (6ch)</td><td>output only (3ch)</td></tr>
+    <tr><td><strong>Content preservation</strong></td><td>L1 + skip connections</td><td>Cycle consistency</td></tr>
+    <tr class="highlight-row"><td><strong>Best for</strong></td><td>edges&rarr;photo, sat&rarr;map</td><td>horse&rarr;zebra, summer&rarr;winter</td></tr>
+  </table>
+  <div class="formula mt-1" style="font-size:1rem;">
+    Have paired data? &rarr; Pix2Pix &nbsp;&bull;&nbsp; No pairs? &rarr; CycleGAN
+  </div>
+</div>
+
+<!-- LAB ─── LAB DEMO ─── -->
+<div class="slide"
+     data-say="Live demo of lab-19. Two unpaired MNIST domains: normal digits, and inverted + thickened digits made from DIFFERENT images. Build the ResNet generators and PatchGAN critics, run training, then the round-trip plots. Then retrain without the cycle loss and compare reconstruction error."
+     data-ask="Before the no-cycle experiment: will A→B→A still look like the original digit?"
+     data-time="30 min">
+  <h2>Lab Demo: <code>lab-19-cyclegan.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> build CycleGAN from scratch and watch cycle consistency preserve the digit.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>Two unpaired domains</strong>: A = normal digits, B = inverted + thickened, different images</li>
+        <li><strong>ResNet generator</strong> (4 res blocks at 14&times;14) + <strong>PatchGAN</strong> (6&times;6 grid) + <strong>replay buffer</strong> (50)</li>
+        <li><strong>Training</strong>: LSGAN + 10 &middot; cycle + 5 &middot; identity, Adam 2e-4, &beta;1 0.5</li>
+        <li>Results <strong>A&rarr;B&rarr;A</strong>, then Experiment 1: <strong>without cycle loss</strong></li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>Cycle loss curve falls as round trips sharpen</li>
+          <li>Printed reconstruction error: <strong>with</strong> cycle vs <strong>without</strong></li>
+          <li>Identity test: G_AB(B) should leave B almost unchanged</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Set <code>lambda_id = 0</code>. Does the inverted background survive the trip?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ─── SUMMARY ─── -->
+<div class="slide"
+     data-say="Four key takeaways from CycleGAN."
+     data-ask="Which concept is the most elegant?"
+     data-time="1.5 min">
+  <h2>Lesson 19 Summary</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">1</p>
+      <h4>Cycle Consistency</h4>
+      <p>A&rarr;B&rarr;A must reconstruct A &mdash; forces G to preserve content</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">2</p>
+      <h4>ResNet Generator</h4>
+      <p>output = input + changes &mdash; only learns the difference between domains</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">3</p>
+      <h4>Four Networks</h4>
+      <p>G_AB + G_BA + D_A + D_B with LSGAN loss and InstanceNorm</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p style="font-size:2rem;">4</p>
+      <h4>Texture Only</h4>
+      <p>Works for style/color changes, fails for shape changes</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="Eye-opener questions. Give students time to think."
+     data-ask="Try all before revealing."
+     data-time="4 min">
+  <h2>Knowledge Check</h2>
+  <div class="flex-col gap-2" style="max-width:700px;">
+    <div class="revealable card">
+      <h4>CycleGAN has cycle consistency. Why can't it learn to translate a cat into a dog?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">Cycle consistency requires G_BA to <strong>undo</strong> what G_AB did. If G_AB changes a cat's body proportions to match a dog's, G_BA would need to remember the original cat's exact proportions to reverse it &mdash; which is impossible from the dog image alone. CycleGAN can only change <strong>texture/color/style</strong>, not shape or structure.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Why does CycleGAN use LSGAN instead of BCE? What's the practical benefit?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">BCE loss has a <strong>vanishing gradient</strong> problem: samples that are already classified correctly (far from the decision boundary) get near-zero gradients. LSGAN's squared error still penalizes these samples, providing <strong>smoother gradients</strong> everywhere. This leads to more stable training and smoother image quality.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>CycleGAN has 4 networks. What happens to training time and memory compared to Pix2Pix?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">CycleGAN uses roughly <strong>2x the memory</strong> (two generators + two discriminators vs one of each) and takes significantly longer to train. Each iteration requires forward/backward passes through all 4 networks plus the cycle reconstructions. This is the price of unpaired translation &mdash; you need more machinery to learn without paired supervision.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 ─── BRIDGE ─── -->
+<div class="slide cover"
+     data-say="We have all the pieces. Next: apply everything to a real-world task — satellite to map — and close the course with the journey across all five units."
+     data-ask="" data-time="1 min">
+  <div class="lesson-number">Next Up</div>
+  <h1>Satellite to Map + Course Wrap-Up</h1>
+  <p class="subtitle">L20: Real application, full journey recap, concept map, and what comes next</p>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

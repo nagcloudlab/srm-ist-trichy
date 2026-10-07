@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L20 — Satellite to Map + Course Wrap-Up</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body data-lesson="L20">
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e5ef;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:150;font-family:Inter,system-ui,sans-serif;font-size:0.8rem;"><a href="L19.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">&larr; L19</a><a href="../../../index.html#unit-5" style="color:#1a1d2e;text-decoration:none;font-weight:700;">L20 &bull; Unit 5</a><a href="../../../index.html" style="color:#3b6df0;text-decoration:none;font-weight:600;">All units &rarr;</a></div>
+
+<style>.slide { padding-top: clamp(3rem, 5vh, 4.5rem) !important; }</style>
+<!-- fx: formula explanation slides (term-by-term + worked) -->
+<style id="fx-style">
+.fx-wrap { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.fx-eq { align-self: center; max-width: 100%; white-space: nowrap; overflow: hidden; padding: 0.7rem 1.6rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 22px rgba(26,29,46,0.06); font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 600; color: var(--text-primary); text-align: center; }
+.fx-read { text-align: center; color: var(--text-secondary); font-size: clamp(0.8rem, 1.2vw, 0.95rem); margin-top: -0.2rem; }
+.fx-terms { display: grid; grid-template-columns: repeat(var(--fx-cols, 1), minmax(0, 1fr)); gap: 0.45rem; }
+.fx-term { display: grid; grid-template-columns: minmax(3.4rem, max-content) minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-sym { justify-self: center; font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-weight: 700; font-size: clamp(1.1rem, 1.9vw, 1.55rem); white-space: nowrap; color: var(--text-primary); }
+.fx-term strong { display: block; font-size: clamp(0.85rem, 1.2vw, 1rem); color: var(--text-primary); }
+.fx-term span.fx-job { display: block; font-size: clamp(0.75rem, 1.05vw, 0.88rem); color: var(--text-secondary); line-height: 1.3; }
+.fx-chip { justify-self: end; padding: 0.15rem 0.55rem; border-radius: 6px; background: var(--bg-code); font-family: var(--font-mono); font-size: clamp(0.65rem, 0.9vw, 0.78rem); font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.fx-blue .fx-sym { color: var(--accent-blue); } .fx-blue .fx-chip { background: #eef2ff; color: var(--accent-blue); }
+.fx-green .fx-sym { color: #059669; } .fx-green .fx-chip { background: var(--gen-bg); color: #059669; }
+.fx-red .fx-sym { color: var(--disc-color); } .fx-red .fx-chip { background: var(--disc-bg); color: var(--disc-color); }
+.fx-purple .fx-sym { color: var(--accent-purple); } .fx-purple .fx-chip { background: #f5f3ff; color: var(--accent-purple); }
+.fx-cyan .fx-sym { color: #0284c7; } .fx-cyan .fx-chip { background: #ecfeff; color: #0284c7; }
+.fx-worked { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr); gap: 0.8rem; align-items: stretch; }
+.fx-given { padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #f0f4ff; }
+.fx-given small, .fx-label { display: block; margin-bottom: 0.45rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-blue); }
+.fx-given ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.fx-given li { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; }
+.fx-steps { list-style: none; margin: 0; padding: 0.25rem 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.fx-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1.55fr) minmax(0, 1fr); gap: 0.7rem; align-items: baseline; padding: 0.42rem 0.9rem; border-bottom: 1px solid var(--border-light); }
+.fx-steps li:last-child { border-bottom: 0; }
+.fx-n { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--text-primary); color: #fff; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; }
+.fx-m { font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', Georgia, serif; font-size: clamp(0.95rem, 1.45vw, 1.2rem); font-weight: 600; white-space: nowrap; overflow: hidden; }
+.fx-note { color: var(--text-muted); font-size: clamp(0.72rem, 1vw, 0.86rem); line-height: 1.3; }
+.fx-steps li.fx-res { background: var(--gen-bg); border-radius: 0 0 9px 9px; }
+.fx-steps li.fx-res .fx-n { background: #059669; }
+.fx-steps li.fx-res .fx-m { color: #059669; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+.fx-key { padding: 0.5rem 0.9rem; border-left: 4px solid var(--accent-blue); background: #f8f9fb; border-radius: 0 8px 8px 0; font-size: clamp(0.85rem, 1.25vw, 1rem); font-weight: 600; color: var(--text-primary); }
+@media (max-width: 760px) { .fx-terms { grid-template-columns: 1fr; } .fx-worked { grid-template-columns: 1fr; } .fx-steps li { grid-template-columns: 1.8rem minmax(0, 1fr); } .fx-note { grid-column: 2; } .fx-chip { display: none; } .fx-term { grid-template-columns: 3rem minmax(0, 1fr); } }
+</style>
+<script id="fx-fit">
+/* Formulas never wrap: shrink each .fx-eq / .fx-m on the active slide until it fits on one line. */
+(function () {
+  function fit(el) {
+    el.style.fontSize = '';
+    var room = el.parentElement.clientWidth - 4;
+    for (var i = 0; i < 6 && room > 0 && el.scrollWidth > el.clientWidth + 1; i++) {
+      var fs = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = (fs * Math.max(0.5, el.clientWidth / el.scrollWidth) * 0.97) + 'px';
+    }
+  }
+  function fitAll() { document.querySelectorAll('.slide.active .fx-eq, .slide.active .fx-m, .slide.active .fx-given li').forEach(fit); }
+  var t; function soon() { clearTimeout(t); t = setTimeout(fitAll, 30); }
+  window.addEventListener('load', soon); window.addEventListener('resize', soon);
+  document.addEventListener('keydown', soon); document.addEventListener('click', soon); window.addEventListener('hashchange', soon);
+  new MutationObserver(soon).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<div class="progress-bar"></div>
+<div class="slide-counter"></div>
+<div class="lesson-nav"><a href="../../../index.html#unit-5">Unit 5</a> &bull; L20</div>
+
+<div class="deck">
+
+<!-- 1 ─── COVER ─── -->
+<div class="slide cover"
+     data-say="This is the final lesson. We apply everything to a real task: satellite to map. Then we step back and see the full arc of what you've learned across five units."
+     data-ask="Ready for the final lesson?"
+     data-time="1 min">
+  <div class="lesson-number">Lesson 20</div>
+  <h1>Satellite to Map + Course Wrap-Up</h1>
+  <p class="subtitle">Real application, full journey recap, and what comes next</p>
+</div>
+
+<!-- 2 ─── THE TASK ─── -->
+<div class="slide"
+     data-say="The satellite-to-map task from the Pix2Pix paper. Each image pair: aerial satellite view plus matching map. Paired data — perfect for Pix2Pix."
+     data-ask="Is this paired or unpaired data?"
+     data-time="2 min">
+  <h2>The Satellite &harr; Map Task</h2>
+  <div class="two-col align-center">
+    <div>
+      <svg viewBox="0 0 300 160" style="width:100%;max-width:300px;">
+        <rect x="5" y="10" width="130" height="100" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+        <text x="70" y="50" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Satellite</text>
+        <text x="70" y="70" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">aerial view</text>
+        <text x="70" y="90" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">(trees, roads, roofs)</text>
+        <rect x="165" y="10" width="130" height="100" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+        <text x="230" y="50" text-anchor="middle" font-size="12" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Map</text>
+        <text x="230" y="70" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">rendered view</text>
+        <text x="230" y="90" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">(colored roads, parks)</text>
+        <!-- Arrows -->
+        <line x1="135" y1="45" x2="165" y2="45" stroke="#10b981" stroke-width="2"/>
+        <polygon points="162,41 168,45 162,49" fill="#10b981"/>
+        <line x1="165" y1="75" x2="135" y2="75" stroke="#3b6df0" stroke-width="2"/>
+        <polygon points="138,71 132,75 138,79" fill="#3b6df0"/>
+        <!-- Labels -->
+        <text x="150" y="135" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" fill="#4a5068" font-weight="600">Paired data: exact match</text>
+        <text x="150" y="150" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">1,096 train + 1,098 val pairs</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Why This Task Is Great for Learning</h4>
+        <ul>
+          <li><strong>Real</strong> &mdash; not a toy dataset</li>
+          <li><strong>Paired</strong> &mdash; can use Pix2Pix with L1 ground truth</li>
+          <li><strong>Visual</strong> &mdash; immediately see quality</li>
+          <li><strong>Bidirectional</strong> &mdash; Sat&rarr;Map AND Map&rarr;Sat</li>
+          <li><strong>The demo</strong> from the original Pix2Pix paper</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 ─── APPLYING WHAT WE KNOW ─── -->
+<div class="slide"
+     data-say="We know exactly what to use. Paired data means Pix2Pix. U-Net because spatial alignment matters. PatchGAN for local texture. L1+GAN for sharp and correct."
+     data-ask="Why is U-Net perfect for satellite-to-map?"
+     data-time="2 min">
+  <h2>Applying What We Know</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="background:#ecfdf5;">
+        <h4>Architecture Choice: Pix2Pix</h4>
+        <table class="compare-table">
+          <tr><td><strong>Data type</strong></td><td>Paired &rarr; Pix2Pix</td></tr>
+          <tr><td><strong>Generator</strong></td><td>U-Net (spatial alignment)</td></tr>
+          <tr><td><strong>Discriminator</strong></td><td>PatchGAN (local texture)</td></tr>
+          <tr><td><strong>Loss</strong></td><td>GAN + 100 * L1</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>Why U-Net Is Perfect Here</h4>
+        <p><strong>Sat &rarr; Map:</strong> Roads are in EXACT positions. Skip connections carry "road is HERE, building is THERE."</p>
+        <p class="mt-1"><strong>Map &rarr; Sat:</strong> Green areas &rarr; parks, gray lines &rarr; roads. Must render at THOSE locations.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 ─── CHALLENGES ─── -->
+<div class="slide"
+     data-say="This task has real challenges beyond MNIST. Color semantics: maps use specific colors that must be exact. Fine details: roads must connect. Bidirectional: map-to-satellite is harder (more visual detail to generate)."
+     data-ask="Which direction is harder: satellite-to-map or map-to-satellite?"
+     data-time="2 min">
+  <h2>Challenges Specific to Satellite/Map</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>1. Color Semantics</h4>
+      <p>Maps use specific colors: green=park, gray=road, blue=water. Must learn these <strong>exactly</strong>.</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>2. Fine Details</h4>
+      <p>Roads are thin lines that must <strong>connect</strong>. A broken road = bad map. PatchGAN checks connectivity.</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>3. Scale</h4>
+      <p>Both large structures (parks) and tiny ones (buildings). U-Net's multi-scale skips handle this.</p>
+    </div>
+    <div class="card" style="background:#fef2f2;">
+      <h4>4. Bidirectional</h4>
+      <p>Sat&rarr;Map: extract semantic info (easier).<br>Map&rarr;Sat: synthesize realistic textures (harder, blurrier).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 5 ─── CYCLEGAN ALTERNATIVE ─── -->
+<div class="slide"
+     data-say="What if the data weren't paired? CycleGAN could still learn, but quality would be lower. Without L1 loss, road positions might shift. Colors might not follow exact map conventions."
+     data-ask="Why would Pix2Pix produce better results than CycleGAN for this task?"
+     data-time="2 min">
+  <h2>CycleGAN Alternative</h2>
+  <div class="two-col align-center">
+    <div>
+      <div class="card" style="background:#f8f9fb;">
+        <h4>What if unpaired?</h4>
+        <p>1000 satellite photos (various cities)<br>1000 map images (DIFFERENT cities)<br>No pairing!</p>
+        <p class="mt-1">CycleGAN can still learn the translation using cycle consistency.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="background:#fef2f2;">
+        <h4>But quality is lower</h4>
+        <ul>
+          <li>No L1 loss for pixel-level accuracy</li>
+          <li>Road positions might shift slightly</li>
+          <li>Colors might not follow exact conventions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="formula mt-1" style="font-size:1rem;">
+    Pix2Pix (paired): roads in <strong>exact</strong> right place &nbsp;&bull;&nbsp; CycleGAN (unpaired): roads <strong>approximately</strong> right
+  </div>
+</div>
+
+<!-- LAB ─── LAB DEMO ─── -->
+<div class="slide"
+     data-say="Live demo of lab-20, the capstone. Download the Maps dataset (about 240 MB), show one raw 1200×600 file — satellite left, map right — then the full 256×256 U-Net and 70×70 PatchGAN. Training is long on a laptop: start it with the CPU subset, talk through the loop, then show the two directions and the PatchGAN score maps."
+     data-ask="Before comparing directions: which will look worse, satellite → map or map → satellite? Why?"
+     data-time="30 min">
+  <h2>Lab Demo: <code>lab-20-satellite-to-map.ipynb</code></h2>
+  <p style="margin-bottom:0.8rem;"><strong>Goal:</strong> apply full Pix2Pix to real aerial photos &mdash; both directions.</p>
+  <div class="two-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Demo Steps</h4>
+      <ol>
+        <li><strong>Download the Maps dataset</strong>: 1,096 train + 1,098 val pairs</li>
+        <li><strong>Dataset class</strong>: split each file, same flip for both halves</li>
+        <li><strong>U-Net</strong> (8 down, 7 up + final) and <strong>70&times;70 PatchGAN</strong> &rarr; 30&times;30 grid</li>
+        <li>Train <strong>Satellite &rarr; Map</strong>, then <strong>Map &rarr; Satellite</strong>; compare</li>
+      </ol>
+    </div>
+    <div>
+      <div class="card accent-green">
+        <h4>Point Out</h4>
+        <ul>
+          <li>Printed shapes: U-Net 3&times;256&times;256 &rarr; same; PatchGAN &rarr; 1&times;30&times;30</li>
+          <li>Map &rarr; satellite is blurrier: it must invent texture</li>
+          <li>PatchGAN maps show <strong>where</strong> D still spots fakes</li>
+        </ul>
+      </div>
+      <div class="card accent-orange mt-1">
+        <h4>Your Turn</h4>
+        <p>Compute FID (Unit 3, lab-13) between generated and real maps. Does it agree with your eyes?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 ─── REAL-WORLD APPLICATIONS ─── -->
+<div class="slide"
+     data-say="Everything from this course applies to real problems. Medical imaging, autonomous driving, creative tools, data science. Walk through each — they're all direct applications of what we've built."
+     data-ask="Which application domain interests you most?"
+     data-time="2 min">
+  <h2>Beyond Satellite/Map: Real-World Applications</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Medical Imaging</h4>
+      <p>CT &harr; MRI (CycleGAN), low-dose denoising (Pix2Pix), stain transfer, synthetic data (L18), DP-SGD for privacy</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Autonomous Driving</h4>
+      <p>Segmentation &rarr; scene (Pix2Pix), sim &rarr; real (CycleGAN), weather augmentation, FID for realism (L13)</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Creative Tools</h4>
+      <p>Face editing (StyleGAN, L15), sketch &rarr; photo (Pix2Pix), photo &rarr; art (CycleGAN), super-resolution, bias check (L14)</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Data Science &amp; ML</h4>
+      <p>Augment small datasets (L18), balance classes (cGAN), synthetic tabular data (CTGAN), privacy-preserving sharing</p>
+    </div>
+  </div>
+</div>
+
+<!-- 7 ─── SO FAR (MID-LESSON) ─── -->
+<div class="slide"
+     data-say="We've covered the satellite task. Now let's step back and see the entire journey."
+     data-ask="Ready for the big picture?"
+     data-time="1 min">
+  <h2>So Far</h2>
+  <table class="compare-table" style="max-width:700px;">
+    <tr><th>Topic</th><th>Key Decision</th></tr>
+    <tr><td><strong>Sat &harr; Map</strong></td><td>Paired data &rarr; Pix2Pix (U-Net + PatchGAN)</td></tr>
+    <tr><td><strong>Sat &rarr; Map</strong></td><td>Extract semantics &mdash; easier direction</td></tr>
+    <tr><td><strong>Map &rarr; Sat</strong></td><td>Synthesize textures &mdash; harder direction</td></tr>
+    <tr><td><strong>CycleGAN alt.</strong></td><td>Works unpaired but lower quality</td></tr>
+    <tr><td><strong>Real-world</strong></td><td>Medical, driving, creative, data science</td></tr>
+  </table>
+  <p class="text-center mt-1" style="font-weight:600;">Now: the full GAN journey recap</p>
+</div>
+
+<!-- 8 ─── SECTION: FULL JOURNEY ─── -->
+<div class="slide section-divider"
+     data-say="Let's look at the full arc. From 'what is a GAN' to building Pix2Pix and CycleGAN. Five units, one adversarial idea."
+     data-ask="" data-time="30 sec">
+  <div class="section-number">2</div>
+  <h2>The Full GAN Journey</h2>
+</div>
+
+<!-- 9 ─── UNIT RECAP ─── -->
+<div class="slide"
+     data-say="Five units. Unit 1: the idea, the neural-network basics, and GANs up to DCGAN. Unit 2: a better loss and control. Unit 3: measure quality, check bias, StyleGAN. Unit 4: paired translation plus GANs as a tool for data and privacy. Unit 5: unpaired translation and this capstone."
+     data-ask="Which unit was the hardest? Which was the most fun?"
+     data-time="3 min">
+  <h2>Five Units, One Adversarial Idea</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Unit 1 &middot; GANs from scratch</h4>
+      <ul style="font-size:0.85rem;">
+        <li>Generative AI &amp; the GAN idea</li>
+        <li>Neural networks &rarr; PyTorch</li>
+        <li>First GAN, MNIST, DCGAN, failures</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;font-size:0.85rem;">Build, train, debug a GAN</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Unit 2 &middot; L07&ndash;L11</h4>
+      <ul style="font-size:0.85rem;">
+        <li>Why BCE fails &rarr; WGAN &rarr; WGAN-GP</li>
+        <li>Conditional GAN (labels)</li>
+        <li>Latent control</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;font-size:0.85rem;">Stable, controllable GANs</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Unit 3 &middot; L12&ndash;L15</h4>
+      <ul style="font-size:0.85rem;">
+        <li>IS and FID</li>
+        <li>Bias &amp; fairness</li>
+        <li>StyleGAN</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;font-size:0.85rem;">Measure quality, spot bias</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Unit 4 &middot; L16&ndash;L18</h4>
+      <ul style="font-size:0.85rem;">
+        <li>Image-to-image framework</li>
+        <li>Pix2Pix (U-Net + PatchGAN)</li>
+        <li>Augmentation &amp; privacy</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;font-size:0.85rem;">Paired translation, GANs as a tool</p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>Unit 5 &middot; L19&ndash;L20</h4>
+      <ul style="font-size:0.85rem;">
+        <li>CycleGAN (unpaired)</li>
+        <li>Satellite &rarr; map capstone</li>
+      </ul>
+      <p class="mt-1" style="font-weight:600;font-size:0.85rem;">Unpaired translation, real data</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ─── CONCEPT MAP ─── -->
+<div class="slide"
+     data-say="Here's how everything connects. The trunk: adversarial training. Three branches: generation, translation, evaluation. Each lesson is a node in this tree."
+     data-ask="Can you trace a path from L01 to L19?"
+     data-time="3 min">
+  <h2>The Concept Map</h2>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 700 380" style="width:100%;max-width:700px;">
+      <!-- Root -->
+      <rect x="230" y="10" width="240" height="40" rx="10" fill="#eef2ff" stroke="#3b6df0" stroke-width="2"/>
+      <text x="350" y="36" text-anchor="middle" font-size="13" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">GENERATIVE ADVERSARIAL NETWORKS</text>
+      <!-- Three branches -->
+      <line x1="250" y1="50" x2="130" y2="80" stroke="#4a5068" stroke-width="1.5"/>
+      <line x1="350" y1="50" x2="350" y2="80" stroke="#4a5068" stroke-width="1.5"/>
+      <line x1="450" y1="50" x2="570" y2="80" stroke="#4a5068" stroke-width="1.5"/>
+
+      <!-- GENERATION branch -->
+      <rect x="50" y="80" width="160" height="32" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="130" y="101" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">GENERATION</text>
+      <text x="130" y="128" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">noise &rarr; image</text>
+      <!-- Gen sub-nodes -->
+      <line x1="90" y1="112" x2="60" y2="145" stroke="#10b981" stroke-width="1"/>
+      <line x1="130" y1="112" x2="130" y2="145" stroke="#10b981" stroke-width="1"/>
+      <line x1="170" y1="112" x2="200" y2="145" stroke="#10b981" stroke-width="1"/>
+      <rect x="15" y="145" width="90" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="60" y="164" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">GAN (L02)</text>
+      <rect x="85" y="145" width="90" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="130" y="164" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">DCGAN (L05)</text>
+      <rect x="155" y="145" width="90" height="28" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="200" y="164" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">WGAN (L08)</text>
+      <!-- Sub-sub nodes -->
+      <line x1="200" y1="173" x2="200" y2="190" stroke="#10b981" stroke-width="1"/>
+      <rect x="150" y="190" width="100" height="24" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="200" y="206" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">WGAN-GP (L09)</text>
+      <line x1="130" y1="173" x2="100" y2="190" stroke="#10b981" stroke-width="1"/>
+      <rect x="40" y="190" width="120" height="24" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="100" y="206" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">cGAN (L10)</text>
+      <!-- More sub -->
+      <line x1="100" y1="214" x2="70" y2="230" stroke="#10b981" stroke-width="1"/>
+      <rect x="15" y="230" width="110" height="24" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="70" y="246" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Controllable (L11)</text>
+      <line x1="130" y1="173" x2="160" y2="230" stroke="#10b981" stroke-width="1"/>
+      <rect x="130" y="230" width="110" height="24" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1"/>
+      <text x="185" y="246" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">StyleGAN (L15)</text>
+
+      <!-- TRANSLATION branch -->
+      <rect x="280" y="80" width="140" height="32" rx="8" fill="#eef2ff" stroke="#3b6df0" stroke-width="1.5"/>
+      <text x="350" y="101" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">TRANSLATION</text>
+      <text x="350" y="128" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">image &rarr; image</text>
+      <line x1="320" y1="112" x2="300" y2="155" stroke="#3b6df0" stroke-width="1"/>
+      <line x1="380" y1="112" x2="400" y2="155" stroke="#3b6df0" stroke-width="1"/>
+      <rect x="250" y="155" width="100" height="28" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+      <text x="300" y="174" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Pix2Pix (L17)</text>
+      <rect x="355" y="155" width="100" height="28" rx="6" fill="#eef2ff" stroke="#3b6df0" stroke-width="1"/>
+      <text x="405" y="174" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">CycleGAN (L19)</text>
+      <!-- Sub nodes -->
+      <line x1="300" y1="183" x2="280" y2="205" stroke="#3b6df0" stroke-width="1"/>
+      <line x1="300" y1="183" x2="330" y2="205" stroke="#3b6df0" stroke-width="1"/>
+      <rect x="240" y="205" width="80" height="22" rx="5" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1"/>
+      <text x="280" y="220" text-anchor="middle" font-size="8" font-family="Inter,sans-serif" fill="#4a5068">U-Net</text>
+      <rect x="300" y="205" width="80" height="22" rx="5" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1"/>
+      <text x="340" y="220" text-anchor="middle" font-size="8" font-family="Inter,sans-serif" fill="#4a5068">PatchGAN</text>
+      <line x1="405" y1="183" x2="405" y2="205" stroke="#3b6df0" stroke-width="1"/>
+      <rect x="360" y="205" width="90" height="22" rx="5" fill="#f8f9fb" stroke="#3b6df0" stroke-width="1"/>
+      <text x="405" y="220" text-anchor="middle" font-size="8" font-family="Inter,sans-serif" fill="#4a5068">Cycle Loss</text>
+
+      <!-- EVALUATION branch -->
+      <rect x="500" y="80" width="140" height="32" rx="8" fill="#f8f9fb" stroke="#4a5068" stroke-width="1.5"/>
+      <text x="570" y="101" text-anchor="middle" font-size="11" font-family="Inter,sans-serif" font-weight="700" fill="#1a1d2e">EVALUATION</text>
+      <text x="570" y="128" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">how good?</text>
+      <line x1="540" y1="112" x2="520" y2="155" stroke="#4a5068" stroke-width="1"/>
+      <line x1="600" y1="112" x2="620" y2="155" stroke="#4a5068" stroke-width="1"/>
+      <rect x="475" y="155" width="90" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1"/>
+      <text x="520" y="174" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">FID (L13)</text>
+      <rect x="580" y="155" width="100" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1"/>
+      <text x="630" y="174" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Bias/Fair (L14)</text>
+
+      <!-- PRACTICAL branch (augmentation/privacy) -->
+      <line x1="350" y1="240" x2="350" y2="270" stroke="#4a5068" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="280" y="270" width="140" height="28" rx="6" fill="#f8f9fb" stroke="#4a5068" stroke-width="1"/>
+      <text x="350" y="289" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" font-weight="600" fill="#1a1d2e">Augment &amp; Privacy (L18)</text>
+
+      <!-- Legend -->
+      <rect x="250" y="320" width="200" height="50" rx="8" fill="#f8f9fb" stroke="#e2e5ef" stroke-width="1"/>
+      <circle cx="270" cy="337" r="5" fill="#10b981"/>
+      <text x="280" y="341" font-size="9" font-family="Inter,sans-serif" fill="#4a5068">Generation</text>
+      <circle cx="340" cy="337" r="5" fill="#3b6df0"/>
+      <text x="350" y="341" font-size="9" font-family="Inter,sans-serif" fill="#4a5068">Translation</text>
+      <circle cx="410" cy="337" r="5" fill="#4a5068"/>
+      <text x="420" y="341" font-size="9" font-family="Inter,sans-serif" fill="#4a5068">Evaluation</text>
+      <text x="350" y="360" text-anchor="middle" font-size="9" font-family="Inter,sans-serif" fill="#8b90a5">5 units, 1 adversarial idea</text>
+    </svg>
+  </div>
+</div>
+
+<!-- 11 ─── KEY IDEAS THAT CONNECT ─── -->
+<div class="slide"
+     data-say="Four evolutions that connect everything: the adversarial principle never changed. The loss function evolved from BCE to Wasserstein to L1+GAN to cycle. Architecture evolved from linear to DCGAN to U-Net to ResNet. Evaluation from 'looks good' to FID."
+     data-ask="What's the one idea that never changed from the first GAN to the last?"
+     data-time="3 min">
+  <h2>Key Ideas That Connect Everything</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Loss Function Evolution</h4>
+      <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:2;">
+        L02: BCE &rarr; unstable<br>
+        L08: Wasserstein &rarr; stable<br>
+        L09: + Gradient penalty<br>
+        L17: + L1 &rarr; pixel accuracy<br>
+        L19: + Cycle &rarr; content preserved<br>
+        L19: LSGAN &rarr; smoother
+      </p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Architecture Evolution</h4>
+      <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:2;">
+        L02: Linear &rarr; blurry<br>
+        L05: DCGAN &rarr; spatial structure<br>
+        L09: InstanceNorm &rarr; per-image<br>
+        L15: StyleGAN &rarr; disentangled<br>
+        L17: U-Net &rarr; spatial detail<br>
+        L19: ResNet &rarr; input + changes
+      </p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Evaluation Evolution</h4>
+      <p style="font-family:var(--font-mono);font-size:0.85rem;line-height:2;">
+        L06: "Looks good" &rarr; subjective<br>
+        L12: Inception Score<br>
+        L13: FID &rarr; gold standard<br>
+        L14: Per-group FID &rarr; bias
+      </p>
+    </div>
+    <div class="card" style="background:#ecfdf5;">
+      <h4>The Constant: Adversarial Training</h4>
+      <p>G tries to fool D. D tries to catch G. Competition drives improvement.</p>
+      <p class="mt-1" style="font-weight:600;">This never changed from the first GAN to the last.</p>
+      <p class="text-muted">What changed: HOW we measure "fooling" and WHAT we generate.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ─── THE 10 MOST IMPORTANT IDEAS ─── -->
+<div class="slide"
+     data-say="If you had to remember just 10 ideas from this course, these are the ones. Each one solved a specific problem. Together they form the foundation of modern generative AI."
+     data-ask="Which idea do you think is most broadly applicable?"
+     data-time="2 min">
+  <h2>The 10 Most Important Ideas</h2>
+  <div class="two-col">
+    <div>
+      <table class="compare-table">
+        <tr><td><strong>1</strong></td><td>Adversarial training: G vs D competition</td></tr>
+        <tr><td><strong>2</strong></td><td>Convolutional architecture: spatial structure</td></tr>
+        <tr><td><strong>3</strong></td><td>Wasserstein distance: stable, meaningful loss</td></tr>
+        <tr><td><strong>4</strong></td><td>Gradient penalty: enforce Lipschitz constraint</td></tr>
+        <tr><td><strong>5</strong></td><td>Conditional generation: control what you generate</td></tr>
+      </table>
+    </div>
+    <div>
+      <table class="compare-table">
+        <tr><td><strong>6</strong></td><td>FID: measure GAN quality scientifically</td></tr>
+        <tr><td><strong>7</strong></td><td>StyleGAN: disentangled, controllable generation</td></tr>
+        <tr><td><strong>8</strong></td><td>U-Net: skip connections preserve spatial detail</td></tr>
+        <tr><td><strong>9</strong></td><td>PatchGAN: local texture discrimination</td></tr>
+        <tr><td><strong>10</strong></td><td>Cycle consistency: preserve content without pairs</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ─── WHAT COMES NEXT ─── -->
+<div class="slide"
+     data-say="Beyond this course: diffusion models dominate now, but GAN concepts carry over. FID evaluation, conditional generation, adversarial training — all appear in modern systems. Understanding GANs makes learning diffusion much easier."
+     data-ask="What GAN concept do you think appears in diffusion models?"
+     data-time="2 min">
+  <h2>What Comes Next</h2>
+  <div class="three-col">
+    <div class="card" style="background:#f8f9fb;">
+      <h4>Diffusion Models</h4>
+      <p>DALL-E, Stable Diffusion, Midjourney &mdash; dominate since 2022.</p>
+      <p class="mt-1">But GAN concepts carry over: adversarial training, FID, conditional generation.</p>
+      <p class="mt-1" style="font-weight:600;">Understanding GANs makes diffusion easier.</p>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>GAN-Diffusion Hybrids</h4>
+      <p>Some models combine both:</p>
+      <ul>
+        <li>Adversarial distillation: a GAN discriminator lets diffusion sample in 1&ndash;4 steps (SDXL Turbo)</li>
+        <li>Diffusion augments GAN training</li>
+        <li>StyleGAN-like control in diffusion</li>
+      </ul>
+    </div>
+    <div class="card" style="background:#f8f9fb;">
+      <h4>3D Generation</h4>
+      <p>GANs extended to 3D:</p>
+      <ul>
+        <li>GRAF, &pi;-GAN: GANs with NeRF-style 3D renderers</li>
+        <li>EG3D: 3D-aware faces</li>
+        <li>Same adversarial principle, but in 3D</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 14 ─── COURSE SUMMARY TABLE ─── -->
+<div class="slide"
+     data-say="The full course in one table. Five units, five key achievements. You started knowing nothing about GANs. Now you can build, train, evaluate, debug, and apply them to real-world problems."
+     data-ask="Which unit achievement are you most proud of?"
+     data-time="2 min">
+  <h2>The Full Course Summary</h2>
+  <table class="compare-table">
+    <tr><th>Unit</th><th>Lessons</th><th>Key Achievement</th></tr>
+    <tr><td><strong>Unit 1</strong></td><td>GenAI, NN + PyTorch, L02&ndash;L06</td><td>Build, train, debug a GAN that generates images (DCGAN)</td></tr>
+    <tr><td><strong>Unit 2</strong></td><td>L07-L11</td><td>Stable training (WGAN-GP) + controlled output (cGAN)</td></tr>
+    <tr><td><strong>Unit 3</strong></td><td>L12-L15</td><td>Measure quality (FID), understand bias, know SOTA (StyleGAN)</td></tr>
+    <tr><td><strong>Unit 4</strong></td><td>L16&ndash;L18</td><td>Paired translation (Pix2Pix) + GANs for augmentation &amp; privacy</td></tr>
+    <tr class="highlight-row"><td><strong>Unit 5</strong></td><td>L19&ndash;L20</td><td>Unpaired translation (CycleGAN) + real-world capstone</td></tr>
+  </table>
+  <div class="card mt-1" style="background:#ecfdf5;text-align:center;">
+    <p style="font-size:1.1rem;font-weight:600;">You're ready to teach this material, apply GANs to real problems, and understand the research papers that build on these foundations.</p>
+  </div>
+</div>
+
+<!-- 15 ─── FINAL KNOWLEDGE CHECK ─── -->
+<div class="slide"
+     data-say="The final knowledge check. These questions span the entire course. Give students time to discuss in pairs before revealing."
+     data-ask="Try all before revealing. Discuss with a partner."
+     data-time="5 min">
+  <h2>Final Knowledge Check</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;max-width:1000px;">
+    <div class="revealable card">
+      <h4>200 paired sketch&ndash;photo images. Which architecture and loss?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1"><strong>Pix2Pix:</strong> U-Net G (keeps positions), 70&times;70 PatchGAN D on the (sketch, photo) pair, loss = GAN + 100&middot;L1. L1 keeps it faithful, GAN keeps it sharp.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Great faces &mdash; but only light-skinned ones. Problem, detection, fix?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1"><strong>Data bias.</strong> Detect with per-group FID (L13&ndash;L14). Fix: rebalance the data, or targeted cGAN augmentation (L10, L18).</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Pix2Pix uses U-Net, CycleGAN uses ResNet. What breaks if you swap them?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">ResNet in Pix2Pix loses fine alignment the skips carried. U-Net in CycleGAN can pass the input straight through the skips, so the round trip is trivially easy and little gets translated.</p></div>
+    </div>
+    <div class="revealable card">
+      <h4>Cycle consistency in one sentence &mdash; why does it keep content?</h4>
+      <p class="hint">Click to reveal</p>
+      <div class="answer"><p class="mt-1">A&rarr;B&rarr;A must return A, so anything G_AB destroys (pose, shape, background) cannot be recovered &mdash; G_AB learns to change only texture and colour.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 ─── CONGRATULATIONS ─── -->
+<div class="slide cover"
+     data-say="Congratulations! You've completed the full GAN journey. From what is a generator to building Pix2Pix and CycleGAN for real-world image translation. You understand the theory, the code, and the practical considerations. The adversarial game continues. Now you're the one who knows how to play it."
+     data-ask="What will you build first?"
+     data-time="2 min">
+  <div class="lesson-number" style="color:#10b981;">Course Complete</div>
+  <h1>Congratulations!</h1>
+  <p class="subtitle" style="max-width:700px;">Five units. One adversarial idea. From &ldquo;what is a generator?&rdquo; to Pix2Pix and CycleGAN.<br>You understand the theory, the code, and the real-world applications.</p>
+  <div class="step" style="margin-top:1.5rem;">
+    <div class="card" style="background:#ecfdf5;max-width:600px;text-align:center;margin:0 auto;">
+      <p style="font-size:clamp(1.1rem,2vw,1.4rem);font-weight:700;font-style:italic;line-height:1.6;">
+        &ldquo;The adversarial game continues.<br>Now you're the one who knows how to play it.&rdquo;
+      </p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NOTES PANEL -->
+<div class="notes-panel">
+  <h4>Presenter Notes</h4><span class="note-time"></span>
+  <p class="note-say"></p><p class="note-ask"></p>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay">
+  <div class="help-content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="key-row"><span>Next / build</span><kbd>&rarr;</kbd> <kbd>Space</kbd></div>
+    <div class="key-row"><span>Previous</span><kbd>&larr;</kbd></div>
+    <div class="key-row"><span>Presenter notes</span><kbd>N</kbd></div>
+    <div class="key-row"><span>Fullscreen</span><kbd>F</kbd></div>
+    <div class="key-row"><span>Reveal answer</span><kbd>R</kbd></div>
+    <div class="key-row"><span>This help</span><kbd>H</kbd></div>
+    <div class="key-row"><span>Close</span><kbd>Esc</kbd></div>
+    <p class="mt-2 text-muted" style="font-size:0.8rem;">Swipe left/right on touch &bull; Click to reveal answers</p>
+  </div>
+</div>
+
+<script src="deck.js"></script>
+</body>
+</html>

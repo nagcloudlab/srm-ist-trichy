@@ -1,0 +1,20 @@
+<section id="why-5-critic" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §33 · Critic learns the landscape first</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Why train the critic 5× more?</h2>
+<div style="flex:1;display:flex;gap:56px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#6B7180">The logic</p>
+<ol style="font-size:30px;line-height:1.5;color:#1B2130"><li>G follows the critic’s slope, like a map.</li><li>A half-trained critic is a wrong map.</li><li>W stays smooth, so a better critic only gives better directions.</li></ol>
+</div>
+<div style="flex:1">
+<table style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130;padding:14px 22px">
+<tr style="background:#EEEBE3"><th style="width:50%;text-align:left">stronger judge</th><th style="width:50%;text-align:right">effect on G</th></tr><tr><td style="text-align:left">classic D</td><td style="text-align:right">worse: goes flat</td></tr><tr><td style="text-align:left">WGAN critic</td><td style="text-align:right">better: closer to W</td></tr>
+</table>
+</div>
+</div>
+<div style="background:#1B2130;border-radius:16px;padding:28px 40px;display:flex;gap:28px;align-items:baseline">
+<p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8FB0FF;width:240px">Key idea</p>
+<p style="flex:1;font-size:32px;font-weight:600;line-height:1.35;color:#F2EFE8">In WGAN the judge can’t get “too good”, so we let it learn first.</p>
+</div>
+<aside>The reverse of the classic GAN balancing act. A near-optimal discriminator kills the generator’s signal; a near-optimal critic gives the best estimate of a smooth distance and therefore the best gradient. Five critic steps per generator step is the WGAN and WGAN-GP paper default.</aside>
+</section>

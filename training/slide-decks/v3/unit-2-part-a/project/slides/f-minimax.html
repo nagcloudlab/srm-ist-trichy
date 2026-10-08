@@ -1,0 +1,14 @@
+<section id="f-minimax" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · Recall · Minimax</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">That’s all “minimax” means</h2>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:72px;color:#1B2130;text-align:center"><span style="color:#A9520E">min</span><span style="color:#6B7180">_G</span>  <span style="color:#2F5FD0">max</span><span style="color:#6B7180">_D</span>  V</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px">
+<div style="display:flex;gap:32px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#2F5FD0;width:240px">max_D</p><p style="font-size:36px;color:#1B2130">D turns the score <b>up</b></p></div>
+<div style="display:flex;gap:32px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#A9520E;width:240px">min_G</p><p style="font-size:36px;color:#1B2130">G turns the score <b>down</b></p></div>
+</div>
+<p style="font-size:32px;line-height:1.45;color:#4A5263">Mini + max = <b>minimax</b>: two players, one number, opposite goals.</p>
+<p id="opt-tag" style="position:absolute;left:1452px;top:60px;width:308px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1E3F99;background:#DCE5FA;padding:8px 16px;border-radius:999px">Recall · Unit 1</p>
+<aside>Only now show the formal notation, after the class already understands the game. The formula is just a label for the scoreboard picture: max over D means D tries to turn V up; min over G means G tries to turn V down. Read it right to left if asked: imagine D playing as well as it can, and G choosing itself to make even that best D score as low as possible. If a student asks why it is called minimax, it is borrowed from game theory, where the same name is used for chess-playing programs that minimise the opponent's best outcome.</aside>
+</section>

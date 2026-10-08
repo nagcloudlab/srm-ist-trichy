@@ -1,0 +1,20 @@
+<section id="clipping-crude" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §22 · Why weight clipping is crude</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Clipping works, but it’s a blunt tool</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-top:8px solid #D9701E;border-radius:20px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:40px;font-weight:700;color:#1B2130">Range too small</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5263">Critic too weak; gradients vanish</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-top:8px solid #D9701E;border-radius:20px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:40px;font-weight:700;color:#1B2130">Range too large</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5263">Constraint barely bites; slow, unstable training</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<div style="background:#EEF1F7;border-radius:16px;padding:32px 40px;display:flex;flex-direction:column;gap:8px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Also note</p>
+<p style="font-size:32px;line-height:1.4;color:#1B2130">It only guarantees <b>some</b> constant K, so you get W × an unknown scale — and weights pile up at ±0.01, wasting capacity.</p>
+</div>
+<aside>The WGAN authors themselves called weight clipping a clearly terrible way to enforce a Lipschitz constraint. The WGAN-GP paper showed that clipped weights collapse onto the two extreme values, and the critic ends up learning overly simple functions. This motivated a better method.</aside>
+</section>

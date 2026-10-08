@@ -1,0 +1,14 @@
+<section id="f-push-problem" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §4 · Saturation · The problem</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">How hard does the original loss push G?</h2>
+<table style="font-size:34px;color:#1B2130;padding:16px 32px">
+<tr style="background:#EEEBE3"><th style="width:28%;text-align:right">D(fake)</th><th style="width:28%;text-align:right">push on G</th><th style="width:44%">Meaning</th></tr>
+<tr><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.5</td><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.5</td><td>Normal</td></tr>
+<tr><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.1</td><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.1</td><td>Weak</td></tr>
+<tr><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.01</td><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.01</td><td>Very weak</td></tr>
+<tr style="background:#FBE3CF"><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.001</td><td style="text-align:right;font-family:'JetBrains Mono', 'Courier New', monospace">0.001</td><td>Almost nothing ← where training starts</td></tr>
+</table>
+<div style="flex:1"></div>
+<p style="font-size:36px;font-weight:600;line-height:1.4;color:#1B2130">The worse G is, the weaker the push. <span style="color:#A9520E">That is saturation.</span></p>
+<aside>The one fact to land: with the original loss, the push G receives equals D(fake) itself. Technically this is the size of the gradient on D's logit, minus D(fake); the derivative is in the notes of the next slides. Read the table bottom-up: at the start of training D(fake) is about 0.001, so G gets a push of about 0.001. The generator that most needs to learn gets almost no signal. Backwards!</aside>
+</section>

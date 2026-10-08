@@ -1,0 +1,14 @@
+<section id="chart-gp" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §28 · Why square?</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">The penalty is a bowl centred at 1</h2>
+<p style="font-size:28px;color:#4A5263"><span style="color:#2F5FD0"><b>━━</b></span> 10 · (norm − 1)²  ·  x-axis: gradient norm, 0 → 3</p>
+<svg aria-label="A U-shaped parabola: penalty 10 at norm 0, zero at norm 1, 10 at norm 2, 40 at norm 3" width="1664" height="400" viewBox="0 0 1664 400" xmlns="http://www.w3.org/2000/svg">
+<line x1="80" y1="380" x2="1580" y2="380" stroke="#9AA0AD" stroke-width="3"/>
+<line x1="80" y1="20" x2="80" y2="380" stroke="#9AA0AD" stroke-width="3"/>
+<line x1="580" y1="20" x2="580" y2="380" stroke="#C9C4B8" stroke-width="2" stroke-dasharray="8 8"/>
+<polyline points="80,300 130,315.2 180,328.8 230,340.8 280,351.2 330,360 380,367.2 430,372.8 480,376.8 530,379.2 580,380 630,379.2 680,376.8 730,372.8 780,367.2 830,360 880,351.2 930,340.8 980,328.8 1030,315.2 1080,300 1130,283.2 1180,264.8 1230,244.8 1280,223.2 1330,200 1380,175.2 1430,148.8 1480,120.8 1530,91.2 1580,60" fill="none" stroke="#2F5FD0" stroke-width="7" stroke-linejoin="round"/>
+<circle cx="80" cy="300" r="11" fill="#D9701E"/><circle cx="580" cy="380" r="11" fill="#1B2130"/><circle cx="1080" cy="300" r="11" fill="#D9701E"/><circle cx="1580" cy="60" r="11" fill="#D9701E"/>
+</svg>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:30px;color:#1B2130">norm 0 → 10  ·  norm 1 → 0  ·  norm 2 → 10  ·  norm 3 → 40</p>
+<aside>The penalty as a picture. Zero only at norm exactly 1, the bottom of the bowl. It grows on both sides, so a critic that is too flat is pushed to become steeper and one that is too steep is pushed to become flatter. Because the bowl is squared, being far off costs a lot: norm 3 costs 40, four times norm 2. Lambda = 10 sets how steep the walls are.</aside>
+</section>

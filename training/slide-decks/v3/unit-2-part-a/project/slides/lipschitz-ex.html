@@ -1,0 +1,28 @@
+<section id="lipschitz-ex" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §19 · 1-Lipschitz example</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Score can’t move more than the input</h2>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:56px;color:#1B2130;text-align:center">|C(x₁) − C(x₂)| ≤ |x₁ − x₂|</p>
+</div>
+<div style="display:flex;gap:24px;flex:1">
+<div style="flex:1;background:#FBE3CF;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130">x: 2 → 3  (moved 1)</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130">C: 5 → 100  (moved 95)</p>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px"><p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7180">Slope</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:52px;font-weight:600;color:#1B2130">95 ÷ 1 = 95</p></div>
+<p style="font-size:32px;font-weight:700;color:#8A3F08">Too steep</p>
+</div>
+<div style="flex:1;background:#DCE5FA;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130">x: 2 → 5  (moved 3)</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130">C: 4 → 7  (moved 3)</p>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px"><p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7180">Slope</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:52px;font-weight:600;color:#1B2130">3 ÷ 3 = 1</p></div>
+<p style="font-size:32px;font-weight:700;color:#1E3F99">Allowed</p>
+</div>
+<div style="flex:1;background:#FBE3CF;border-radius:16px;padding:32px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130">x: 2 → 5  (moved 3)</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130">C: 4 → 20  (moved 16)</p>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px"><p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7180">Slope</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:52px;font-weight:600;color:#1B2130">16 ÷ 3 ≈ 5.3</p></div>
+<p style="font-size:32px;font-weight:700;color:#8A3F08">Too steep</p>
+</div>
+</div>
+<aside>Slope = how far the score moved ÷ how far the input moved. 1-Lipschitz means slope ≤ 1. Read each card as: the input moved this much, the score moved that much. If the score moves more than the input, the function breaks the 1-Lipschitz rule.</aside>
+</section>

@@ -1,0 +1,20 @@
+<section id="f-why-start" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §4 · Saturation · The starting point</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">At the start, D wins easily</h2>
+<div style="flex:1;display:flex;gap:24px;align-items:center">
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9520E">Step 0</p>
+<p style="font-size:32px;line-height:1.4;color:#1B2130">G is random: its outputs look like noise</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9520E">A few steps</p>
+<p style="font-size:32px;line-height:1.4;color:#1B2130">Noise vs real photos is an easy task for D</p>
+</div>
+<div style="flex:1;background:#FBE3CF;border-radius:20px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#8A3F08">Result</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#1B2130">D(fake) ≈ 0</p>
+</div>
+</div>
+<p style="font-size:32px;line-height:1.45;color:#4A5263">So the region <b>D(fake) near 0</b> is where every GAN begins. Remember it.</p>
+<aside>This slide sets up saturation. At initialisation, G produces garbage. Telling garbage from real images is trivial, so D quickly becomes confident: D(fake) values of 0.01 or less are common early on. Whatever loss we give G must therefore work well when D(fake) is near 0. The next slides show that the original minimax loss does not.</aside>
+</section>

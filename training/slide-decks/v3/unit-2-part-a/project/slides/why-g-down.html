@@ -1,0 +1,21 @@
+<section id="why-g-down" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · Recall · Minimax · why?</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Why does G want the score down?</h2>
+<div style="flex:1;display:flex;gap:56px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#6B7180">The logic</p>
+<ol style="font-size:30px;line-height:1.5;color:#1B2130"><li>V is D’s report card: high = D tells real from fake.</li><li>G wins by fooling D on the fakes.</li><li>D fooled → report card worse → V falls.</li></ol>
+</div>
+<div style="flex:1">
+<table style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1B2130;padding:14px 22px">
+<tr style="background:#EEEBE3"><th style="width:50%;text-align:left">D(fake)</th><th style="width:50%;text-align:right">fake half of V</th></tr><tr><td style="text-align:left">0.1  not fooled</td><td style="text-align:right">−0.11</td></tr><tr><td style="text-align:left">0.5  unsure</td><td style="text-align:right">−0.69</td></tr><tr><td style="text-align:left">0.9  fooled</td><td style="text-align:right">−2.30</td></tr>
+</table>
+</div>
+</div>
+<div style="background:#1B2130;border-radius:16px;padding:28px 40px;display:flex;gap:28px;align-items:baseline">
+<p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8FB0FF;width:240px">Key idea</p>
+<p style="flex:1;font-size:32px;font-weight:600;line-height:1.35;color:#F2EFE8">V is D’s score. G’s job is to make D look bad, so G pushes it down.</p>
+</div>
+<p id="opt-tag" style="position:absolute;left:1452px;top:60px;width:308px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1E3F99;background:#DCE5FA;padding:8px 16px;border-radius:999px">Recall · Unit 1</p>
+<aside>Analogy from Unit 1: V is the detective’s catch rate. The detective wants it high; the forger wants it low. A low catch rate is what winning looks like for the forger. The fake half of V is log(1 − D(fake)): as G improves, D(fake) rises and this falls.</aside>
+</section>

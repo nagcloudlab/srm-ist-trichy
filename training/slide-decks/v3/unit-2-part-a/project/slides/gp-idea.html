@@ -1,0 +1,24 @@
+<section id="gp-idea" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §23 · WGAN-GP</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Better fix: speed cameras on the road</h2>
+<svg aria-label="A road from a blue real point on the left to an orange fake point on the right, with three dark checkpoint diamonds spaced along it" width="1664" height="200" viewBox="0 0 1664 200" xmlns="http://www.w3.org/2000/svg">
+<rect width="1664" height="200" rx="16" fill="#FFFDF8"/>
+<line x1="160" y1="110" x2="1500" y2="110" stroke="#C9C4B8" stroke-width="14" stroke-linecap="round"/>
+<circle cx="160" cy="110" r="30" fill="#2F5FD0"/>
+<circle cx="1500" cy="110" r="30" fill="#D9701E"/>
+<rect x="470" y="86" width="48" height="48" fill="#1B2130" transform="rotate(45 494 110)"/>
+<rect x="806" y="86" width="48" height="48" fill="#1B2130" transform="rotate(45 830 110)"/>
+<rect x="1142" y="86" width="48" height="48" fill="#1B2130" transform="rotate(45 1166 110)"/>
+</svg>
+<p style="font-size:28px;text-align:center;color:#4A5263"><span style="color:#2F5FD0"><b>real</b></span>  ·  ◆ checkpoints x̂ between them  ·  <span style="color:#A9520E"><b>fake</b></span></p>
+<div style="display:flex;gap:24px;align-items:center">
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:52px;color:#1B2130;text-align:center">fine = λ · (slope − 1)²</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<p style="font-size:30px;line-height:1.4;color:#1B2130">At each checkpoint, measure the critic’s slope ‖∇C(x̂)‖.</p>
+<p style="font-size:30px;line-height:1.4;color:#1B2130">Slope 1: no fine. Anything else: fined.</p>
+</div>
+</div>
+<aside>Gulrajani et al., 2017. Weight clipping tried to control the critic indirectly through its weights. The gradient penalty measures the thing we actually care about, the critic's slope, but only at a few random checkpoints on the road between a real sample and a fake one, like speed cameras. At each checkpoint x-hat it computes the gradient norm, the slope, and adds a fine of lambda times (slope - 1) squared to the critic's loss. The next slides unpack each piece: where the checkpoints are, what the slope is, why minus 1, why squared, and what lambda does.</aside>
+</section>

@@ -1,0 +1,16 @@
+<section id="x-hat" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §24 · What is x̂?</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">x̂ sits between real and fake</h2>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;color:#1B2130;text-align:center">x̂ = ε·x_real + (1 − ε)·x_fake,   ε ~ Uniform(0, 1)</p>
+</div>
+<div style="position:absolute;left:208px;top:658px;width:1504px;height:4px;background:#C9C4B8"></div>
+<x-shape kind="ellipse" style="position:absolute;left:180px;top:632px;width:56px;height:56px;background:#2F5FD0"></x-shape>
+<p style="position:absolute;left:108px;top:712px;width:200px;text-align:center;font-size:28px;font-weight:600;color:#2F5FD0">Real · 0</p>
+<x-shape kind="ellipse" style="position:absolute;left:1684px;top:632px;width:56px;height:56px;background:#D9701E"></x-shape>
+<p style="position:absolute;left:1592px;top:712px;width:200px;text-align:center;font-size:28px;font-weight:600;color:#A9520E">Fake · 10</p>
+<x-shape kind="diamond" style="position:absolute;left:1082px;top:630px;width:60px;height:60px;background:#1B2130"></x-shape>
+<p style="position:absolute;left:962px;top:570px;width:300px;text-align:center;font-size:28px;font-weight:700;color:#1B2130">x̂ = 6</p>
+<p style="position:absolute;left:128px;top:820px;width:1664px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;color:#4A5263">ε = 0.4  →  0.4·0 + 0.6·10 = 6</p>
+<aside>Mix a real sample and a fake sample with a random weight epsilon. In practice epsilon is drawn fresh for each sample in the batch. With epsilon 0.4, x-hat sits at 6, between the two. For images, this is a pixel-wise blend of a real image and a generated one.</aside>
+</section>

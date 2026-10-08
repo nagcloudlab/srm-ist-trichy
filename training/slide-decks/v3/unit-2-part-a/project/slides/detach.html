@@ -1,0 +1,17 @@
+<section id="detach" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §35 · Why .detach()?</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">.detach() only when training the critic</h2>
+<div style="flex:1;display:flex;gap:32px;align-items:center">
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-top:8px solid #2F5FD0;border-radius:20px;padding:48px;display:flex;flex-direction:column;gap:20px">
+<h3 style="font-size:40px;font-weight:700;color:#1B2130">Critic step</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">fake = G(z).detach()</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5263">Use G’s output as plain data. No gradients flow into G.</p>
+</div>
+<div style="flex:1;background:#FFFDF8;border:1px solid #E2DED4;border-top:8px solid #D9701E;border-radius:20px;padding:48px;display:flex;flex-direction:column;gap:20px">
+<h3 style="font-size:40px;font-weight:700;color:#1B2130">Generator step</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">fake = G(z)</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5263">Gradients must flow back through C into G.</p>
+</div>
+</div>
+<aside>Detach during the critic step so the critic loss does not update or waste compute on the generator. Never detach during the generator step, or the generator receives no gradient at all. The generator step also leaves gradients on the critic's weights; that is harmless because opt_C.zero_grad() clears them before the next critic update.</aside>
+</section>

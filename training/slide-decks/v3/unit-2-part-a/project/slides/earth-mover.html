@@ -1,0 +1,19 @@
+<section id="earth-mover" data-transition="magic" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §11 · Wasserstein / Earth Mover distance</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Cost = mass moved × distance moved</h2>
+<div id="em-line" style="position:absolute;left:160px;top:620px;width:1560px;height:4px;background:#C9C4B8"></div>
+<p style="position:absolute;left:200px;top:640px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#6B7180">0</p>
+<p style="position:absolute;left:480px;top:640px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#6B7180">2</p>
+<p style="position:absolute;left:760px;top:640px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#6B7180">4</p>
+<p style="position:absolute;left:1040px;top:640px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#6B7180">6</p>
+<p style="position:absolute;left:1320px;top:640px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#6B7180">8</p>
+<p style="position:absolute;left:1600px;top:640px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#6B7180">10</p>
+<div id="em-real" style="position:absolute;left:192px;top:500px;width:96px;height:120px;background:#2F5FD0;border-radius:12px 12px 0 0"></div>
+<p id="em-real-label" style="position:absolute;left:152px;top:452px;width:176px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;color:#2F5FD0">REAL</p>
+<div id="em-fake" style="position:absolute;left:1592px;top:500px;width:96px;height:120px;background:#D9701E;border-radius:12px 12px 0 0"></div>
+<p id="em-fake-label" style="position:absolute;left:1552px;top:452px;width:176px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;color:#A9520E">FAKE</p>
+<x-connector x1="1580" y1="420" x2="310" y2="420" head="end" style="color:#4A5263;border-width:4px"></x-connector>
+<p style="position:absolute;left:540px;top:360px;width:800px;text-align:center;font-size:28px;color:#4A5263">move 1 unit of sand, 10 steps</p>
+<p id="em-readout" style="position:absolute;left:128px;top:760px;width:1664px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:72px;color:#1B2130">W = 1 × 10 = 10</p>
+<aside>Picture both distributions as piles of sand with the same total mass. Wasserstein-1, also called Earth Mover distance, is the cheapest total work to reshape the fake pile into the real pile. One unit of mass moved 10 steps costs 10.</aside>
+</section>

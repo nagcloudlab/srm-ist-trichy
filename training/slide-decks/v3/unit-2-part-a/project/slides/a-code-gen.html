@@ -1,0 +1,6 @@
+<section id="a-code-gen" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §34 · PyTorch mental model · 2 of 2</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Generator: one step</h2>
+<div style="background:#1B2130;border-radius:20px;padding:36px 48px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.5;color:#E8E4DA">&#160;&#160;&#160;&#160;z = sample_noise()<br>&#160;&#160;&#160;&#160;fake = generator(z)              <span style="color:#8A93A6"># no detach here</span><br>&#160;&#160;&#160;&#160;generator_loss = -critic(fake).mean()<br>&#160;&#160;&#160;&#160;generator_optimizer.zero_grad()<br>&#160;&#160;&#160;&#160;generator_loss.backward()<br>&#160;&#160;&#160;&#160;generator_optimizer.step()</p></div>
+<aside>Then one generator step, inside the same batch loop. No detach: gradients must flow back through the critic into G.</aside>
+</section>

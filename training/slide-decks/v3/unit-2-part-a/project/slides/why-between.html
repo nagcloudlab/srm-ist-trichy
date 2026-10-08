@@ -1,0 +1,27 @@
+<section id="why-between" data-transition="fade" style="background:#EEF1F7;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §25 · Why measure the gradient there?</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">The ideal critic has slope 1 on those lines</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<svg aria-label="Blue real points on the left joined by dashed lines to orange fake points on the right, with small dark sample points along each line" width="720" height="460" viewBox="0 0 720 460" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="720" height="460" rx="16" fill="#FFFDF8"/>
+<line x1="120" y1="90" x2="600" y2="140" stroke="#9AA0AD" stroke-width="3" stroke-dasharray="10 8"/>
+<line x1="140" y1="230" x2="620" y2="300" stroke="#9AA0AD" stroke-width="3" stroke-dasharray="10 8"/>
+<line x1="110" y1="370" x2="590" y2="220" stroke="#9AA0AD" stroke-width="3" stroke-dasharray="10 8"/>
+<circle cx="120" cy="90" r="18" fill="#2F5FD0"/>
+<circle cx="140" cy="230" r="18" fill="#2F5FD0"/>
+<circle cx="110" cy="370" r="18" fill="#2F5FD0"/>
+<circle cx="600" cy="140" r="18" fill="#D9701E"/>
+<circle cx="620" cy="300" r="18" fill="#D9701E"/>
+<circle cx="590" cy="220" r="18" fill="#D9701E"/>
+<rect x="382" y="104" width="20" height="20" fill="#1B2130" transform="rotate(45 392 114)"/>
+<rect x="278" y="243" width="20" height="20" fill="#1B2130" transform="rotate(45 288 253)"/>
+<rect x="436" y="258" width="20" height="20" fill="#1B2130" transform="rotate(45 446 268)"/>
+</svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.45;color:#4A5263">The optimal critic’s gradient norm is <b>exactly 1</b> along straight lines joining real and fake points.</p>
+<p style="font-size:32px;line-height:1.45;color:#4A5263">Checking everywhere is impossible. These lines are where the generator must travel.</p>
+<p style="font-size:28px;color:#6B7180">Gulrajani et al., 2017</p>
+</div>
+</div>
+<aside>The notes say this is the region where we want guidance. The paper gives the deeper reason: for the optimal critic, the gradient norm is 1 almost everywhere along lines connecting coupled real and fake points. So sampling x-hat on those lines checks the condition exactly where it matters. It is a soft, sampled constraint, not a guarantee everywhere.</aside>
+</section>

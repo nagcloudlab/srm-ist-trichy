@@ -1,0 +1,21 @@
+<section id="penalty-shape" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §27 · Why subtract 1, and why square?</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Too steep or too flat: both get penalised</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.45;color:#4A5263"><b>− 1</b> sets the target: zero when the norm is exactly 1.</p>
+<p style="font-size:32px;line-height:1.45;color:#4A5263"><b>Squaring</b> makes too-low and too-high both cost something.</p>
+</div>
+<div style="flex:1">
+<table style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:36px;color:#1B2130;padding:14px 32px">
+<tr style="background:#EEEBE3"><th style="width:50%;text-align:right">norm</th><th style="width:50%;text-align:right">(norm − 1)²</th></tr>
+<tr><td style="text-align:right">0.5</td><td style="text-align:right">0.25</td></tr>
+<tr style="background:#DCE5FA"><td style="text-align:right">1.0</td><td style="text-align:right">0</td></tr>
+<tr><td style="text-align:right">1.2</td><td style="text-align:right">0.04</td></tr>
+<tr><td style="text-align:right">2.0</td><td style="text-align:right">1</td></tr>
+<tr><td style="text-align:right">4.0</td><td style="text-align:right">9</td></tr>
+</table>
+</div>
+</div>
+<aside>Note this is a two-sided penalty: it also pushes gradients up toward 1 if the critic is too flat. Strictly, Lipschitz only needs the norm to be at most 1, and a one-sided version exists, but the paper found the two-sided form works well because the optimal critic has norm 1 on those lines anyway.</aside>
+</section>

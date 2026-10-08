@@ -1,0 +1,17 @@
+<section id="f-alternate" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · Recall · The training loop</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Training = take turns, forever</h2>
+<div style="flex:1;display:flex;gap:16px;align-items:center;justify-content:center">
+<p style="font-size:40px;font-weight:700;color:#F7F5F0;background:#2F5FD0;padding:32px 40px;border-radius:16px">D step</p>
+<p style="font-size:48px;color:#6B7180">→</p>
+<p style="font-size:40px;font-weight:700;color:#1B2130;background:#F2A65A;padding:32px 40px;border-radius:16px">G step</p>
+<p style="font-size:48px;color:#6B7180">→</p>
+<p style="font-size:40px;font-weight:700;color:#F7F5F0;background:#2F5FD0;padding:32px 40px;border-radius:16px">D step</p>
+<p style="font-size:48px;color:#6B7180">→</p>
+<p style="font-size:40px;font-weight:700;color:#1B2130;background:#F2A65A;padding:32px 40px;border-radius:16px">G step</p>
+<p style="font-size:48px;color:#6B7180">→ …</p>
+</div>
+<p style="font-size:32px;line-height:1.45;color:#4A5263">Classic GAN: 1 D step per G step. Later, WGAN uses <b>5</b> critic steps per G step.</p>
+<p id="opt-tag" style="position:absolute;left:1452px;top:60px;width:308px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1E3F99;background:#DCE5FA;padding:8px 16px;border-radius:999px">Recall · Unit 1</p>
+<aside>Each batch: one D step, then one G step, and repeat over many epochs. Neither network ever "finishes"; each keeps adapting to the other. This alternating structure is why GAN loss curves look so different from normal classifiers: the target keeps moving. Remember the ratio, 1 to 1; WGAN, in chapter 12, changes it to 5 to 1 and explains why.</aside>
+</section>

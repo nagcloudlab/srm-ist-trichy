@@ -1,0 +1,17 @@
+<section id="f-gan-game" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · Recall · The GAN game</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">The GAN game in one picture</h2>
+<div style="position:absolute;left:128px;top:400px;width:240px;height:100px;background:#EEEBE3;border-radius:16px;display:flex;align-items:center;justify-content:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">noise z</p></div>
+<div style="position:absolute;left:480px;top:400px;width:280px;height:100px;background:#2F5FD0;border-radius:16px;display:flex;align-items:center;justify-content:center"><p style="font-size:32px;font-weight:700;color:#F7F5F0">Generator G</p></div>
+<div style="position:absolute;left:880px;top:400px;width:300px;height:100px;background:#FBE3CF;border-radius:16px;display:flex;align-items:center;justify-content:center"><p style="font-size:32px;font-weight:600;color:#8A3F08">fake image</p></div>
+<div style="position:absolute;left:880px;top:640px;width:300px;height:100px;background:#DCE5FA;border-radius:16px;display:flex;align-items:center;justify-content:center"><p style="font-size:32px;font-weight:600;color:#1E3F99">real image</p></div>
+<div style="position:absolute;left:1300px;top:520px;width:300px;height:100px;background:#1B2130;border-radius:16px;display:flex;align-items:center;justify-content:center"><p style="font-size:32px;font-weight:700;color:#F2EFE8">Discriminator D</p></div>
+<p style="position:absolute;left:1300px;top:636px;width:300px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#4A5263">→ P(real), 0 to 1</p>
+<x-connector x1="368" y1="450" x2="480" y2="450" head="end" style="color:#4A5263;border-width:4px"></x-connector>
+<x-connector x1="760" y1="450" x2="880" y2="450" head="end" style="color:#4A5263;border-width:4px"></x-connector>
+<x-connector x1="1180" y1="450" x2="1300" y2="545" head="end" style="color:#4A5263;border-width:4px"></x-connector>
+<x-connector x1="1180" y1="690" x2="1300" y2="595" head="end" style="color:#4A5263;border-width:4px"></x-connector>
+<p style="position:absolute;left:128px;top:820px;width:1664px;font-size:32px;line-height:1.45;color:#1B2130">D is a <b>classifier</b>: real → 1, fake → 0. G wins when D is <b>fooled</b>.</p>
+<p id="opt-tag" style="position:absolute;left:1452px;top:60px;width:308px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1E3F99;background:#DCE5FA;padding:8px 16px;border-radius:999px">Recall · Unit 1</p>
+<aside>Say: two neural networks. The generator takes random noise z and turns it into an image. The discriminator sees an image, either real from the dataset or fake from G, and outputs one number between 0 and 1: its belief that the image is real. D is trained like any binary classifier. G is trained to make D say "real" for its fakes. Everything in this unit is about which loss we use to train these two.</aside>
+</section>

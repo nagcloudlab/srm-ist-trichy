@@ -1,0 +1,17 @@
+<section id="f-sigmoid" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · Recall · Maths warm-up</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">From raw score to probability: the sigmoid</h2>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:48px;color:#1B2130;text-align:center">D(x) = σ(a) = 1 / (1 + e<span style="color:#6B7180">^</span>−a)</p>
+</div>
+<div style="display:flex;gap:16px;flex:1;align-items:center">
+<div style="flex:1;background:#FBE3CF;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#8A3F08">a = −4</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#1B2130">0.02</p></div>
+<div style="flex:1;background:#FBE3CF;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#8A3F08">a = −2</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#1B2130">0.12</p></div>
+<div style="flex:1;background:#EEEBE3;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#4A5263">a = 0</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#1B2130">0.50</p></div>
+<div style="flex:1;background:#DCE5FA;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1E3F99">a = +2</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#1B2130">0.88</p></div>
+<div style="flex:1;background:#DCE5FA;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px;align-items:center"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#1E3F99">a = +4</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;font-weight:600;color:#1B2130">0.98</p></div>
+</div>
+<p style="font-size:32px;line-height:1.45;color:#4A5263">D’s last layer gives a raw score <b>a</b> (the <b>logit</b>); the sigmoid squashes it into 0 … 1.</p>
+<p id="opt-tag" style="position:absolute;left:1452px;top:60px;width:308px;text-align:center;font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1E3F99;background:#DCE5FA;padding:8px 16px;border-radius:999px">Recall · Unit 1</p>
+<aside>The discriminator's network ends with one number, any real value: the logit a. The sigmoid turns it into a probability. Big positive logit: close to 1, real. Big negative: close to 0, fake. Zero: 0.5, undecided. Keep this picture: almost every gradient we compute later is with respect to a, the score before the sigmoid.</aside>
+</section>

@@ -1,0 +1,6 @@
+<section id="a-kc-1" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §41 · Knowledge check · 1 of 2</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Can you answer these?</h2>
+<ol style="font-size:44px;line-height:1.8;color:#1B2130;padding-left:48px"><li>Why does the original minimax generator loss saturate?</li><li>Why does non-saturating BCE help?</li><li>Why can JS stay at 0.693?</li><li>Why is Wasserstein useful?</li><li>Why use a critic instead of a probability discriminator?</li></ol>
+<aside>Answers. Q1: Its gradient on the logit is −D(fake), near 0 when D rejects fakes. Q2: Its gradient is D(fake) − 1, near −1 when G is worst. Q3: With no overlap, JS is always log 2, whatever the distance. Q4: It measures how far, so it shrinks as G improves. Q5: Raw scores can grow with distance; probabilities saturate.</aside>
+</section>

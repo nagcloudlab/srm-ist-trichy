@@ -1,0 +1,19 @@
+<section id="f-plug" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:24px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §6 · Step 2: JS appears</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Step 2: put the best D on the scoreboard</h2>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:48px">
+<div style="display:flex;align-items:center;gap:20px;justify-content:center">
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-radius:16px;padding:24px 30px"><p style="font-size:24px;font-weight:700;color:#6B7180">best D</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:36px;color:#1B2130">D* = p_r / (p_r + p_g)</p></div>
+<p style="font-size:44px;color:#6B7180">→</p>
+<div style="background:#1B2130;border-radius:16px;padding:24px 30px"><p style="font-size:24px;font-weight:700;color:#AEB6C6">into the scoreboard</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:36px;color:#F2EFE8">V(D*, G)</p></div>
+<p style="font-size:44px;color:#6B7180">=</p>
+<div data-build-in="fade 1" style="background:#FBE3CF;border-radius:16px;padding:24px 30px"><p style="font-size:24px;font-weight:700;color:#8A3F08">a few lines of algebra</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;font-weight:700;color:#1B2130">2·JS(p_r ‖ p_g) − log 4</p></div>
+</div>
+<div style="display:flex;gap:24px">
+<div data-build-in="rise 2" style="flex:1;background:#EEEBE3;border-radius:14px;padding:26px 30px"><p style="font-size:28px;font-weight:700;color:#1B2130">Check: fakes = real</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">JS = 0 → V = −log 4 (coin-flip D)</p></div>
+<div data-build-in="rise 3" style="flex:1;background:#EEEBE3;border-radius:14px;padding:26px 30px"><p style="font-size:28px;font-weight:700;color:#1B2130">Check: no overlap</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">JS = log 2 → V = 0 (perfect D)</p></div>
+</div>
+</div>
+<p data-build-in="fade 4" style="font-size:30px;font-weight:600;color:#1B2130">So G, playing against the best D, is secretly <b>minimising JS</b>. <span style="color:#6B7180;font-weight:400;font-size:24px">(Original minimax loss, optimal D.)</span></p>
+<aside>The aha slide. Plug the best discriminator into the scoreboard and, after a few lines of algebra, out comes 2 JS minus log 4: a constant plus twice the JS divergence. So whenever D is near its best, the generator is effectively minimising JS. Both checks match numbers students already know: identical distributions give the coin-flip score, minus log 4, from the equilibrium slide; separated ones give the perfect-D score, 0. This holds for the original minimax loss with an optimal D. Algebra for the board if asked: p_r + p_g = 2m, so D* = p_r / (2m), log D* = log(p_r / m) − log 2, which averages over real data to KL(p_r ‖ m) − log 2. The fake half gives KL(p_g ‖ m) − log 2. Add them: 2 JS − 2 log 2 = 2 JS − log 4.</aside>
+</section>

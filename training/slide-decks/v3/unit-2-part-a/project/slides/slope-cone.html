@@ -1,0 +1,30 @@
+<section id="slope-cone" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §19 · Lipschitz as a picture</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">1-Lipschitz means |slope| ≤ 1</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<svg aria-label="Plot: a shaded double cone between slopes minus one and plus one; the line with slope 0.5 stays inside, the line with slope 1 runs along the edge, and the line with slope 5 leaves the cone" width="562" height="437" viewBox="0 0 562 437" xmlns="http://www.w3.org/2000/svg"><g transform="scale(0.78)">
+<rect x="0" y="0" width="720" height="560" rx="16" fill="#FFFDF8"/>
+<polygon points="360,280 640,0 720,0 720,560 640,560" fill="#DCE5FA"/>
+<polygon points="360,280 80,0 0,0 0,560 80,560" fill="#DCE5FA"/>
+<line x1="0" y1="280" x2="720" y2="280" stroke="#C9C4B8" stroke-width="3"/>
+<line x1="360" y1="0" x2="360" y2="560" stroke="#C9C4B8" stroke-width="3"/>
+<line x1="0" y1="460" x2="720" y2="100" stroke="#6E93E8" stroke-width="6" stroke-dasharray="18 12"/>
+<line x1="80" y1="560" x2="640" y2="0" stroke="#2F5FD0" stroke-width="6"/>
+<line x1="304" y1="560" x2="416" y2="0" stroke="#D9701E" stroke-width="7"/>
+</g></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-left:8px solid #6E93E8;border-radius:12px;padding:24px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">C(x) = 0.5x · allowed</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-left:8px solid #2F5FD0;border-radius:12px;padding:24px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">C(x) = x · on the edge</p>
+</div>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-left:8px solid #D9701E;border-radius:12px;padding:24px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2130">C(x) = 5x · too steep</p>
+</div>
+<p style="font-size:28px;line-height:1.4;color:#4A5263">Shaded = every value a 1-Lipschitz critic may take, starting from the origin.</p>
+</div>
+</div>
+<div id="cone-strip" style="background:#1B2130;border-radius:16px;padding:20px 32px;display:flex;gap:28px;align-items:baseline"><p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8FB0FF;width:220px">In images</p><p style="flex:1;font-size:30px;font-weight:600;line-height:1.35;color:#F2EFE8">Many inputs, so the slope is the <b>length of the gradient arrow</b>. Keep it ≤ 1: the gradient penalty does exactly this.</p></div>
+<aside>For a smooth function in 1D, 1-Lipschitz is the same as the absolute derivative being at most 1 everywhere. In many dimensions, it is the gradient norm being at most 1. That is the form WGAN-GP will use. One-line summary: keep the critic slope controlled.</aside>
+</section>

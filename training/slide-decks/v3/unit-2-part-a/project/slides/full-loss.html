@@ -1,0 +1,24 @@
+<section id="full-loss" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §30 · Full WGAN-GP critic loss</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">One loss, two jobs</h2>
+<div style="background:#FFFDF8;border:1px solid #E2DED4;border-radius:20px;padding:48px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;color:#1B2130;text-align:center">L<span style="color:#6B7180">_C</span> = <span style="color:#A9520E">E[C(fake)] − E[C(real)]</span> + <span style="color:#2F5FD0">λ·E[(‖∇C(x̂)‖₂ − 1)²]</span></p>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;background:#FBE3CF;border-radius:16px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:40px;font-weight:700;color:#1B2130">Job 1</h3>
+<p style="font-size:32px;line-height:1.4;color:#1B2130">Score real high, fake low</p>
+<div style="flex:1"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#A9520E">E[C(fake)] − E[C(real)]</p>
+<p style="font-size:28px;color:#4A5263">Example: 1.5 − 4.5 = −3</p>
+</div>
+<div style="flex:1;background:#DCE5FA;border-radius:16px;padding:40px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:40px;font-weight:700;color:#1B2130">Job 2</h3>
+<p style="font-size:32px;line-height:1.4;color:#1B2130">Keep the slope near 1 between real and fake</p>
+<div style="flex:1"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#2F5FD0">λ·E[(‖∇C(x̂)‖ − 1)²]</p>
+<p style="font-size:28px;color:#4A5263">Example: 10 × 0.3² = 0.9</p>
+</div>
+</div>
+<aside>The orange part is the plain WGAN critic loss from chapter 9. The blue part is the gradient penalty averaged over a batch of x-hat points. That is the complete WGAN-GP critic objective.</aside>
+</section>

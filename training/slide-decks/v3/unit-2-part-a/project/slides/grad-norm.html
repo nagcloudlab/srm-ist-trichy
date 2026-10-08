@@ -1,0 +1,20 @@
+<section id="grad-norm" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §26 · Gradient norm example</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">The slope is just an arrow’s length</h2>
+<div style="display:flex;gap:64px;flex:1;align-items:center">
+<svg aria-label="A right triangle: horizontal side 0.6, vertical side 0.8, and the gradient arrow along the hypotenuse with length 1" width="420" height="380" viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg">
+<rect width="420" height="380" rx="16" fill="#FFFDF8"/>
+<line x1="60" y1="330" x2="240" y2="330" stroke="#9AA0AD" stroke-width="5" stroke-dasharray="10 8"/>
+<line x1="240" y1="330" x2="240" y2="90" stroke="#9AA0AD" stroke-width="5" stroke-dasharray="10 8"/>
+<line x1="60" y1="330" x2="226" y2="108" stroke="#2F5FD0" stroke-width="8"/>
+<polygon points="240,90 210,104 232,120" fill="#2F5FD0"/>
+</svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;color:#1B2130">∇C = [0.6, 0.8]</p>
+<p style="font-size:30px;line-height:1.4;color:#4A5263">Across 0.6, up 0.8: the arrow is the hypotenuse.</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:40px;color:#1B2130">‖∇C‖ = √(0.6² + 0.8²) = 1</p>
+<p style="font-size:30px;line-height:1.4;color:#1B2130"><b>Just right.</b> In 1D the norm is simply |slope|: dC/dx = 4 → norm 4, too steep.</p>
+</div>
+</div>
+<aside>The gradient of the critic is an arrow: it points in the direction where the score rises fastest, and its length says how fast. The norm is that length, Pythagoras in 2D: across 0.6, up 0.8, length 1. For an image the arrow has one component per pixel, thousands of them, but the length is still the square root of the sum of squares. In one dimension the arrow has one component and its length is just the absolute slope.</aside>
+</section>

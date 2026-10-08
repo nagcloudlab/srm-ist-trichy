@@ -1,0 +1,21 @@
+<section id="duality-intuition" data-transition="fade" style="background:#F7F5F0;color:#1B2130;font-family:'DM Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2F5FD0">Part A · §14 · The critic as a hill</p>
+<h2 style="font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#1B2130">Think of the critic as a hill</h2>
+<div style="display:flex;gap:64px;align-items:center;flex:1">
+<svg aria-label="A ramp rising from the fake point at 10 on the right up to the real point at 0 on the left, with slope exactly 1; the height gained is 10" width="760" height="480" viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="760" height="480" rx="16" fill="#FFFDF8"/>
+<line x1="60" y1="420" x2="700" y2="420" stroke="#C9C4B8" stroke-width="3"/>
+<polygon points="80,100 680,420 80,420" fill="#DCE5FA"/>
+<line x1="80" y1="100" x2="680" y2="420" stroke="#2F5FD0" stroke-width="8" stroke-linecap="round"/>
+<circle cx="80" cy="100" r="22" fill="#2F5FD0"/>
+<circle cx="680" cy="420" r="22" fill="#D9701E"/>
+<line x1="40" y1="100" x2="40" y2="420" stroke="#1B2130" stroke-width="3" stroke-dasharray="8 6"/>
+</svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:32px;line-height:1.45;color:#4A5263"><span style="color:#2F5FD0"><b>Real</b></span> data on high ground, <span style="color:#A9520E"><b>fake</b></span> in the valley.</p>
+<p style="font-size:32px;line-height:1.45;color:#4A5263">The slope can never exceed 1, so the height gap can never exceed the distance.</p>
+<p style="font-size:32px;line-height:1.45;color:#1B2130">Steepest legal ramp: height gained = <b>W = 10</b>. G simply walks uphill.</p>
+</div>
+</div>
+<aside>The duality formula scares people, so give it a picture. The critic assigns a height to every point. It wants real points high and fake points low, so the height gap is as big as possible. The Lipschitz rule says no slope steeper than 1. With real at 0 and fake at 10, the biggest gap is a straight ramp of slope 1, and the height gained is exactly 10, the Wasserstein distance. That is all the sup over 1-Lipschitz f means. The generator then moves its samples uphill along this ramp, which is why WGAN gives a useful direction even when real and fake do not overlap.</aside>
+</section>
